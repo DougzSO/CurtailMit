@@ -1,0 +1,98 @@
+# Running log of data source discovery results.
+# Populated via scripts/discovery_probe.py and scripts/discovery_probe_2.py.
+# This is the source of truth for resource_id/package_id discovery until
+# formally merged into scenarios.yaml by a dedicated Claude Code task.
+
+ons:
+  base_url: "https://dados.ons.org.br/api/3/action/"
+
+  curtailment_wind:
+    status: confirmed
+    package_id: restricao_coff_eolica_usi
+    notes: >
+      Monthly CSV/XLSX/PARQUET resources, naming pattern
+      Restricoes_coff_eolicas-YYYY-MM. Confirmed via package_show.
+
+  curtailment_solar:
+    status: confirmed
+    package_id: restricao_coff_fotovoltaica
+    title: "Dados de Restricao de Operacao por Constrained-off de Usinas Fotovoltaicas"
+    found_via_search_id: 25b2c170-94f2-4a20-a942-95a2234cc527
+    notes: >
+      Mirrors the wind curtailment package structure. Confirm the monthly
+      resource naming pattern via package_show before wiring acquisition.
+    secondary_candidates:
+      - package_id: coff_fotovoltaica_intrasemihora
+        title: "Constrained-off Fotovoltaicas Intra SemiHora"
+        notes: "Higher-frequency variant, not needed for v1 monthly aggregation."
+      - package_id: restricao_coff_fotovoltaica_detail
+        title: "Constrained-off Fotovoltaicas - Detalhamento Por Usinas"
+        notes: "Plant-level detail, not needed for v1 SIN-level scope (OQ-1)."
+
+  generation_by_source:
+    status: unresolved_narrowed
+    notes: >
+      No single clean "generation by source" package found via
+      package_search. Narrowed to two candidates requiring package_show
+      plus one sample resource schema inspection before selection.
+    candidates:
+      - package_id: geracao-usina-2
+        title: "Geracao por Usina em Base Horaria"
+        notes: >
+          Per-plant hourly generation. Requires joining with plant
+          metadata (source type) to aggregate solar/wind/hydro/thermal
+          shares. Heavier, but likely most authoritative.
+      - package_id: balanco-energia-subsistema
+        title: "Balanco de Energia nos Subsistemas"
+        notes: >
+          Energy balance by subsystem; unclear whether broken down by
+          source type at resource level. Needs schema inspection.
+    deprioritized_candidates:
+      - package_id: fator-capacidade-2
+        title: "Fator de Capacidade de Geracao Eolica e Solar"
+        notes: "Capacity factor, not generation volume. Cross-check use only."
+    action_required: >
+      Claude Code Task 3: run package_show on geracao-usina-2 and
+      balanco-energia-subsistema, inspect one sample resource schema from
+      each, report column names before writing any acquisition code.
+      Do not guess the schema.
+
+aneel:
+  base_url: "https://dadosabertos.aneel.gov.br/api/3/action/"
+  status: confirmed_ckan_reachable
+  notes: >
+    package_search for 'geracao' returned 10 real results. Confirmed
+    CKAN-based. Remains secondary/fallback only, not wired into the
+    default pipeline.
+
+ccee:
+  base_url: "https://dadosabertos.ccee.org.br/"
+  status: blocked
+  http_status_observed: 403
+  response_title_observed: "Acesso bloqueado"
+  notes: >
+    Both package_list and root URL returned HTTP 403 with a WAF/bot-block
+    page (not a CKAN permission error). Plain requests.get() with default
+    headers is blocked by a CDN/WAF challenge.
+  next_step: >
+    Retry once with a realistic browser User-Agent header
+    (scripts/discovery_probe_2.py). If still blocked, document as a hard
+    limitation and keep pld.enabled: false permanently (non-blocking
+    optional module). Do not spend further Claude Code tokens on CCEE
+    beyond this one retry.
+
+mcti:
+  candidate_landing_page: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene"
+  status: page_reachable_files_not_yet_located
+  http_status_observed: 200
+  notes: >
+    Page returns 200 and contains the word "fator" 7 times, but a naive
+    substring search for .xlsx/.xls/.csv found none. File links are
+    likely present as <a href> without a visible extension in a short
+    snippet, or hosted on a sub-page. Guessed sub-paths
+    (fator-medio-de-emissao, busca?SearchableText=...) both returned 404.
+  next_step: >
+    Run scripts/discovery_probe_2.py (BeautifulSoup-based link extraction)
+    to list every <a href> on the sirene landing page and filter for
+    anything containing "fator", "emissao", "margem", "sirene", or a file
+    extension. Paste that output before Claude Code Task 5 begins.

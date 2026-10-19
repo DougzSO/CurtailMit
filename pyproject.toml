@@ -1,19 +1,27 @@
-﻿[project]
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "curtailmit"
 version = "0.1.0"
-description = "Curtailment-driven mitigation deficit under PTE/EPE scenarios"
-requires-python = ">=3.11"
+description = "Quantifying the curtailment-driven CO2 mitigation deficit under Brazil's PTE/EPE energy transition scenarios"
 readme = "README.md"
+requires-python = ">=3.10"
 license = { text = "MIT" }
+authors = [{ name = "Douglas" }]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 markers = [
-    "integration: marks tests that require live network access (deselect with -m \"not integration\")",
+    "integration: marks tests that require live network access (deselect with: pytest -m \"not integration\")",
 ]
 
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100
