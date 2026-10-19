@@ -1,0 +1,67 @@
+﻿year_grid: [2020, 2025, 2030, 2040, 2050]
+interpolation_method: linear
+
+baseline_2020:
+  source: historical_ons
+  note: "2020 is observed ONS generation-by-source data, common to all 3 scenarios."
+
+pte_scenarios:
+  TB:
+    2025: {solar_pct: 12, wind_pct: 14, total_generation_twh: 836}
+    2030: {solar_pct: 16, wind_pct: 13, total_generation_twh: 928}
+    2040: {solar_pct: 20, wind_pct: 16, total_generation_twh: 997}
+    2050: {solar_pct: 17, wind_pct: 33, total_generation_twh: 1191}
+  TA:
+    2025: {solar_pct: 12, wind_pct: 14, total_generation_twh: 834}
+    2030: {solar_pct: 16, wind_pct: 13, total_generation_twh: 911}
+    2040: {solar_pct: 21, wind_pct: 23, total_generation_twh: 1116}
+    2050: {solar_pct: 17, wind_pct: 41, total_generation_twh: 1417}
+  TG:
+    2025: {solar_pct: 12, wind_pct: 14, total_generation_twh: 836}
+    2030: {solar_pct: 15, wind_pct: 13, total_generation_twh: 929}
+    2040: {solar_pct: 20, wind_pct: 19, total_generation_twh: 1126}
+    2050: {solar_pct: 18, wind_pct: 29, total_generation_twh: 1274}
+
+primary_energy_crosscheck:
+  enabled: false
+  TB: {}
+  TA: {}
+  TG: {}
+
+validation_data:
+  source: "ONS/EPE official prospection 2026-2029"
+  years: {}
+
+ons:
+  ckan_base_url: "https://dados.ons.org.br/api/3/action"
+  min_coverage_start: "2022-01-01"
+  datasets:
+    curtailment_wind: "restricao_coff_eolica_usi"
+    curtailment_solar: null
+    generation_by_source: null
+  classification_mapping:
+    "Razao Energetica": "DEB"
+    "Confiabilidade": "REB"
+    "Indisponibilidade Externa": "EUB"
+  fallback_on_missing_classification: true
+
+emission_factors:
+  average:
+    source: "MCTI - Fator Medio de Emissao de CO2 do SIN (monthly)"
+    discovery: true
+  marginal:
+    source: "MCTI - Operating Margin (OM) / Build Margin (BM) / Combined Margin (CM), annual"
+    deb_proxy: "OM"
+    reb_proxy: "CM"
+    discovery: true
+    note: "Explicit proxy, not a bespoke dispatch-based marginal estimate (D9)."
+
+electrolyzer:
+  sec_kwh_per_kg_h2:
+    min: 50
+    max: 55
+    central_estimate: 52.5
+
+pld:
+  enabled: false
+  source: "CCEE"

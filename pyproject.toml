@@ -1,0 +1,14 @@
+﻿[project]
+name = "curtailmit"
+version = "0.1.0"
+description = "Curtailment-driven mitigation deficit under PTE/EPE scenarios"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"

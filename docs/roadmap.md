@@ -1,0 +1,113 @@
+﻿# CurtailMit - Master Roadmap: Curtailment x CO2 Mitigation Pipeline (PTE/EPE Scenarios) - v3.1 FINAL
+
+## 0. Project identity
+- Package name: curtailmit
+- Working title: "CurtailMit: Quantifying the Curtailment-Driven Mitigation Deficit under
+  Brazil's PTE/EPE Energy Transition Scenarios"
+- Target venue: DeCarbon
+- Code repository (public, GitHub): curtailmit
+- Local data repository (not published, sibling directory): curtailmit_database
+- Geographic scope: v1 = national (SIN), no regional/subsystem breakdown (OQ-1, closed).
+
+## 1. Objective
+
+Given (a) the solar+wind penetration trajectories of the 3 PTE/EPE scenarios and (b) the ONS
+historical curtailment series, compute the "mitigation deficit" per scenario/year, with
+sensitivity analysis (average vs. marginal emission factor) and green-H2 valorization
+potential.
+
+This is not an hourly dispatch pipeline. Curtailment is an externally calibrated function
+applied on top of PTE shares. Confirmed in both official PDFs: PTE does not quantitatively
+model curtailment - it appears only as a qualitative policy risk (Relatorio Tecnico, p.60-62).
+This reinforces, rather than weakens, the paper's methodological position.
+
+## 2. Decisions closed since v3 (changelog)
+
+| # | Topic | Decision taken |
+|---|---|---|
+| D1 | 2020 baseline | Use real historical ONS generation-by-source data as the 2020 anchor point. 2020 is explicitly labeled historical/observed, never conflated with a PTE projection. |
+| D2 | Year grid | Official scenario grid becomes {2020(historical anchor), 2025, 2030, 2040, 2050}. |
+| D3 | Interpolation (2031-39, 2041-49) | Linear interpolation adopted as default for continuous-curve figures. Headline tables report only the 5 anchor points; any interpolated year is explicitly labeled "interpolated, not PTE-published". |
+| D4 | Primary-energy 6-point grid (+2035, +2045) | Kept strictly as a robustness cross-check. Never substitutes the electricity-generation P(s,t) series. |
+| D5 | ONS classification mapping default | Razao Energetica ~ DEB; Confiabilidade ~ REB; Indisponibilidade Externa = own category, labeled EUB. Adjustable in config/scenarios.yaml. |
+| D6 | Classification fallback | If the classified series is not exportable via API, Stage 1 falls back to the unclassified aggregate and sets classification_available: false, propagated to results_writer.py as a declared limitation. |
+| D7 | Electrolyzer SEC | Sensitivity band 50-55 kWh/kg H2; central point estimate = 52.5 kWh/kg H2, explicitly a mid-point assumption. |
+| D8 | Average SIN emission factor (OQ-3, part 1) | Source = MCTI's official monthly Fator Medio de Emissao de CO2 do SIN. Resolved as a Stage-1 discovery task. |
+| D9 | Marginal emission factor (OQ-3, part 2) | Source = MCTI annual Operating Margin (OM) / Build Margin (BM) / Combined Margin (CM), used as DEB/REB marginal proxies. Documented explicitly as a proxy, not a bespoke dispatch estimate. |
+| D10 | PLD (OQ-4) | Kept optional. Implemented as a secondary module (CCEE PLD). Does not block the core pipeline. |
+| D11 | OQ-1 | Maintained: v1 is national scope only. |
+
+## 3. Input data - final status
+
+1. PTE/EPE structured table - resolved, hardwired in config/scenarios.yaml (pte_scenarios).
+   P(s,t) = solar_pct + wind_pct; solar_wind_generation_twh = P(s,t)/100 x total_generation_twh,
+   computed by data_ingestion.py, never hardcoded.
+2. ONS curtailment, historical + classification - resolved operationally; verification is a
+   Stage-1 discovery/validation task (see section 6).
+3. Average SIN emission factor - resolved operationally (D8); Stage-1 discovery task.
+4. Marginal emission factor (DEB/REB) - resolved operationally (D9); Stage-1 discovery task;
+   results must state the proxy nature explicitly.
+5. PLD - optional, non-blocking (D10).
+6. Electrolyzer SEC - resolved (D7): 50-55 kWh/kg range, 52.5 central estimate.
+7. Official ONS/EPE 2026-2029 short-term prospection - loaded as validation_data, kept
+   strictly separate from calibration_data in every stage.
+8. Monthly generation-by-source history, P(t) for calibration - resolved operationally,
+   same CKAN-discovery pattern as item 2.
+
+## 4. Repository layout
+
+Two repositories, never merged:
+
+curtailmit/              # public, GitHub - code, config, docs, tests, small tracked figures
+curtailmit_database/     # local only - raw/interim/processed data, logs, large outputs
+
+## 5. Pipeline stages
+
+| Stage | Module | Responsibility |
+|---|---|---|
+| 1 | data_ingestion.py | Load config, discover/validate ONS + MCTI sources, build data-quality report |
+| 2 | calibration.py | Fit curtailment function C(P) on historical ONS data |
+| 3 | projection.py | Apply C(P) to PTE scenario P(s,t), interpolate where needed |
+| 4 | mitigation.py | Compute mitigation deficit per scenario/year, average vs marginal sensitivity |
+| 5 | hydrogen.py | Green-H2 valorization potential from curtailed energy |
+| 6 | results_writer.py | Persist tables/figures/reports, propagate all data-quality flags |
+
+## 6. Stage 1 (data_ingestion.py) - final spec
+
+1. Load config/scenarios.yaml, validate against schemas.py (Pydantic v2):
+   solar_pct + wind_pct <= 100 for every (s,t).
+2. ONS discovery via CKAN: list all resources for wind and solar curtailment packages,
+   determine real temporal coverage; fail explicitly if coverage does not reach Jan/2022.
+   Check whether the classified series is exportable via CKAN resource, not just the
+   dashboard; inspect schema, do not assume. Apply mapping D5 if available, else fallback D6.
+   Use package_search (q=geracao) to confirm the correct generation-by-source dataset before
+   fixing any URL in code.
+3. MCTI discovery: locate the official monthly average SIN emission factor publication and the
+   annual OM/BM/CM margin publication; log source, URL/resource used, coverage dates; fail
+   explicitly if coverage window is insufficient.
+4. Load 2026-2029 official prospection as validation_data, kept separate from
+   calibration_data through all later stages.
+5. Produce a data-quality report before any computation.
+
+## 7. Acceptance criteria
+
+- P(s,t) = solar_pct(s,t) + wind_pct(s,t) <= 100 for every s,t in the PTE table.
+- If Stage 1 falls back to the unclassified aggregate series, data/processed/ carries an
+  explicit classification_available: false flag, propagated by every subsequent stage.
+- If Stage 1 cannot confirm MCTI average/margin factor sources against a minimum coverage
+  window, it fails explicitly rather than silently substituting a placeholder value.
+- Every interpolated year used in a figure/table is labeled as such in output metadata.
+- 2020 is tagged source: historical_ons, never source: pte_projection.
+
+## 8. Remaining open items (execution outputs, not decisions)
+
+- Exact ONS/MCTI resource_ids and coverage windows - produced by Stage 1 at run time, logged.
+- Calibrated C(P) function parameters - produced by Stage 2 at run time.
+- Confirmation that MCTI margin (OM/BM/CM) publication has a stable public endpoint vs.
+  PDF-only release (if PDF-only, flag as a manual-ingestion limitation).
+
+## 9. Next steps
+
+1. Build the local skeleton (done via terminal).
+2. Implement Stage 1 (data_ingestion.py + ons_client.py + schemas.py) - first Claude Code task.
+3. Iterate stage by stage, always gated by the acceptance criteria in section 7.

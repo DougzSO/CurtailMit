@@ -1,0 +1,13 @@
+﻿raw:
+  ons: "raw/ons"
+  pte_epe: "raw/pte_epe"
+  mcti: "raw/mcti"
+  ccee_pld: "raw/ccee_pld"
+interim: "interim"
+processed: "processed"
+validation: "validation"
+outputs:
+  tables: "outputs/tables"
+  figures: "outputs/figures"
+  reports: "outputs/reports"
+logs: "logs"
