@@ -9,6 +9,11 @@ license = { text = "MIT" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests that require live network access (deselect with -m \"not integration\")",
+]
+
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
