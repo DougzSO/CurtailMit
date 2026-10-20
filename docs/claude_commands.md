@@ -766,3 +766,100 @@ any new code.
 ```
 
 ---
+
+---
+---
+
+# STATUS ADDENDUM (supersedes the tasks listed below where noted)
+
+This section was added after a round of local pre-building and real API
+discovery probing, done outside of Claude Code to save tokens. Read this
+addendum before starting any of the tasks it references. See also
+`docs/progress_log.md` and `config/discovered_sources.yaml` for full detail.
+
+## Tasks marked DONE (pre-built and tested locally; review only, do not rebuild)
+
+- **Task 1** (Retrieval manifest + caching utility): DONE.
+  `src/curtailmit/acquisition.py` and `src/curtailmit/paths.py` exist,
+  fully tested. Only verify/extend if a real acquisition task surfaces a
+  gap in the manifest schema.
+- **Task 9** (Stage 2 calibration.py): PARTIALLY DONE. Generic logistic
+  fitting machinery (`fit_calibration`, `apply_calibration`,
+  `validate_against_holdout`, save/load) is complete and tested in
+  `src/curtailmit/calibration.py`. Remaining work: wire in real historical
+  ONS curtailment + generation data once Tasks 2 and 3 are complete.
+- **Task 11** (Stage 4 mitigation.py): DONE. `compute_mitigation()` is
+  complete and tested in `src/curtailmit/mitigation.py`. Review only.
+- **Task 12** (Stage 5 hydrogen.py): DONE. `compute_hydrogen_potential()`
+  is complete and tested in `src/curtailmit/hydrogen.py`. Review only.
+
+## Task 2 (ONS curtailment acquisition) — enriched with confirmed IDs
+
+Use these CONFIRMED package IDs (discovered via live `package_search` /
+`package_show`, not guessed):
+
+- Wind curtailment: `restricao_coff_eolica_usi`
+- Solar curtailment: `restricao_coff_fotovoltaica`
+
+Both follow the same resource naming pattern:
+`Restricoes_coff_eolicas-YYYY-MM` (and equivalent for fotovoltaica),
+available in CSV, XLSX, and (from ~2023 onward) PARQUET formats. Prefer
+PARQUET where available for a given month, falling back to CSV.
+
+Do not search for these again. Proceed directly to `package_show` on
+each to confirm current resource lists, then implement acquisition.
+
+## Task 3 (ONS generation-by-source) — narrowed, not resolved
+
+No single clean package was found. Two real candidates were identified
+via `package_search` (not guessed):
+
+- `geracao-usina-2` ("Geração por Usina em Base Horária") — per-plant
+  hourly generation, would require joining against plant metadata to
+  aggregate by source type (solar/wind/hydro/thermal).
+- `balanco-energia-subsistema` ("Balanço de Energia nos Subsistemas") —
+  subsystem-level energy balance, unclear if broken down by source type.
+
+**Your task**: run `package_show` on both, inspect one sample resource's
+actual column schema from each, and report back (column names, units,
+granularity) before writing any acquisition or aggregation code. Do not
+guess the schema or assume which one is correct.
+
+## Task 5 (MCTI emission factor discovery) — narrowed, not resolved
+
+Two real candidate pages were found via actual link extraction on the
+SIRENE landing page (not guessed):
+
+1. `https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao`
+   (link text: "Fatores de emissão MDL/SIN") — primary candidate.
+2. `https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/#fatores`
+   (link text: "Fatores de emissão de CO2") — secondary candidate.
+
+**Your task**: fetch both pages, extract all `<a href>` links ending in
+`.xls`/`.xlsx`/`.csv`/`.zip` or containing "fator"/"emissao"/"margem" in
+the href or link text, and report the exact file URLs found. If neither
+page yields a usable file link after this, STOP and report back with
+what you found rather than guessing further sub-paths or inventing a URL.
+
+## Task 6 (ANEEL fallback) — confirmed reachable
+
+ANEEL Dados Abertos is CONFIRMED CKAN-based and reachable at
+`https://dadosabertos.aneel.gov.br/api/3/action/` (`package_search` for
+"geracao" returned 10 real results). Proceed with building the fallback
+module as originally scoped; no further discovery needed before starting.
+
+## Task 7 (CCEE PLD) — closed as a permanent limitation
+
+CCEE (`https://dadosabertos.ccee.org.br/`) was probed twice, including
+once with realistic browser `User-Agent`/`Accept-Language` headers, and
+returned HTTP 403 "Acesso bloqueado" both times. This is a CDN/WAF-level
+block, not a CKAN or header issue, and will not be resolved by code
+changes.
+
+**Your task is reduced to**: build only the minimal `pld.enabled: false`
+stub/module boundary as originally scoped (so the pipeline architecture
+supports PLD if it's ever unblocked), and add a short note to
+`docs/methodology.md` or a new `docs/limitations.md` documenting that
+CCEE is not accessible via automated means as of this writing. Do NOT
+attempt further automated discovery against CCEE — this has already been
+tried twice and is considered closed.
