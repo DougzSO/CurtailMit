@@ -12,3 +12,4 @@ beautifulsoup4>=4.12
 lxml>=5.2
 pyarrow>=16.0
 responses>=0.25
+openpyxl>=3.1
