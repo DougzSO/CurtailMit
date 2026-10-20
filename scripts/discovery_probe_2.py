@@ -10,7 +10,6 @@ Goals:
    WAF/User-Agent block before concluding it is unreachable.
 """
 
-import re
 import sys
 
 import requests

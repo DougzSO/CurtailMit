@@ -67,16 +67,16 @@ aneel:
 
 ccee:
   base_url: "https://dadosabertos.ccee.org.br/"
-  status: blocked
+  status: blocked_pending_retry
   http_status_observed: 403
   response_title_observed: "Acesso bloqueado"
   notes: >
     Both package_list and root URL returned HTTP 403 with a WAF/bot-block
     page (not a CKAN permission error). Plain requests.get() with default
-    headers is blocked by a CDN/WAF challenge.
+    headers is blocked by a CDN/WAF challenge. Retry with browser-like
+    headers pending (scripts/discovery_probe_2.py).
   next_step: >
-    Retry once with a realistic browser User-Agent header
-    (scripts/discovery_probe_2.py). If still blocked, document as a hard
+    If still blocked after browser-header retry, document as a hard
     limitation and keep pld.enabled: false permanently (non-blocking
     optional module). Do not spend further Claude Code tokens on CCEE
     beyond this one retry.
@@ -87,10 +87,9 @@ mcti:
   http_status_observed: 200
   notes: >
     Page returns 200 and contains the word "fator" 7 times, but a naive
-    substring search for .xlsx/.xls/.csv found none. File links are
-    likely present as <a href> without a visible extension in a short
-    snippet, or hosted on a sub-page. Guessed sub-paths
+    substring search for .xlsx/.xls/.csv found none. Guessed sub-paths
     (fator-medio-de-emissao, busca?SearchableText=...) both returned 404.
+    Real <a href> link extraction pending (scripts/discovery_probe_2.py).
   next_step: >
     Run scripts/discovery_probe_2.py (BeautifulSoup-based link extraction)
     to list every <a href> on the sirene landing page and filter for
