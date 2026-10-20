@@ -1,7 +1,7 @@
 # Running log of data source discovery results.
-# Populated via scripts/discovery_probe.py and scripts/discovery_probe_2.py.
-# This is the source of truth for resource_id/package_id discovery until
-# formally merged into scenarios.yaml by a dedicated Claude Code task.
+# Populated via scripts/discovery_probe.py through discovery_probe_4.py.
+# This is the source of truth for resource_id/package_id/URL discovery
+# until formally merged into scenarios.yaml by a dedicated Claude Code task.
 
 ons:
   base_url: "https://dados.ons.org.br/api/3/action/"
@@ -17,45 +17,38 @@ ons:
     status: confirmed
     package_id: restricao_coff_fotovoltaica
     title: "Dados de Restricao de Operacao por Constrained-off de Usinas Fotovoltaicas"
-    found_via_search_id: 25b2c170-94f2-4a20-a942-95a2234cc527
     notes: >
-      Mirrors the wind curtailment package structure. Confirm the monthly
-      resource naming pattern via package_show before wiring acquisition.
-    secondary_candidates:
-      - package_id: coff_fotovoltaica_intrasemihora
-        title: "Constrained-off Fotovoltaicas Intra SemiHora"
-        notes: "Higher-frequency variant, not needed for v1 monthly aggregation."
-      - package_id: restricao_coff_fotovoltaica_detail
-        title: "Constrained-off Fotovoltaicas - Detalhamento Por Usinas"
-        notes: "Plant-level detail, not needed for v1 SIN-level scope (OQ-1)."
+      Mirrors the wind curtailment package structure.
 
   generation_by_source:
-    status: unresolved_narrowed
-    notes: >
-      No single clean "generation by source" package found via
-      package_search. Narrowed to two candidates requiring package_show
-      plus one sample resource schema inspection before selection.
-    candidates:
-      - package_id: geracao-usina-2
-        title: "Geracao por Usina em Base Horaria"
-        notes: >
-          Per-plant hourly generation. Requires joining with plant
-          metadata (source type) to aggregate solar/wind/hydro/thermal
-          shares. Heavier, but likely most authoritative.
-      - package_id: balanco-energia-subsistema
-        title: "Balanco de Energia nos Subsistemas"
-        notes: >
-          Energy balance by subsystem; unclear whether broken down by
-          source type at resource level. Needs schema inspection.
-    deprioritized_candidates:
-      - package_id: fator-capacidade-2
-        title: "Fator de Capacidade de Geracao Eolica e Solar"
-        notes: "Capacity factor, not generation volume. Cross-check use only."
-    action_required: >
-      Claude Code Task 3: run package_show on geracao-usina-2 and
-      balanco-energia-subsistema, inspect one sample resource schema from
-      each, report column names before writing any acquisition code.
-      Do not guess the schema.
+    status: confirmed
+    package_id: balanco-energia-subsistema
+    title: "Balanco de Energia nos Subsistemas"
+    granularity: "One CSV resource per YEAR (not monthly), e.g. Balanco_de_Energia_Subsistema-2013.csv"
+    confirmed_schema:
+      - id_subsistema       # includes a 'SIN' row = national aggregate, satisfies OQ-1 directly
+      - nom_subsistema
+      - din_instante         # hourly or sub-hourly timestamp
+      - val_gerhidraulica    # MW or MWh, hydro generation
+      - val_gertermica       # thermal generation
+      - val_gereolica        # wind generation
+      - val_gersolar         # solar generation (NaN/0 pre-~2017, handle as 0, not an error)
+      - val_carga            # system load
+      - val_intercambio      # interchange
+    computation: >
+      Filter to id_subsistema == 'SIN'. For a given year, sum
+      val_gereolica and val_gersolar and divide by the sum of all four
+      generation columns (hydraulica+termica+eolica+solar) to get
+      wind_pct and solar_pct for the 2020 historical baseline (D1).
+    deprioritized_candidate:
+      package_id: geracao-usina-2
+      title: "Geracao por Usina em Base Horaria"
+      notes: >
+        Per-plant hourly generation with 12 columns including
+        nom_tipousina/nom_tipocombustivel. Confirmed schema via sample
+        download. Demoted to optional cross-check source only, since
+        balanco-energia-subsistema already provides a direct SIN-level
+        aggregate with no joining required.
 
 aneel:
   base_url: "https://dadosabertos.aneel.gov.br/api/3/action/"
@@ -66,43 +59,109 @@ aneel:
     default pipeline.
 
 ccee:
-  base_url: "https://dadosabertos.ccee.org.br/"
   status: blocked_permanent
   http_status_observed: 403
-  response_title_observed: "Acesso bloqueado"
-  notes: >
-    Both package_list and root URL returned HTTP 403 with a WAF/bot-block
-    page on two separate probes, including one with a realistic browser
-    User-Agent and Accept-Language header. This is a CDN/WAF-level block,
-    not a CKAN permission error, and does not respond to header changes.
-  decision: >
-    CLOSED. Do not spend further time or Claude Code tokens probing CCEE
-    programmatically. Document this as a known limitation in
-    docs/methodology.md (section on PLD / Task 7). pld.enabled remains
-    false permanently as the default. If PLD is ever required, the only
-    viable path is manual download, isolated in manual_ingestion.py, with
-    this limitation explicitly logged.
+  notes: "See docs/limitations.md. Closed, no further probing planned."
 
 mcti:
-  candidate_landing_page: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene"
-  status: strong_candidates_found_files_not_yet_extracted
-  http_status_observed: 200
-  notes: >
-    Link extraction (BeautifulSoup) on the SIRENE landing page surfaced
-    two strong, real candidate pages (not guessed):
-      1. https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao
-         link text: "Fatores de emissão MDL/SIN"
-         This is the primary candidate: title directly references both
-         SIN (average factor) and MDL methodology (OM/BM/CM margins).
-      2. https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/#fatores
-         link text: "Fatores de emissão de CO2"
-         Secondary/older candidate, same content area (CGCL = Coordenação-
-         Geral de Clima, the body historically responsible for publishing
-         these factors).
-  action_required: >
-    Claude Code Task 5: fetch both candidate pages above, extract all
-    <a href> links ending in .xls/.xlsx/.csv/.zip or containing
-    "fator"/"emissao"/"margem" in href or link text, and report the
-    exact file URLs found before writing any acquisition code. If
-    neither page yields a usable file link, STOP and report back rather
-    than guessing further sub-paths.
+  landing_page: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao"
+  status: confirmed_fully_mapped
+  methodology_note_pdf: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/NT_FE_jun25.pdf"
+  methodology_note_summary: >
+    As of Jan/2025, ONS expanded the underlying plant database used to
+    compute OM (now includes biomass thermal, wind/solar plant clusters
+    previously undercounted). Calculation methodology itself is
+    unchanged for both MDL and inventory purposes. OM (dispatch-analysis
+    method) and the average SIN factor are published MONTHLY. BM and the
+    "Simple Adjusted Method" OM are published ANNUALLY.
+
+  average_sin_factor:
+    status: confirmed
+    concept: "D8 - Average SIN emission factor"
+    file_pattern: "Inventario_{year_range}.xlsx, e.g. Inventario_2026_janset.xlsx"
+    confirmed_url_example: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Inventario_2026_janset.xlsx"
+    sheet_name: "inventário-todos"
+    structure: >
+      Consolidated single file, NOT per-year. Contains repeating blocks
+      per year from 2006 to present: 12 monthly values
+      ("Fator Médio Mensal (tCO2/MWh)") plus 1 annual value
+      ("Fator Médio Anual (tCO2/MWh)"). Example: 2006 annual = 0.0323
+      tCO2/MWh.
+    acquisition_note: >
+      Single download covers the full historical series needed for the
+      2020 baseline and any later year. No per-year scraping required.
+
+  operating_margin_bm_combined:
+    status: confirmed
+    concept: "D9 - OM (DEB proxy) and BM, dispatch-analysis method"
+    file_pattern: >
+      ONE FILE PER YEAR, inconsistent naming across years:
+      "Despacho_{YYYY}_*.xlsx" (e.g. 2021, 2024, 2025) OR
+      "Margemdeconstruo_{YYYY}*.xlsx" (e.g. 2022, 2023) - same internal
+      structure despite different file name conventions. Pre-2021 years
+      hosted on legacy domain antigo.mctic.gov.br with pattern
+      "Despacho-{YYYY}.xlsx" or consolidated multi-year files under
+      cgcl/Banner_Relatorios_Especiais_IPCC/metodo-da-analise-de-despacho/.
+    confirmed_url_examples:
+      - year: 2025
+        url: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx"
+      - year: 2024
+        url: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2024_jandezcomcorrees_FE_MC.xlsx"
+      - year: 2023
+        url: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Margemdeconstruo_2023corrigido.xlsx"
+      - year: 2021
+        url: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2021_jandez.xlsx"
+    sheet_name: "MDL"
+    structure: >
+      Per confirmed sample (2025): "MARGEM DE CONSTRUÇÃO" section has a
+      single annual value (BM = 0.07106 tCO2/MWh for 2025). "MARGEM DE
+      OPERAÇÃO" section has ONLY monthly values (12 values), no direct
+      annual figure. A "DIÁRIO" (daily) breakdown also exists further
+      down in the sheet (not yet inspected, not needed for v1 annual
+      granularity).
+    derived_annual_om: >
+      IMPORTANT: no officially published annual OM value exists. Must be
+      derived as the simple arithmetic mean of the 12 monthly OM values
+      for that year (no monthly generation weights are available in this
+      file to do a weighted average). This MUST be documented in the
+      DataQualityReport / output metadata as a derived quantity, not an
+      MCTI-published figure.
+    acquisition_note: >
+      Because file naming is inconsistent year-to-year, acquisition
+      cannot rely on a predictable URL pattern. Must scrape the landing
+      page's <a href> list (as done in discovery_probe_3.py /
+      discovery_probe_4.py) to find the current file for a target year,
+      matching on year substring in href or link text. This is a
+      "scrape, don't guess" case, consistent with API-first-but-manual-
+      fallback-when-necessary principle. Log every discovered URL in the
+      retrieval manifest.
+
+  combined_margin_cm:
+    status: NOT_PUBLISHED_MUST_BE_COMPUTED
+    concept: "D9 - CM (REB proxy)"
+    notes: >
+      MCTI does not publish a Combined Margin value anywhere. CM must be
+      computed internally from OM and BM using a weighting formula that
+      is a METHODOLOGICAL DECISION, not a data-discovery fact. Standard
+      UNFCCC CDM practice (e.g., ACM0002 for renewable/low-carbon
+      intermittent sources) uses CM = 0.5 x OM + 0.5 x BM by default.
+      PENDING CONFIRMATION from docs/methodology.md before Task 5 is
+      considered fully closed. If methodology.md is silent on this, the
+      0.5/0.5 default should be adopted explicitly and logged as
+      decision D12, documented in output metadata as a methodological
+      assumption, never silently baked in.
+
+  simple_adjusted_om_secondary:
+    status: confirmed_not_primary
+    file_pattern: "FE_simplesajustado_{year}_web.xlsx"
+    confirmed_url_example: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/FE_simplesajustado_2025_web.xlsx"
+    sheet_name: "Publicar"
+    structure: >
+      Consolidated single file, annual values 2006-present, plus a
+      secondary column with total energy dispatched to SIN (MWh) used
+      for the methodology's internal weighting. This is an ALTERNATE,
+      simpler OM calculation method, not the primary one (dispatch-
+      analysis method is preferred per D9's monthly-granularity intent).
+      Not used unless the dispatch-analysis OM file is unavailable for a
+      given year, in which case fall back to this with
+      classification_available-style explicit flagging.
