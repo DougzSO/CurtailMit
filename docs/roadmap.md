@@ -111,3 +111,33 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 1. Build the local skeleton (done via terminal).
 2. Implement Stage 1 (data_ingestion.py + ons_client.py + schemas.py) - first Claude Code task.
 3. Iterate stage by stage, always gated by the acceptance criteria in section 7.
+
+
+---
+
+## Decision D12 (added after MCTI discovery closure)
+
+**D12: Combined Margin (CM) weighting formula.**
+
+MCTI does not publish a Combined Margin (CM) value. CM must be computed
+internally from Operating Margin (OM) and Build Margin (BM) using the
+standard UNFCCC CDM default weighting for low-carbon/intermittent
+sources (per ACM0002 convention):
+
+    CM = 0.5 * OM + 0.5 * BM
+
+This is a methodological assumption, not a published MCTI figure, and
+must be explicitly logged as such in output metadata (never presented as
+an MCTI-sourced number). See `src/curtailmit/emission_factors.py` for
+the implementation and `config/discovered_sources.yaml` (mcti section)
+for the full data provenance trail.
+
+Additionally, per the same discovery round:
+
+- MCTI's dispatch-analysis OM is published **monthly only**, with no
+  official annual figure. The annual OM value used as the DEB proxy
+  (D9) must be derived as the simple arithmetic mean of the 12 monthly
+  values for that year, and this derivation must also be flagged as
+  computed, not published, in output metadata.
+- BM is published directly as a single annual value — no derivation
+  needed.

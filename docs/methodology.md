@@ -126,3 +126,31 @@ other stage (D10).
   explicitly.
 - The financial estimate (2.8, optional) excludes externality costs.
 - Electrolyzer SEC is a literature-range assumption (50-55 kWh/kg H2), not a measured value.
+
+
+---
+
+## Addendum: Combined Margin (CM) computation (D12)
+
+Per decision D12, the Combined Margin used as the REB proxy (D9) is
+computed as:
+
+    CM(y) = 0.5 * OM(y) + 0.5 * BM(y)
+
+where:
+- `OM(y)` is the annual Operating Margin (dispatch-analysis method) for
+  year `y`, derived as the simple arithmetic mean of the 12 officially
+  published monthly OM values for that year (MCTI publishes OM only at
+  monthly granularity; no official annual OM figure exists).
+- `BM(y)` is the annual Build Margin for year `y`, published directly by
+  MCTI as a single annual value.
+- The 0.5/0.5 weighting follows the UNFCCC CDM default convention for
+  low-carbon, intermittent generation sources (consistent with ACM0002),
+  adopted here in the absence of an MCTI-published CM figure.
+
+Both the OM annual derivation and the CM computation itself must be
+flagged as **derived/computed quantities** in all output metadata
+(`DataQualityReport`, results tables) — never presented as directly
+MCTI-published values. This mirrors the existing `classification_available`
+flag pattern (D6): a boolean-style provenance flag that propagates
+through all pipeline stages to `results_writer.py`.

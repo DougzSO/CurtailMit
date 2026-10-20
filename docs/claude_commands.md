@@ -863,3 +863,98 @@ supports PLD if it's ever unblocked), and add a short note to
 CCEE is not accessible via automated means as of this writing. Do NOT
 attempt further automated discovery against CCEE — this has already been
 tried twice and is considered closed.
+
+
+---
+---
+
+# STATUS ADDENDUM 2 — FULL DISCOVERY CLOSURE (supersedes ADDENDUM 1 narrowed items)
+
+This addendum fully resolves the items ADDENDUM 1 marked "narrowed, not
+resolved" (Tasks 3 and 5). All discovery is now closed. Everything
+described below is confirmed via live probes against the real APIs/pages
+(see `config/discovered_sources.yaml` for the complete provenance trail,
+`docs/progress_log.md` for the chronology). No further discovery should
+be attempted for ONS generation-by-source or MCTI before starting
+implementation.
+
+## New pre-built module (review only, do not rebuild)
+
+- **`src/curtailmit/emission_factors.py`**: DONE. Implements
+  `derive_annual_om_from_monthly()` (simple mean of 12 published monthly
+  OM values, since MCTI publishes no official annual OM figure) and
+  `compute_combined_margin()` (CM = 0.5×OM + 0.5×BM per decision D12,
+  UNFCCC CDM default weighting). Fully tested. Use this directly in Task
+  5's acquisition pipeline rather than reimplementing the math.
+
+## Decision D12 (new)
+
+CM (Combined Margin, the REB proxy per D9) is not published by MCTI and
+must be computed as CM = 0.5×OM + 0.5×BM. See `docs/roadmap.md` and
+`docs/methodology.md` for the full decision text. This value, and the
+derived annual OM it depends on, must be flagged as **computed/derived**
+in all output metadata — never presented as an MCTI-published figure.
+
+## Task 3 (ONS generation-by-source) — RESOLVED, no longer narrowed
+
+Package ID: `balanco-energia-subsistema` ("Balanço de Energia nos
+Subsistemas"). Confirmed schema (one CSV resource per YEAR, not monthly):
+id_subsistema, nom_subsistema, din_instante, val_gerhidraulica,
+val_gertermica, val_gereolica, val_gersolar, val_carga, val_intercambio
+
+- Filter to `id_subsistema == "SIN"` for the national aggregate (satisfies
+  OQ-1 directly — no plant-level joining or regional breakdown needed).
+- `wind_pct = val_gereolica / (val_gerhidraulica + val_gertermica + val_gereolica + val_gersolar)`,
+  same pattern for `solar_pct`. Compute in `data_ingestion.py`, never
+  hardcode (per global rule).
+- `val_gersolar` is NaN/0 for years before ~2017 — treat as 0 when
+  summing, this is expected, not a data quality failure.
+- `geracao-usina-2` (per-plant hourly, 12 columns including
+  `nom_tipousina`/`nom_tipocombustivel`) is demoted to an OPTIONAL
+  cross-check source only. Do not use it as the primary source.
+
+**Your task**: implement acquisition + SIN-level aggregation using
+`balanco-energia-subsistema` directly. No further package_show/schema
+exploration needed — proceed straight to implementation.
+
+## Task 5 (MCTI emission factor acquisition) — RESOLVED, no longer narrowed
+
+Full mapping (see `config/discovered_sources.yaml` → `mcti` section for
+complete detail including every confirmed URL and sheet name found):
+
+| Concept | File pattern | Granularity | Sheet name |
+|---|---|---|---|
+| Average SIN factor (D8) | `Inventario_{year_range}.xlsx` — ONE consolidated file, 2006→present | Monthly + annual | `inventário-todos` |
+| Build Margin (BM) | `Despacho_{YYYY}_*.xlsx` or `Margemdeconstruo_{YYYY}*.xlsx` — ONE FILE PER YEAR, inconsistent naming | Annual (direct) | `MDL` |
+| Operating Margin (OM), dispatch-analysis (DEB proxy, D9) | Same per-year file as BM | Monthly only (no annual published — derive via `emission_factors.derive_annual_om_from_monthly()`) | `MDL` |
+| Combined Margin (CM) (REB proxy, D9) | NOT PUBLISHED — compute via `emission_factors.compute_combined_margin()` per D12 | — | — |
+| Simple Adjusted OM (secondary/fallback only) | `FE_simplesajustado_{year}_web.xlsx` — ONE consolidated file, 2006→present | Annual | `Publicar` |
+
+**Critical acquisition note**: per-year BM/OM file naming is
+**inconsistent across years** (`Despacho_*` vs `Margemdeconstruo_*`,
+plus a legacy domain `antigo.mctic.gov.br` for pre-2021 years). A fixed
+URL pattern CANNOT be relied on. Your acquisition code must:
+1. Fetch the landing page
+   `https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao`
+2. Parse all `<a href>` tags ending in `.xlsx`/`.xls`
+3. Match the target year as a substring in the href or link text to
+   select the correct file for that year
+4. Log every discovered URL in the retrieval manifest (per Global Rule:
+   fetch_and_cache + manifest sidecar pattern, already built in
+   `acquisition.py`)
+5. If no file matches a required year, FAIL EXPLICITLY (per global
+   rule) rather than falling back to a guessed URL pattern.
+
+The average SIN factor and Simple Adjusted OM files are single
+consolidated downloads (no per-year scraping needed for those two).
+
+Technical note for context (not required reading, but explains why OM
+values may differ slightly from older MCTI publications): ONS revised
+its underlying plant database in Jan/2025 to include previously
+undercounted zero-emission plant clusters (biomass thermal, wind/solar
+clusters). Methodology itself unchanged. Source:
+`https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/NT_FE_jun25.pdf`.
+
+**Your task**: implement the scraping + acquisition + OM derivation + CM
+computation pipeline using the confirmed structure above. No further
+discovery needed — proceed straight to implementation.
