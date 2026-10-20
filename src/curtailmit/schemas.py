@@ -1,4 +1,4 @@
-﻿"""Pydantic v2 schemas for CurtailMit configuration and intermediate data."""
+"""Pydantic v2 schemas for CurtailMit configuration and intermediate data."""
 
 from __future__ import annotations
 
@@ -78,6 +78,14 @@ class RetrievalManifest(BaseModel):
     sha256: str
     byte_size: int
     params: dict[str, Any] = Field(default_factory=dict)
+    # Optional generic-manifest fields (added for manifest.py / multi-source
+    # acquisition support: ONS, MCTI, ANEEL). All optional and default to
+    # None so existing callers (e.g. acquisition.py::fetch_and_cache) that
+    # do not supply them remain fully backward compatible.
+    source: str | None = None
+    package_id: str | None = None
+    resource_id: str | None = None
+    row_count: int | None = None
 
 
 # --- Stage 1 outputs ---------------------------------------------------------
