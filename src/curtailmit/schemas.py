@@ -168,3 +168,18 @@ class HydrogenRow(BaseModel):
         if not (self.h2_potential_min_kg <= self.h2_potential_central_kg <= self.h2_potential_max_kg):
             raise ValueError("H2 potential range must satisfy min <= central <= max.")
         return self
+
+
+class CurtailmentPackageDiscovery(BaseModel):
+    """Outcome of discovering/re-confirming one ONS curtailment CKAN package (Task 2)."""
+
+    source: Literal["wind", "solar"]
+    configured_package_id: str
+    resolved_package_id: str
+    used_fallback_search: bool = False
+    n_resources: int = Field(ge=0)
+    formats_seen: list[str] = Field(default_factory=list)
+    n_months_downloaded: int = Field(default=0, ge=0)
+    n_rows: int = Field(default=0, ge=0)
+    earliest_date: str | None = None
+    latest_date: str | None = None

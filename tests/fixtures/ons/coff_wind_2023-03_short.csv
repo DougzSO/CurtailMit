@@ -1,0 +1,3 @@
+id_subsistema;nom_subsistema;id_estado;nom_estado;nom_usina;id_ons;ceg;din_instante;val_geracao;val_geracaolimitada;val_disponibilidade;val_geracaoreferencia;val_geracaoreferenciafinal;cod_razaorestricao;cod_origemrestricao
+NE;Nordeste;RN;Rio Grande do Norte;Usina Eolica A;E1;EOL.CV.RN.000001-1;2023-03-01 00:00:00;10.0;;;20.0;20.0;REL;LOC
+NE;Nordeste;RN;Rio Grande do Norte;Usina Eolica A;E1;EOL.CV.RN.000001-1;2023-03-01 00:30:00;12.0;;;20.0;20.0;REL;LOC

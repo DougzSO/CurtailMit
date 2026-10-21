@@ -25,6 +25,7 @@ class ResourceInfo:
     name: str
     format: str
     last_modified: str | None
+    url: str = ""
 
 
 class CkanClient:
@@ -50,17 +51,22 @@ class CkanClient:
             raise RuntimeError(f"CKAN package_search failed for q={query}: {payload}")
         return payload["result"]["results"]
 
-    def list_resources(self, package_id: str) -> list[ResourceInfo]:
-        package = self.package_show(package_id)
-        resources = [
+    @staticmethod
+    def resources_from_package(package: dict) -> list[ResourceInfo]:
+        """Build ResourceInfo entries from an already-fetched package_show result."""
+        return [
             ResourceInfo(
                 resource_id=r["id"],
                 name=r.get("name", ""),
                 format=r.get("format", ""),
                 last_modified=r.get("last_modified") or r.get("created"),
+                url=r.get("url", ""),
             )
             for r in package.get("resources", [])
         ]
+
+    def list_resources(self, package_id: str) -> list[ResourceInfo]:
+        resources = self.resources_from_package(self.package_show(package_id))
         logger.info("Discovered %d resources for package '%s'", len(resources), package_id)
         for r in resources:
             logger.info("  - %s | %s | %s | modified=%s", r.resource_id, r.name, r.format, r.last_modified)

@@ -38,6 +38,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-m \"not integration\""
 markers = [
     "integration: marks tests that require live network access (deselect with: pytest -m \"not integration\")",
 ]
