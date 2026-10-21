@@ -81,7 +81,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 
 | # | Task | Module(s) | Stage |
 |---|---|---|---|
-| 1 | Retrieval manifest + caching utility | `acquisition.py` | shared infra |
+| 1 | Retrieval manifest + caching utility | `acquisition.py` | shared infra | [DONE]
 | 2 | ONS curtailment discovery & acquisition (wind + solar) | `ons_client.py`, `data_ingestion.py` | 1 |
 | 3 | ONS generation-by-source discovery & acquisition | `ons_client.py`, `data_ingestion.py` | 1 |
 | 4 | Curtailment classification availability + DEB/REB/EUB mapping | `data_ingestion.py` | 1 |
@@ -99,7 +99,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 
 ---
 
-## 3. TASK 1 — Retrieval manifest + caching utility
+## 3. TASK 1 — Retrieval manifest + caching utility [DONE]
 
 ```
 TASK 1 — Build a shared data-acquisition utility with retrieval manifests.
@@ -141,7 +141,7 @@ Acceptance:
 
 ---
 
-## 4. TASK 2 — ONS curtailment discovery & acquisition (wind + solar)
+## 4. TASK 2 — ONS curtailment discovery & acquisition (wind + solar) [DONE]
 
 ```
 TASK 2 — Implement real ONS curtailment discovery and data acquisition.
@@ -153,13 +153,16 @@ Goal: fully automated discovery (no hardcoded resource_id beyond the package nam
 already in config/scenarios.yaml) of:
 (a) wind curtailment: package "restricao_coff_eolica_usi" (already known, confirm it
     still resolves — ONS can rename/retire datasets).
-(b) solar/photovoltaic curtailment: package id NOT known yet. Discover it via
-    CkanClient.package_search using multiple candidate queries (try at least:
-    "restricao fotovoltaica", "corte geracao fotovoltaica", "curtailment solar",
-    "restricao geracao eolica fotovoltaica"). Log every candidate result found,
-    then apply a disambiguation heuristic (prefer exact/near-exact name match to
-    the wind package naming pattern, e.g. "restricao_coff_fotovoltaica_usi" or
-    similar) and log the final choice with justification.
+(b) solar/photovoltaic curtailment: package_id is ALREADY CONFIRMED as
+    "restricao_coff_fotovoltaica" (see config/acquisition_targets.yaml,
+    ons.packages.curtailment_solar.package_id). Do not re-run package_search
+    discovery for this. Instead, call CkanClient.package_show() for both the
+    wind and solar package_ids at runtime as a defensive re-confirmation step
+    (ONS can rename/retire datasets) and log a WARNING (not a silent fallback)
+    if the title or resource structure has materially changed since discovery.
+    If package_show fails outright for either id, THEN fall back to the
+    original package_search discovery heuristic described in this task as a
+    recovery path, and log that the static config was stale.
 
 Implement in data_ingestion.py (replacing the current discover_ons_resources TODO):
 
@@ -196,6 +199,119 @@ Acceptance:
   short-coverage fixture) rather than silently proceeding.
 - Clear INFO/WARNING logs showing the discovery trail (candidates considered,
   final choice, coverage found).
+```
+
+### TASK 2B — ANEEL solar curtailment gap probe + ONS coverage policy fix [IN PROGRESS]
+
+CONTEXT: Task 2 (commit f32eac5) found that ONS wind curtailment data covers
+back to 2021-10 (clears the 2022-01 floor), but ONS solar curtailment data
+only starts at 2024-04 — it will not clear ONS_MIN_COVERAGE_DATE
+(date(2022,1,1)) and CoverageError will fire on every real run. This also
+affects the project's locked 2020 historical baseline, since year=2020 must
+be tagged source="historical_ons" and currently has no real solar curtailment
+figure to draw from.
+
+Before fixing this, probe ANEEL as a possible earlier-coverage fallback.
+
+STEP 1 — ANEEL probe (read-only discovery, make NO pipeline changes yet):
+
+- ANEEL's CKAN API is already confirmed reachable at
+  https://dadosabertos.aneel.gov.br/api/3/action/ (see
+  config/acquisition_targets.yaml, aneel section). No client exists yet for
+  it — you may write a minimal read-only probe script/function, not a full
+  aneel_client.py module, for this step.
+- Run package_search with multiple candidate queries, e.g.: "restrição
+  geração fotovoltaica", "curtailment solar", "corte geração solar",
+  "geração não gerada fotovoltaica", "restrição curtailment usina solar",
+  and any English equivalents. Log every candidate found (package name,
+  title, resource formats, apparent date range) regardless of outcome.
+- For any candidate that looks like a genuine solar curtailment time series
+  (not just installed-capacity or generation totals), inspect its earliest
+  available date.
+- Separately — this part IS low-risk and you may proceed without stopping —
+  check whether ANEEL publishes installed utility-scale solar capacity by
+  year for the SIN (a capacity/empreendimentos registry), to see if 2020
+  capacity was low enough to corroborate curtailment being physically
+  negligible that year. Log what you find either way.
+
+STEP 2 — DECISION BRANCH:
+
+  BRANCH A — ANEEL has NO usable solar curtailment series (nothing found,
+  or any series found also starts no earlier than 2024-04, i.e. no real
+  improvement over ONS):
+    Proceed automatically with the following fix, no need to stop and ask:
+
+    a) In config/acquisition_targets.yaml, change the ONS coverage
+       requirement from one global floor to per-package values:
+       ons.packages.curtailment_wind.min_coverage_start: "2022-01-01"
+       ons.packages.curtailment_solar.min_coverage_start: "2024-04-01"
+       (use the actual earliest date you observed in Task 2, even if it
+       differs slightly from 2024-04).
+    b) Update validation.py / the call site in data_ingestion.py so the
+       coverage check reads the threshold per-package from config instead
+       of applying the single hardcoded ONS_MIN_COVERAGE_DATE to both wind
+       and solar. Keep ONS_MIN_COVERAGE_DATE as the wind default if no
+       config value is found, but do not silently reuse it for solar.
+    c) Add a short, explicit note to methodology.md §3.7 (Limitations)
+       documenting: utility-scale solar curtailment in Brazil's SIN was not
+       published by ONS before 2024-04, consistent with [cite whatever
+       capacity evidence you found in Step 1, or state clearly if no
+       corroborating evidence was found]; the 2020 baseline's solar
+       curtailment figure is therefore treated as a documented zero, not a
+       measured value, and this must be visible in the data-quality report,
+       never silently assumed.
+    d) Add the same note (shorter form) as a comment in
+       config/acquisition_targets.yaml next to the solar package config.
+    e) Record this as decision D14 in config/discovered_sources.yaml,
+       following the same format as prior decisions (D10 CCEE blocked, D12
+       Combined Margin formula): what was checked, what was found, what was
+       decided, and why.
+    f) Update/add unit tests confirming the per-package coverage floors are
+       respected (wind at 2022-01 passes, solar at its real floor passes,
+       and an artificially short solar fixture still raises CoverageError
+       correctly below ITS OWN floor).
+    g) Run pytest -v, fix failures, commit with a clear message referencing
+       D14.
+
+  BRANCH B — ANEEL DOES have a solar curtailment series with usable
+  coverage earlier than ONS's 2024-04 (ideally reaching back to 2020):
+    DO NOT wire it into the pipeline. DO NOT modify validation.py,
+    acquisition_targets.yaml's coverage policy, or the 2020 baseline
+    source tagging. Instead:
+    a) Log precisely what you found: package_id, resource_id(s), exact
+       date coverage, units, column schema, and any caveats about data
+       quality or methodology differences from ONS's figures.
+    b) Add this as a "candidate, pending decision" entry in
+       config/discovered_sources.yaml — do NOT mark it confirmed/adopted.
+    c) Stop and report this finding back to us in your response, with a
+       clear recommendation, but take no further pipeline action. This is
+       a deliberate checkpoint: using a non-ONS source for the locked 2020
+       historical baseline changes its provenance and requires explicit
+       sign-off before implementation.
+
+STEP 3 — Regardless of branch, also commit the now-finalized decision D13
+(already verbally agreed with us): curtailment energy for both wind and
+solar is sourced from val_geracaonaorealizadaapurada (ONS's own ascertained
+curtailed-energy figure), not derived via reference-minus-realized
+subtraction, because the reference column (val_geracaoreferenciafinal) is
+sparsely populated; verified equivalent on populated rows in the 2022-01
+sample (3,746 matching rows). Add this as decision D13 in
+config/discovered_sources.yaml, and add one sentence referencing it in
+methodology.md wherever curtailment energy computation is described.
+
+STEP 4 — docs/claude_commands.md was left modified/uncommitted after Task 2.
+Please commit it together with this task's changes (or in its own small
+commit first), with a message noting it reflects Task 2 completion status.
+
+ACCEPTANCE:
+- pytest -v -m "not integration" passes with no regressions.
+- Branch A: CoverageError no longer fires for solar on a real run; wind
+  behavior unchanged; both floors are config-driven, not hardcoded.
+- Branch B: no pipeline files changed beyond discovered_sources.yaml logging
+  the candidate; clear written recommendation returned to us.
+- D13 and (if Branch A) D14 both recorded in config/discovered_sources.yaml
+  with the same level of detail as existing decisions D10/D12.
+- Clear commit(s) with messages referencing D13/D14 as applicable.
 ```
 
 ---
@@ -391,7 +507,7 @@ Acceptance:
 
 ---
 
-## 9. TASK 7 — CCEE PLD discovery & acquisition (optional module)
+## 9. TASK 7 — CCEE PLD discovery & acquisition (optional module) [DONE]
 
 ```
 TASK 7 — Implement the optional PLD module (Decision D10), non-blocking.
@@ -474,7 +590,7 @@ Acceptance:
 
 ---
 
-## 11. TASK 9 — Stage 2: `calibration.py`
+## 11. TASK 9 — Stage 2: `calibration.py` [DONE]
 
 ```
 TASK 9 — Implement curtailment calibration function C(P).
@@ -515,7 +631,7 @@ Acceptance:
 
 ---
 
-## 12. TASK 10 — Stage 3: `projection.py`
+## 12. TASK 10 — Stage 3: `projection.py` [DONE]
 
 ```
 TASK 10 — Apply C(P) to PTE scenarios.
@@ -560,7 +676,7 @@ Acceptance:
 
 ---
 
-## 13. TASK 11 — Stage 4: `mitigation.py`
+## 13. TASK 11 — Stage 4: `mitigation.py` [DONE]
 
 ```
 TASK 11 — Compute the mitigation deficit, average vs. marginal sensitivity.
