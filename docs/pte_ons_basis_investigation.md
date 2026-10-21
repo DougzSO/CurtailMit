@@ -40,7 +40,7 @@ EPE *Anuário Estatístico de Energia Elétrica 2021* fact sheet (BEN 2021 data;
 | Wind | 57,051 | 54,297 | +2,754 |
 | Solar | 10,717 | 5,230 | +5,487 |
 | Thermal-type (gas 53,515 + oil 8,556 + coal 11,946 + nuclear 14,053 + biomass 55,613 + other 13,387) | 157,070 | 90,217 | +66,853 |
-| **Total** | **621,219** (hydro 396,381 = 63.8 %) | **554,353** | **+66,950** |
+| **Total** | **621,219** (hydro 396,381 = 63.8 %) | **554,353** | +66,866 |
 
 - ONS SIN is **~89 %** of the BEN national total. 554 TWh is therefore "narrower than national", not an error of scale.
 - Nearly the whole gap sits in the thermal-type block (+66.9 TWh), plus solar (+5.5) and wind (+2.8), partly offset by hydro (-8.2).
