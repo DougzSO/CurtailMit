@@ -1,8 +1,11 @@
-# CurtailMit — Claude Code Build Commands — v1.0
+# CurtailMit — Claude Code Build Commands — v2.0
 
 > Source of truth for everything in this document: `docs/roadmap.md` and
 > `docs/methodology.md`. If anything here conflicts with those two files, the two
 > files win — update this document, not the other way around.
+> Full discovery provenance (every confirmed package_id, URL, decision D1-D14):
+> `config/discovered_sources.yaml` and `config/acquisition_targets.yaml`.
+> Chronology of how we got here: `docs/progress_log.md`.
 
 ## 0. How to use this document
 
@@ -13,13 +16,81 @@
   (`curtailmit/`) and should **start by reading `docs/roadmap.md` and
   `docs/methodology.md`** before writing any code.
 - Never paste a task out of order — later tasks assume earlier ones are merged.
+- **Section 1** (completed work) is for context only — do not paste it as a task.
+  **Section 2** (remaining tasks) is what actually gets pasted, in order.
 
 ---
 
-## 1. Global operating rules (apply to every single task below)
+## 1. COMPLETED WORK — SUMMARY (context only, do not rebuild)
 
-Paste this block once, at the start of the first Claude Code session, so it stays
-in context. Repeat it if you start a new session mid-project.
+A significant portion of this project was pre-built locally (pure math/config/
+validation logic, zero open methodological questions) to reduce Claude Code's
+token usage, plus three real Claude Code sessions (Task 2, Task 2B, Task 3) that did live
+API discovery and acquisition. Full test suite currently: **149 passed, 0 failed**
+(`pytest -v -m "not integration"`).
+
+### 1.1 Shared infrastructure (pre-built, tested)
+
+| Module | Status | What it does |
+|---|---|---|
+| `acquisition.py` | ✅ | `fetch_and_cache()` — download + cache + manifest sidecar. |
+| `manifest.py` | ✅ | `write_manifest()`, `load_manifest()`, `compute_sha256()`. Used internally by `acquisition.py`. |
+| `paths.py` | ✅ | `get_database_root()`, `get_raw_dir()` — reads `.env` + `config/paths.yaml`. |
+| `validation.py` | ✅ | Acceptance-criteria logic: `validate_penetration_ceiling()`, `resolve_ons_min_coverage()` (per-package coverage floors), `validate_mcti_factor_coverage()`, `ClassificationFlag`/`attach_classification_flag()`/`validate_classification_propagation()` (DEB/REB/EUB propagation rules). **Reuse this in Tasks 4 and 8 — do not rewrite classification/coverage logic.** |
+| `emission_factors.py` | ✅ | `derive_annual_om_from_monthly()` (mean of 12 monthly OM values), `compute_combined_margin()` (CM = 0.5×OM + 0.5×BM, decision D12). **Reuse directly in Task 5.** |
+| `calibration.py` | ✅ (generic logic only) | Logistic-fit machinery: `fit_calibration`, `apply_calibration`, `validate_against_holdout`, save/load. **Not yet wired to real data — Task 3's output now exists; see the open PTE/ONS basis question in 1.3b.** |
+| `projection.py` | ✅ | P(s,t) interpolation, headline-table/anchor-point logic, enforces 2020 = `historical_ons` only. |
+| `mitigation.py` | ✅ (partial) | `compute_mitigation()` works but currently emits only ONE marginal column (`om_factor`). **Needs enrichment to emit both OM and CM columns — folded into Task 13 below.** |
+| `hydrogen.py` | ✅ | `compute_hydrogen_potential()` — SEC range 50/52.5/55 kWh/kg, min/central/max always reported together. |
+| `results_writer.py` | ✅ | Final `ResultsRow` schema — already includes the OM/CM split (`mitigation_deficit_marginal_om_tco2`, `mitigation_deficit_marginal_cm_tco2`) and all provenance flags (`source`, `is_interpolated`, `classification_available`). CSV/JSON read-write. **This is the target schema Task 13 must populate — do not change it.** |
+| `pld.py` | ✅ | CCEE PLD module stub. `pld.enabled: false` enforced by design (see 1.3). |
+| `schemas.py` | ✅ | Extended with `RetrievalManifest`, `Baseline2020Generation`, `DataQualityReport`, `CalibrationParams`, `ProjectionRow`, `MitigationRow`, `HydrogenRow`. **`DataQualityReport` already exists — reuse/extend in Task 8, don't recreate.** |
+| `config/acquisition_targets.yaml` | ✅ | Consolidated, machine-readable config of every confirmed source fact (package_ids, schemas, URLs, classification mapping, coverage floors). Read this before any discovery work. |
+| `docs/data_dictionary.md` | ✅ | Documents every final output column (unit, type, computed vs. sourced). |
+
+### 1.2 ONS curtailment acquisition (Tasks 1, 2, 2B) — DONE
+
+- Wind curtailment: package `restricao_coff_eolica_usi`, confirmed live, data from **2021-10**.
+- Solar curtailment: package `restricao_coff_fotovoltaica`, confirmed live, data from **2024-04-01**.
+- `data_ingestion.py` discovers both via `package_show()` at runtime (defensive re-confirmation, falls back to `package_search()` if a package_id ever goes stale), downloads via `fetch_and_cache()`, parses to `[date, usina, curtailed_energy_mwh, reason_category, source]`, writes `interim/ons_curtailment_raw.parquet`.
+- **Coverage floors are per-package**, not global: wind requires ≥2022-01, solar requires ≥2024-04 (`validation.resolve_ons_min_coverage()`, config-driven). Raises `ValidationError`/`CoverageError` explicitly if a floor is missing or unmet.
+- **D13**: curtailment energy sourced from `val_geracaonaorealizadaapurada` (ONS's own ascertained figure), not derived via reference-minus-realized subtraction (reference column mostly empty); verified equivalent on 2022-01 sample.
+- **D14**: ANEEL probed (13 queries, 20 packages inspected) — no solar curtailment series exists there; nothing improves on ONS's 2024-04 floor. The 2020 baseline's solar curtailment is therefore a **documented zero, not a measurement** — flagged in the data-quality report (`solar_curtailment_2020_baseline: documented_zero_not_measured`), never silently assumed. SIGA capacity figures (2019: 2.5GW → 2024: 17.2GW, centralized/SIGA only, excludes MMGD) recorded as corroborating context only, not proof.
+- Raw reason codes (`CNF`, `REL`, etc.) are stored as-is in `reason_category` — DEB/REB/EUB mapping is Task 4's job, not done yet.
+- 128→132 tests added across this work; one `@pytest.mark.integration` test confirmed live against real ONS (both packages resolve, no fallback triggered).
+- Commits: `f32eac5` (Task 2), `d7b267e` (Task 2B), `bc5a0bb` (docs).
+
+### 1.3 CCEE PLD (Task 7) — DONE, permanently closed
+
+CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every probe, including with browser headers — confirmed twice, **do not re-probe**. `pld.py` stub built, tested, `pld.enabled: false` enforced. This is a closed limitation, not an open task.
+
+### 1.3b ONS generation-by-source (Task 3) — DONE (commit `3f69554`; closeout D15 + basis investigation)
+
+- Module `src/curtailmit/ons_generation.py` (package `balanco-energia-subsistema`, re-confirmed at runtime via `package_show`, `package_search` recovery path, yearly resources PARQUET > CSV > XLSX, `id_subsistema == "SIN"`, hourly MW integrated to MWh). Values are published as decimal *text* and are coerced explicitly. Blank `val_gersolar` -> 0 (documented); a blank in any other source fails explicitly.
+- Outputs (under `DATABASE_ROOT`): `interim/ons_generation_by_source.parquet`, `processed/ons_penetration_monthly.parquet`, `processed/ons_penetration_annual.parquet`, `processed/baseline_2020_generation.json` (validated against `schemas.Baseline2020Generation`; requires every hour of 2020).
+- **2020 baseline (observed, ONS SIN):** total **554.35 TWh**, wind **54.30 TWh**, solar **5.23 TWh**, wind+solar penetration **10.74 %**.
+- **D15**: series usable only from `history_start_year: 2016` (`config/acquisition_targets.yaml`); wind blank 2000-2005 and partly 2006, 2015 has 24 h with no data. Does not affect the 2020 baseline or the 2021+ calibration window.
+- **OPEN — PTE vs ONS generation basis (pending our decision, NOT resolved):** ONS SIN total (554 TWh in 2020, 700 TWh in 2025) is on a different, narrower basis than the PTE `total_generation_twh` (836 TWh in 2025). Evidence and unconfirmed items: `docs/pte_ons_basis_investigation.md`. Decide how to reconcile P(t)'s denominator basis between calibration and projection **before Task 9**.
+
+### 1.4 Discovery already resolved for not-yet-implemented tasks
+
+These tasks still need real **implementation**, but discovery is fully closed —
+do not re-discover, proceed straight to coding:
+
+- **Task 3 (ONS generation-by-source)** — DONE, see 1.3b. Discovery notes kept for reference: package `balanco-energia-subsistema`, one CSV per year, confirmed schema (`id_subsistema, val_gerhidraulica, val_gertermica, val_gereolica, val_gersolar, val_carga, val_intercambio`). Filter `id_subsistema=="SIN"`. `val_gersolar` NaN/0 pre-2017 = expected, treat as 0. `geracao-usina-2` demoted to optional cross-check only.
+- **Task 5 (MCTI emission factors)**: landing page confirmed, file-naming patterns confirmed (inconsistent per-year names, legacy domain for pre-2021), sheet names confirmed (`inventário-todos`, `MDL`, `Publicar`). Full mapping table in Task 5 below.
+- **Task 6 (ANEEL fallback)**: CKAN base confirmed reachable. Note: the Task 2B probe already ruled out ANEEL for *curtailment* data specifically (20 packages checked, none are curtailment series — registries/capacity/auctions/tariffs only). Task 6's fallback role should therefore target **generation-by-source** data, not curtailment.
+
+### 1.5 Still fully open (no discovery done yet)
+
+- **Task 4** — DEB/REB/EUB classification mapping (logic exists in `validation.py`, not yet applied to real parsed ONS data).
+- **Task 8** — Stage 1 finalization / full data-quality report (`DataQualityReport` schema exists, orchestration doesn't).
+- **Task 13** — needs rewriting (see below) to reflect that `results_writer.py` already exists with a richer schema than originally scoped; remaining work is wiring `mitigation.py`'s OM/CM split + final assembly + figures/limitations doc.
+- **Tasks 14, 15** — untouched.
+
+---
+
+## 2. Global operating rules (paste once, keep in context all session)
 
 ```
 GLOBAL RULES FOR THIS PROJECT (CurtailMit):
@@ -41,7 +112,11 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
    HTML parsing of a known landing page, etc.) and logging what was found. If a
    URL must be fixed in config for performance reasons, it must be written there
    by code after a successful discovery run, with a comment showing when and how
-   it was confirmed — never typed in from a web browser by a human.
+   it was confirmed — never typed in from a web browser by a human. (Exception:
+   facts already confirmed and logged in config/acquisition_targets.yaml or
+   config/discovered_sources.yaml from a prior session — reuse those, but
+   defensively re-confirm with package_show()/package_search() at runtime since
+   sources can be renamed/retired.)
 
 4. Fail explicitly, never silently. If a data source does not meet a minimum
    coverage/schema requirement, raise a clear, specific exception with a message
@@ -64,8 +139,9 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
    access to pass. Add a separate, clearly marked integration test (skipped by
    default, e.g. `@pytest.mark.integration`) for the real live calls.
 
-8. After each task: run `pytest -v`, fix failures, then produce a git commit with
-   a clear message. Do not move to the next task with failing tests.
+8. After each task: run `pytest -v -m "not integration"`, fix failures, then
+   produce a git commit with a clear message. Do not move to the next task with
+   failing tests.
 
 9. Use type hints and Pydantic v2 models (extend schemas.py) for any new
    structured data crossing a module boundary.
@@ -73,1004 +149,437 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 10. Logging: use the `logging` module (already configured in data_ingestion.py),
     never bare `print()` for pipeline diagnostics. Log at INFO for normal
     discovery steps, WARNING for fallbacks, ERROR immediately before raising.
+
+11. Before writing code, inspect what's already pre-built (see section 1 of
+    docs/claude_commands.md, and config/acquisition_targets.yaml /
+    config/discovered_sources.yaml) and reuse it. Do not reimplement equivalent
+    logic. If something you need seems to be missing, say so explicitly rather
+    than assuming it doesn't exist.
 ```
 
 ---
 
-## 2. Task sequence overview
+## 3. Task sequence overview
 
-| # | Task | Module(s) | Stage |
+| # | Task | Module(s) | Status |
 |---|---|---|---|
-| 1 | Retrieval manifest + caching utility | `acquisition.py` | shared infra | [DONE]
-| 2 | ONS curtailment discovery & acquisition (wind + solar) | `ons_client.py`, `data_ingestion.py` | 1 |
-| 3 | ONS generation-by-source discovery & acquisition | `ons_client.py`, `data_ingestion.py` | 1 |
-| 4 | Curtailment classification availability + DEB/REB/EUB mapping | `data_ingestion.py` | 1 |
-| 5 | MCTI emission factor discovery & acquisition (average + marginal) | `mcti_client.py`, `data_ingestion.py` | 1 |
-| 6 | ANEEL fallback discovery (secondary source, if ONS insufficient) | `aneel_client.py` | 1 |
-| 7 | CCEE PLD discovery & acquisition (optional module) | `ccee_client.py` | 1 (optional) |
-| 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | 1 |
-| 9 | Stage 2: calibration.py | `calibration.py` | 2 |
-| 10 | Stage 3: projection.py | `projection.py` | 3 |
-| 11 | Stage 4: mitigation.py | `mitigation.py` | 4 |
-| 12 | Stage 5: hydrogen.py | `hydrogen.py` | 5 |
-| 13 | Stage 6: results_writer.py | `results_writer.py` | 6 |
-| 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, `.github/workflows/ci.yml` | all |
-| 15 | Reproducibility pass + documentation sync | `docs/`, `README.md` | all |
+| 1 | Retrieval manifest + caching utility | `acquisition.py` | ✅ DONE |
+| 2 | ONS curtailment discovery & acquisition (wind + solar) | `ons_client.py`, `data_ingestion.py` | ✅ DONE |
+| 2B | ANEEL solar gap probe + per-package coverage floors | `validation.py`, config | ✅ DONE |
+| 3 | ONS generation-by-source discovery & acquisition | `ons_generation.py` | ✅ DONE (D15; PTE/ONS basis question OPEN) |
+| 4 | Curtailment classification (DEB/REB/EUB mapping) | `data_ingestion.py` | ⬜ NEXT |
+| 5 | MCTI emission factor discovery & acquisition | `mcti_client.py`, `data_ingestion.py` | ⬜ |
+| 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ⬜ |
+| 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
+| 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ |
+| 9 | Stage 2: `calibration.py` | `calibration.py` | 🔶 logic done, needs real-data wiring (Task 3 done; resolve the PTE/ONS basis question first) |
+| 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
+| 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 done, needs OM/CM split (folded into Task 13) |
+| 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
+| 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⬜ (rewritten below) |
+| 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ⬜ |
+| 15 | Reproducibility pass + documentation sync | `docs/`, `README.md` | ⬜ |
 
 ---
 
-## 3. TASK 1 — Retrieval manifest + caching utility [DONE]
+## 4. REMAINING TASKS — paste sequentially from here
 
-```
-TASK 1 — Build a shared data-acquisition utility with retrieval manifests.
-
-Read docs/roadmap.md and docs/methodology.md first.
-
-Create src/curtailmit/acquisition.py with:
-
-1. A function `fetch_and_cache(url: str, dest_path: Path, params: dict | None = None,
-   method: str = "GET", use_cache: bool = False, timeout: int = 60) -> Path` that:
-   - Downloads the resource (if use_cache=False or file missing).
-   - Writes the raw response body to `dest_path`.
-   - Writes a sidecar manifest file `dest_path.with_suffix(dest_path.suffix + ".manifest.json")`
-     containing: source_url, http_status, retrieved_at_utc (ISO 8601), sha256 of the
-     downloaded content, byte_size, and the request params used.
-   - If use_cache=True and both dest_path and its manifest already exist, skip the
-     network call and log that the cached version is being reused, including the
-     original retrieved_at_utc from the manifest so it's never ambiguous which run
-     the data belongs to.
-
-2. A Pydantic model `RetrievalManifest` in schemas.py matching the JSON structure above.
-
-3. A function `load_manifest(dest_path: Path) -> RetrievalManifest` to read it back.
-
-4. Respect DATABASE_ROOT from .env (via python-dotenv) as the base path for all
-   dest_path values used elsewhere in the pipeline — add a small `paths.py` helper
-   with `get_database_root() -> Path` and `get_raw_dir(subdir: str) -> Path` that
-   read config/paths.yaml + .env and create directories as needed.
-
-5. Unit tests in tests/test_acquisition.py using `responses` (add to requirements.txt)
-   to mock HTTP calls — no live network access in the default test run.
-
-Acceptance:
-- pytest -v passes.
-- Running fetch_and_cache twice with use_cache=True only performs one real HTTP call
-  (assert via mock call count in the test).
-- Manifest JSON is valid and round-trips through RetrievalManifest.
-```
+### TASK 3 — DONE (see section 1.3b; prompt removed)
 
 ---
 
-## 4. TASK 2 — ONS curtailment discovery & acquisition (wind + solar) [DONE]
-
-```
-TASK 2 — Implement real ONS curtailment discovery and data acquisition.
-
-Read docs/roadmap.md §6 and docs/methodology.md §2.2 first. Reuse acquisition.py
-and ons_client.py from previous work — do not duplicate HTTP logic.
-
-Goal: fully automated discovery (no hardcoded resource_id beyond the package name
-already in config/scenarios.yaml) of:
-(a) wind curtailment: package "restricao_coff_eolica_usi" (already known, confirm it
-    still resolves — ONS can rename/retire datasets).
-(b) solar/photovoltaic curtailment: package_id is ALREADY CONFIRMED as
-    "restricao_coff_fotovoltaica" (see config/acquisition_targets.yaml,
-    ons.packages.curtailment_solar.package_id). Do not re-run package_search
-    discovery for this. Instead, call CkanClient.package_show() for both the
-    wind and solar package_ids at runtime as a defensive re-confirmation step
-    (ONS can rename/retire datasets) and log a WARNING (not a silent fallback)
-    if the title or resource structure has materially changed since discovery.
-    If package_show fails outright for either id, THEN fall back to the
-    original package_search discovery heuristic described in this task as a
-    recovery path, and log that the static config was stale.
-
-Implement in data_ingestion.py (replacing the current discover_ons_resources TODO):
-
-1. For each package (wind, solar):
-   - list_resources() via CkanClient.
-   - Identify the resource(s) actually containing the monthly/time-series data
-     (not documentation PDFs) — prefer CSV/XLSX/JSON formats, log all formats seen.
-   - Download the most recent resource via acquisition.fetch_and_cache into
-     get_raw_dir("ons/curtailment_wind") / get_raw_dir("ons/curtailment_solar").
-   - Parse the downloaded file into a pandas DataFrame with at least columns:
-     [date, installation/usina, curtailed_energy_mwh, reason_category (if present)].
-   - Determine the true earliest available date in the parsed data.
-   - Call CkanClient.enforce_min_coverage(earliest_date, date(2022,1,1)) — let it
-     raise CoverageError if insufficient; do not catch and suppress it.
-
-2. Update config/scenarios.yaml automatically is NOT required by this task — just
-   log the discovered package/resource ids clearly (they will be documented
-   manually by me afterward if I want to pin them). Do not silently overwrite the
-   YAML file from code.
-
-3. Write parsed, concatenated (wind+solar) interim data to
-   DATABASE_ROOT/interim/ons_curtailment_raw.parquet, with a `source` column
-   ("wind"/"solar") preserved.
-
-4. Unit tests with mocked CKAN responses + a small fixture CSV/XLSX under
-   tests/fixtures/ons/ simulating a realistic resource payload (few rows is enough).
-   Add one @pytest.mark.integration test that performs the real discovery against
-   the live ONS CKAN API (skipped by default, run manually with
-   `pytest -m integration`).
-
-Acceptance:
-- pytest -v (unit tests) passes without network access.
-- Explicit CoverageError raised (demonstrated in a unit test with a mocked
-  short-coverage fixture) rather than silently proceeding.
-- Clear INFO/WARNING logs showing the discovery trail (candidates considered,
-  final choice, coverage found).
-```
-
-### TASK 2B — ANEEL solar curtailment gap probe + ONS coverage policy fix [IN PROGRESS]
-
-CONTEXT: Task 2 (commit f32eac5) found that ONS wind curtailment data covers
-back to 2021-10 (clears the 2022-01 floor), but ONS solar curtailment data
-only starts at 2024-04 — it will not clear ONS_MIN_COVERAGE_DATE
-(date(2022,1,1)) and CoverageError will fire on every real run. This also
-affects the project's locked 2020 historical baseline, since year=2020 must
-be tagged source="historical_ons" and currently has no real solar curtailment
-figure to draw from.
-
-Before fixing this, probe ANEEL as a possible earlier-coverage fallback.
-
-STEP 1 — ANEEL probe (read-only discovery, make NO pipeline changes yet):
-
-- ANEEL's CKAN API is already confirmed reachable at
-  https://dadosabertos.aneel.gov.br/api/3/action/ (see
-  config/acquisition_targets.yaml, aneel section). No client exists yet for
-  it — you may write a minimal read-only probe script/function, not a full
-  aneel_client.py module, for this step.
-- Run package_search with multiple candidate queries, e.g.: "restrição
-  geração fotovoltaica", "curtailment solar", "corte geração solar",
-  "geração não gerada fotovoltaica", "restrição curtailment usina solar",
-  and any English equivalents. Log every candidate found (package name,
-  title, resource formats, apparent date range) regardless of outcome.
-- For any candidate that looks like a genuine solar curtailment time series
-  (not just installed-capacity or generation totals), inspect its earliest
-  available date.
-- Separately — this part IS low-risk and you may proceed without stopping —
-  check whether ANEEL publishes installed utility-scale solar capacity by
-  year for the SIN (a capacity/empreendimentos registry), to see if 2020
-  capacity was low enough to corroborate curtailment being physically
-  negligible that year. Log what you find either way.
-
-STEP 2 — DECISION BRANCH:
-
-  BRANCH A — ANEEL has NO usable solar curtailment series (nothing found,
-  or any series found also starts no earlier than 2024-04, i.e. no real
-  improvement over ONS):
-    Proceed automatically with the following fix, no need to stop and ask:
-
-    a) In config/acquisition_targets.yaml, change the ONS coverage
-       requirement from one global floor to per-package values:
-       ons.packages.curtailment_wind.min_coverage_start: "2022-01-01"
-       ons.packages.curtailment_solar.min_coverage_start: "2024-04-01"
-       (use the actual earliest date you observed in Task 2, even if it
-       differs slightly from 2024-04).
-    b) Update validation.py / the call site in data_ingestion.py so the
-       coverage check reads the threshold per-package from config instead
-       of applying the single hardcoded ONS_MIN_COVERAGE_DATE to both wind
-       and solar. Keep ONS_MIN_COVERAGE_DATE as the wind default if no
-       config value is found, but do not silently reuse it for solar.
-    c) Add a short, explicit note to methodology.md §3.7 (Limitations)
-       documenting: utility-scale solar curtailment in Brazil's SIN was not
-       published by ONS before 2024-04, consistent with [cite whatever
-       capacity evidence you found in Step 1, or state clearly if no
-       corroborating evidence was found]; the 2020 baseline's solar
-       curtailment figure is therefore treated as a documented zero, not a
-       measured value, and this must be visible in the data-quality report,
-       never silently assumed.
-    d) Add the same note (shorter form) as a comment in
-       config/acquisition_targets.yaml next to the solar package config.
-    e) Record this as decision D14 in config/discovered_sources.yaml,
-       following the same format as prior decisions (D10 CCEE blocked, D12
-       Combined Margin formula): what was checked, what was found, what was
-       decided, and why.
-    f) Update/add unit tests confirming the per-package coverage floors are
-       respected (wind at 2022-01 passes, solar at its real floor passes,
-       and an artificially short solar fixture still raises CoverageError
-       correctly below ITS OWN floor).
-    g) Run pytest -v, fix failures, commit with a clear message referencing
-       D14.
-
-  BRANCH B — ANEEL DOES have a solar curtailment series with usable
-  coverage earlier than ONS's 2024-04 (ideally reaching back to 2020):
-    DO NOT wire it into the pipeline. DO NOT modify validation.py,
-    acquisition_targets.yaml's coverage policy, or the 2020 baseline
-    source tagging. Instead:
-    a) Log precisely what you found: package_id, resource_id(s), exact
-       date coverage, units, column schema, and any caveats about data
-       quality or methodology differences from ONS's figures.
-    b) Add this as a "candidate, pending decision" entry in
-       config/discovered_sources.yaml — do NOT mark it confirmed/adopted.
-    c) Stop and report this finding back to us in your response, with a
-       clear recommendation, but take no further pipeline action. This is
-       a deliberate checkpoint: using a non-ONS source for the locked 2020
-       historical baseline changes its provenance and requires explicit
-       sign-off before implementation.
-
-STEP 3 — Regardless of branch, also commit the now-finalized decision D13
-(already verbally agreed with us): curtailment energy for both wind and
-solar is sourced from val_geracaonaorealizadaapurada (ONS's own ascertained
-curtailed-energy figure), not derived via reference-minus-realized
-subtraction, because the reference column (val_geracaoreferenciafinal) is
-sparsely populated; verified equivalent on populated rows in the 2022-01
-sample (3,746 matching rows). Add this as decision D13 in
-config/discovered_sources.yaml, and add one sentence referencing it in
-methodology.md wherever curtailment energy computation is described.
-
-STEP 4 — docs/claude_commands.md was left modified/uncommitted after Task 2.
-Please commit it together with this task's changes (or in its own small
-commit first), with a message noting it reflects Task 2 completion status.
-
-ACCEPTANCE:
-- pytest -v -m "not integration" passes with no regressions.
-- Branch A: CoverageError no longer fires for solar on a real run; wind
-  behavior unchanged; both floors are config-driven, not hardcoded.
-- Branch B: no pipeline files changed beyond discovered_sources.yaml logging
-  the candidate; clear written recommendation returned to us.
-- D13 and (if Branch A) D14 both recorded in config/discovered_sources.yaml
-  with the same level of detail as existing decisions D10/D12.
-- Clear commit(s) with messages referencing D13/D14 as applicable.
-```
-
----
-
-## 5. TASK 3 — ONS generation-by-source discovery & acquisition
-
-```
-TASK 3 — Implement ONS generation-by-source discovery and acquisition (for P(t)
-calibration input and the 2020 historical baseline, per Decision D1).
-
-Read docs/roadmap.md §2 (D1, D2) and §6 (item 8) first.
-
-Goal: automatically find the correct CKAN package for monthly (or finer) generation
-by source (solar, wind, hydro, thermal, nuclear, etc.) and subsystem/national total,
-sufficient to:
-(a) compute historical P(t) = (solar+wind generation) / total generation, 2021-present,
-    for calibration against the curtailment series from Task 2;
-(b) provide the real 2020 historical generation-by-source figures needed for the
-    `baseline_2020` anchor point in config/scenarios.yaml (D1).
-
-Implement in data_ingestion.py / a new ons_generation.py submodule if cleaner:
-
-1. Use CkanClient.package_search with candidate queries: "geracao usina",
-   "geracao fonte", "balanco energia subsistema", "geracao energia mensal". Log
-   every candidate, pick the best match using a documented heuristic (prefer
-   datasets whose resource schema includes a fuel/source-type column and monthly
-   granularity), log the final choice and why alternatives were rejected.
-
-2. Download, parse, and cache via acquisition.fetch_and_cache, same pattern as
-   Task 2. Produce a tidy DataFrame: [date, source_type, generation_mwh,
-   subsystem_or_national].
-
-3. Aggregate to national monthly totals by source_type; compute P(t) series.
-
-4. Extract the 2020 annual total (sum of monthly) by source_type specifically for
-   the baseline_2020 use case; store as
-   DATABASE_ROOT/processed/baseline_2020_generation.json with clear units (TWh)
-   and a `source: historical_ons` tag matching schemas.BaselineConfig.
-
-5. Write the full historical series to
-   DATABASE_ROOT/interim/ons_generation_by_source.parquet.
-
-6. Tests: same mocked-fixture + integration-marked pattern as Task 2.
-
-Acceptance:
-- pytest -v passes without network.
-- baseline_2020_generation.json is produced in a mocked test run and validates
-  against a Pydantic schema (extend schemas.py with a Baseline2020Generation model).
-- Logs clearly show which dataset was chosen and why.
-```
-
----
-
-## 6. TASK 4 — Curtailment classification availability + DEB/REB/EUB mapping
+### TASK 4 — Curtailment classification availability + DEB/REB/EUB mapping
 
 ```
 TASK 4 — Implement the classification availability check and mapping logic
 (Decisions D5/D6).
 
 Read docs/roadmap.md §2 (D5, D6) and §6/§7 (acceptance criteria) first.
+IMPORTANT: the mapping logic and propagation rules already exist and are
+TESTED in src/curtailmit/validation.py — reuse them, do not rewrite:
+- validation.ClassificationFlag (dataclass: classification_available, reason)
+- validation.attach_classification_flag(record, flag) -> new dict
+- validation.validate_classification_propagation(records)
+The mapping itself (reason-string -> DEB/REB/EUB) is already defined in
+config/acquisition_targets.yaml under classification.mapping:
+  "Razão Energética" -> DEB, "Confiabilidade" -> REB,
+  "Indisponibilidade Externa" -> EUB (own category, never merged).
+classification.fallback_on_missing_classification: true is also already set.
 
 Implement check_classification_availability() for real (replacing the current
-stub) in data_ingestion.py:
+stub) in data_ingestion.py, applied to the REAL parsed ONS curtailment data
+from Task 2 (interim/ons_curtailment_raw.parquet, column reason_category,
+currently holding raw codes like "CNF", "REL"):
 
-1. Inspect the schema of the resource(s) downloaded in Task 2. Check whether a
-   reason/classification column exists (e.g. "razao_restricao", "motivo",
-   "classificacao") with values matching or resembling: "Razão Energética",
-   "Confiabilidade", "Indisponibilidade Externa" (accept reasonable
-   variations/typos/casing — log the exact distinct values found).
+1. Inspect the distinct values actually present in reason_category. Check
+   whether they correspond (directly, or via a documented code->label
+   crosswalk you derive by inspecting the ONS resource's accompanying
+   documentation/dictionary if available) to the three categories in
+   config/acquisition_targets.yaml's classification.mapping. Log the exact
+   distinct values found and your crosswalk reasoning.
 
-2. If found: apply the mapping from config/scenarios.yaml
-   (ons.classification_mapping) to produce a `deb_reb_eub` column
-   (values: DEB/REB/EUB). Log a value_counts() summary.
+2. If a usable mapping is found: apply it to produce a `deb_reb_eub` column
+   (values: DEB/REB/EUB). Use validation.attach_classification_flag with
+   ClassificationFlag(classification_available=True) for each record. Log a
+   value_counts() summary.
 
-3. If not found, or if the CKAN resource only exposes an aggregate series (no
-   reason breakdown) while the ONS dashboard visually shows one: set
-   classification_available = False, log a clear WARNING explaining exactly what
-   was checked and why it failed, and ensure the aggregate (unclassified) series
-   is still usable downstream.
+3. If not found, or only an aggregate series is available: set
+   classification_available = False with a specific reason via
+   ClassificationFlag, apply attach_classification_flag accordingly (this
+   enforces, per validation.py's existing rules, that no classified
+   DEB/REB/EUB fields leak into records marked unavailable), log a clear
+   WARNING explaining exactly what was checked and why it failed. The
+   aggregate (unclassified) series must remain fully usable downstream.
 
-4. Persist the result (classified or not) to
-   DATABASE_ROOT/processed/ons_curtailment_classified.parquet (with the
-   `deb_reb_eub` column present but possibly all-null + a top-level flag file
-   DATABASE_ROOT/processed/classification_available.json = {"classification_available": bool,
-   "checked_at_utc": ..., "reason": "..."}).
+4. Persist the result to
+   DATABASE_ROOT/processed/ons_curtailment_classified.parquet, plus a
+   top-level flag file DATABASE_ROOT/processed/classification_available.json
+   = {"classification_available": bool, "checked_at_utc": ..., "reason": "..."}.
 
-5. Tests: one fixture simulating a classified resource (passes through mapping
-   correctly), one fixture simulating an aggregate-only resource (correctly sets
-   classification_available: false and does not raise).
+5. Run validation.validate_classification_propagation() over the final
+   records as a hard check before writing output — if it raises, treat that
+   as a real bug, not something to catch and suppress.
+
+6. Tests: one fixture simulating real-looking CNF/REL-style raw codes with a
+   documented crosswalk (passes through mapping correctly), one fixture
+   simulating an aggregate-only resource (correctly sets
+   classification_available: false, validate_classification_propagation
+   still passes, no classified fields leak through).
 
 Acceptance:
-- pytest -v passes.
-- classification_available.json is produced with a clear, human-readable `reason`
-  field in both branches (available / fallback).
-- No scenario silently defaults to a specific DEB/REB/EUB value without the flag
-  being correctly set to False first.
+- pytest -v -m "not integration" passes.
+- classification_available.json is produced with a clear, human-readable
+  reason field in both branches.
+- No scenario silently defaults to a specific DEB/REB/EUB value without the
+  flag being correctly set to False first.
 ```
 
 ---
 
-## 7. TASK 5 — MCTI emission factor discovery & acquisition
+### TASK 5 — MCTI emission factor discovery & acquisition
 
 ```
-TASK 5 — Implement MCTI average and marginal emission factor discovery/acquisition.
+TASK 5 — Implement MCTI average and marginal emission factor acquisition.
 
-Read docs/roadmap.md (D8, D9) and docs/methodology.md §2.2 ("Emission factor data")
-first.
+Read docs/roadmap.md (D8, D9, D12) and docs/methodology.md §2.2 first.
+Discovery for this task is ALREADY CLOSED — do not search for new URLs. Use
+these confirmed facts directly (full detail in config/acquisition_targets.yaml,
+mcti section):
 
-MCTI does not expose a CKAN API like ONS — the average SIN emission factor and the
-annual OM/BM/CM margins are typically published as spreadsheet files linked from a
-gov.br landing page (page URL and exact file names change over time/month). Treat
-this as a structured web-scraping discovery task, not a hardcoded file URL:
+- Landing page:
+  https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao
+
+| Concept | File pattern | Granularity | Sheet |
+|---|---|---|---|
+| Average SIN factor (D8) | `Inventario_{year_range}.xlsx` — ONE consolidated file, 2006->present | Monthly + annual | `inventário-todos` |
+| Build Margin (BM) | `Despacho_{YYYY}_*.xlsx` OR `Margemdeconstruo_{YYYY}*.xlsx` — ONE FILE PER YEAR, inconsistent naming, legacy domain antigo.mctic.gov.br for pre-2021 | Annual (direct) | `MDL` |
+| Operating Margin (OM), DEB proxy (D9) | Same per-year file as BM | Monthly only (12 values; no official annual figure) | `MDL` |
+| Combined Margin (CM), REB proxy (D9) | NOT PUBLISHED | — | — |
+| Simple Adjusted OM (secondary/fallback only) | `FE_simplesajustado_{year}_web.xlsx` — ONE consolidated file, 2006->present | Annual | `Publicar` |
+
+CRITICAL: per-year BM/OM file naming is inconsistent across years and CANNOT
+be guessed from a fixed URL pattern. Your acquisition code must:
+1. Fetch the landing page above.
+2. Parse all <a href> tags ending in .xlsx/.xls (BeautifulSoup).
+3. Match the target year as a substring in the href or link text to select
+   the correct file for that year.
+4. Log every discovered URL via acquisition.fetch_and_cache's manifest
+   sidecar (already built — reuse it, do not write new HTTP logic).
+5. If no file matches a required year, FAIL EXPLICITLY — do not guess a URL.
 
 Create src/curtailmit/mcti_client.py:
 
-1. `discover_average_factor_page(landing_url: str) -> list[dict]`:
-   - Fetch the known MCTI landing page for "Fator médio de emissão de CO2 do SIN"
-     (use the current gov.br/mcti URL you can find; if you cannot verify a stable
-     URL, implement a Google/Bing-independent fallback: try the most likely
-     gov.br/mcti path pattern and log clearly if the page structure doesn't match
-     what's expected — fail explicitly, do not guess silently).
-   - Parse the HTML (BeautifulSoup) to find all linked spreadsheet files
-     (.xls/.xlsx/.csv), extract visible link text (often contains the month/year),
-     and return them sorted by apparent recency.
-   - Pick the most recent file, download via acquisition.fetch_and_cache into
-     get_raw_dir("mcti/average_emission_factor").
+1. `discover_average_factor_file(landing_url) -> dict`: find and download the
+   single consolidated Inventario_*.xlsx file into
+   get_raw_dir("mcti/average_emission_factor"), parse sheet
+   "inventário-todos" into [year, month, factor_tco2_per_mwh].
 
-2. `discover_margin_factors_page(landing_url: str) -> list[dict]`: same pattern for
-   the annual Operating Margin / Build Margin / Combined Margin publication.
+2. `discover_margin_factor_file(landing_url, year) -> dict`: find the correct
+   per-year Despacho_*/Margemdeconstruo_* file for the given year via the
+   substring-match rule above, download into
+   get_raw_dir("mcti/margin_factors"), parse sheet "MDL" into BM (single
+   annual value) and OM (12 monthly values).
 
-3. Parse both downloaded files into tidy DataFrames:
-   - average factor: [year, month, factor_tco2_per_mwh]
-   - margin factors: [year, om_factor, bm_factor, cm_factor] (units tCO2/MWh)
+3. Use emission_factors.derive_annual_om_from_monthly() (already built,
+   tested — do not reimplement) to get annual OM.
 
-4. Validate coverage: average factor series must cover the full calibration window
-   used in Task 2/3 (2021-present at minimum) — raise a clear, specific exception
-   if not, per global rule #4. If the MCTI page/file structure cannot be parsed at
-   all (e.g. layout changed, access blocked), this IS the one legitimate case for
-   a manual-ingestion fallback: implement `manual_ingestion.py` with a documented
-   function `load_manually_placed_file(expected_path: Path) -> pd.DataFrame` that
-   raises a clear instructional error telling me exactly which file to place where
-   and in what format, if the automated path fails. Log this fallback usage
-   prominently in the data-quality report (Task 8) as a declared limitation —
-   never silently.
+4. Use emission_factors.compute_combined_margin() (already built, tested) to
+   compute CM = 0.5*OM + 0.5*BM. Flag CM and derived-annual-OM explicitly as
+   computed/derived in all output metadata — never presented as an
+   MCTI-published figure.
 
-5. Persist parsed results to DATABASE_ROOT/processed/mcti_average_factor.parquet
-   and DATABASE_ROOT/processed/mcti_margin_factors.parquet.
+5. Validate coverage: average factor series must cover the full calibration
+   window from Tasks 2/3 (2021-present at minimum) — raise a specific
+   exception if not.
 
-6. Tests: mock the HTML landing page and the file downloads; one test confirming
-   correct parsing, one confirming the explicit exception path when coverage is
-   insufficient, one confirming the manual_ingestion.py path raises a clear,
-   actionable error message when invoked without a pre-placed file.
+6. If the MCTI page/file structure cannot be parsed at all (layout changed,
+   access blocked), this IS a legitimate manual-ingestion case: implement
+   manual_ingestion.py with load_manually_placed_file(expected_path) ->
+   pd.DataFrame, raising a clear instructional error naming exactly which
+   file to place where. Log this fallback prominently as a declared
+   limitation in Task 8's data-quality report — never silently.
+
+7. Persist to DATABASE_ROOT/processed/mcti_average_factor.parquet and
+   DATABASE_ROOT/processed/mcti_margin_factors.parquet (columns: year, om,
+   bm, cm — all three, with a note that om/cm are derived).
+
+8. Tests: mock the HTML landing page + file downloads; one test for correct
+   parsing, one for the explicit coverage-exception path, one confirming
+   manual_ingestion.py raises a clear actionable error when invoked without
+   a pre-placed file.
 
 Acceptance:
-- pytest -v passes without live network access.
-- If you (Claude Code) cannot find a reliably parseable MCTI URL during this task,
-  STOP and report back exactly what you tried and what you found, instead of
-  shipping a brittle guess — this is the one task in the project where I expect a
-  back-and-forth before it's considered done.
+- pytest -v -m "not integration" passes without live network access.
+- If the confirmed landing page structure has changed since discovery (i.e.
+  it no longer matches what's documented in acquisition_targets.yaml), STOP
+  and report back exactly what changed instead of guessing a fix.
 ```
 
 ---
 
-## 8. TASK 6 — ANEEL fallback discovery (secondary source)
+### TASK 6 — ANEEL fallback discovery (generation-by-source)
 
 ```
-TASK 6 — Implement ANEEL open data (dadosabertos.aneel.gov.br, also CKAN-based) as
-a secondary/fallback source for generation-by-source and/or curtailment-adjacent
-data, used only if ONS (Task 2/3) coverage or schema turns out to be insufficient
-for any specific scenario/year during later stages.
+TASK 6 — Implement ANEEL open data as a secondary/fallback source for
+generation-by-source data, used only if ONS (Task 3) coverage or schema turns
+out to be insufficient for any specific scenario/year.
 
-Read docs/roadmap.md and docs/methodology.md first.
+Read docs/roadmap.md and docs/methodology.md first. ANEEL's CKAN base
+(https://dadosabertos.aneel.gov.br/api/3/action/) is CONFIRMED reachable — no
+further reachability check needed.
 
-Create src/curtailmit/aneel_client.py, reusing CkanClient against ANEEL's CKAN base
-URL (discover it the same way — package_search, log candidates, no hardcoded
-resource_id without confirmation).
+IMPORTANT CONTEXT: a prior probe (Task 2B) already searched ANEEL specifically
+for CURTAILMENT data across 13 queries and found none (20 packages inspected,
+all registries/capacity/auctions/tariffs). Do not re-probe ANEEL for
+curtailment — this task's fallback role is GENERATION-BY-SOURCE data only,
+not curtailment.
 
-This task should NOT be wired into the default Stage 1 pipeline yet — implement it
-as a standalone, tested module with a clear docstring explaining it's a fallback
-path, callable explicitly (e.g. `aneel_client.fetch_generation_fallback(...)`) but
-not invoked automatically unless ONS data_ingestion.py explicitly calls it after a
-documented ONS failure.
+Create src/curtailmit/aneel_client.py, reusing CkanClient against ANEEL's CKAN
+base URL. Discover the correct generation-by-source package via
+package_search (candidate queries: "geracao usina", "geracao fonte",
+"capacidade instalada geracao"), log every candidate, pick the best match
+using a documented heuristic, log final choice and why alternatives were
+rejected.
+
+This task should NOT be wired into the default Stage 1 pipeline — implement
+as a standalone, tested module with a clear docstring explaining it's a
+fallback path, callable explicitly (e.g.
+aneel_client.fetch_generation_fallback(...)) but not invoked automatically
+unless data_ingestion.py explicitly calls it after a documented ONS failure
+in Task 3/8.
 
 Tests: same mocked-fixture pattern as previous tasks.
 
 Acceptance:
-- pytest -v passes.
+- pytest -v -m "not integration" passes.
 - Module is self-contained, documented as "fallback, not default path" in its
   module docstring and in a short note added to docs/roadmap.md §8 under
-  "Remaining open items" (add it as a new logged capability, not a new open
-  question).
+  "Remaining open items".
 ```
 
 ---
 
-## 9. TASK 7 — CCEE PLD discovery & acquisition (optional module) [DONE]
-
-```
-TASK 7 — Implement the optional PLD module (Decision D10), non-blocking.
-
-Read docs/roadmap.md (D10) and docs/methodology.md §2.8 first.
-
-CCEE publishes open data at dadosabertos.ccee.org.br (check whether it's CKAN-based
-or a different API — discover and document which it is, do not assume it mirrors
-ONS's CKAN structure).
-
-Create src/curtailmit/ccee_client.py:
-
-1. Discover the correct dataset/endpoint for historical PLD (Preço de Liquidação
-   das Diferenças), log the discovery trail same as previous tasks.
-2. Download and parse into a tidy DataFrame: [date, subsystem, pld_r_per_mwh].
-3. Persist to DATABASE_ROOT/processed/ccee_pld.parquet.
-4. Respect config/scenarios.yaml `pld.enabled: false` — this module must be
-   fully functional but NOT invoked by the default pipeline run unless
-   pld.enabled is set to true. Wire this check into scripts/run_pipeline.py
-   later (Task 14), not now.
-
-Tests: mocked-fixture pattern, consistent with previous tasks.
-
-Acceptance:
-- pytest -v passes.
-- Running the module standalone (python -m curtailmit.ccee_client) works against
-  mocked data in tests, and is documented as optional/non-blocking in its
-  docstring.
-```
-
----
-
-## 10. TASK 8 — Stage 1 finalization: full data-quality report
+### TASK 8 — Stage 1 finalization: full data-quality report
 
 ```
 TASK 8 — Consolidate Stage 1 into a single, complete data-quality report.
 
-Read docs/roadmap.md §6 and §7 (acceptance criteria) first — this task is where
-those acceptance criteria get enforced in code, not just described.
+Read docs/roadmap.md §6 and §7 (acceptance criteria) first — this task
+enforces those criteria in code. schemas.DataQualityReport ALREADY EXISTS —
+extend it if a field is missing, do not recreate it from scratch.
 
 Rewrite run_stage1() in data_ingestion.py to orchestrate, in order:
-1. load_config() — unchanged.
-2. ONS curtailment discovery (Task 2) for wind + solar.
-3. ONS generation-by-source discovery (Task 3), including baseline_2020 extraction.
+1. load_config().
+2. ONS curtailment discovery (Task 2/2B) for wind + solar, respecting the
+   per-package coverage floors in validation.resolve_ons_min_coverage().
+3. ONS generation-by-source discovery (Task 3), including baseline_2020
+   extraction.
 4. Classification availability check (Task 4).
-5. MCTI emission factor discovery (Task 5), with manual_ingestion.py fallback if
-   needed.
+5. MCTI emission factor discovery (Task 5), with manual_ingestion.py fallback
+   if needed.
 6. Load validation_data (2026-2029 prospection) from config/scenarios.yaml,
-   explicitly kept out of any calibration-data variable/dataframe used later.
-7. ANEEL fallback (Task 6) — invoked only if any ONS step above raised a
-   CoverageError or schema mismatch; must be clearly logged as "fallback
-   invoked" with the specific reason, never used silently as the primary path.
+   explicitly kept out of any calibration-data variable used later.
+7. ANEEL fallback (Task 6) — invoked only if an ONS step raised a
+   CoverageError/ValidationError or schema mismatch; must be clearly logged
+   as "fallback invoked" with the specific reason, never used silently as the
+   primary path.
 
-Produce a single structured report (Pydantic model `DataQualityReport` in
-schemas.py) with at minimum:
+Populate schemas.DataQualityReport with at minimum:
 - timestamp_utc
-- ons_wind_coverage: {earliest_date, latest_date, n_records}
-- ons_solar_coverage: {earliest_date, latest_date, n_records}
+- ons_wind_coverage / ons_solar_coverage: {earliest_date, latest_date, n_records}
+- solar_curtailment_2020_baseline: "documented_zero_not_measured" (per D14 —
+  already decided, just needs to be surfaced in this report)
 - classification_available: bool, reason: str
-- mcti_average_factor_coverage: {earliest, latest}
-- mcti_marginal_factor_coverage: {years covered}
+- mcti_average_factor_coverage / mcti_marginal_factor_coverage
 - fallback_sources_used: list[str] (empty if none)
 - validation_data_loaded: bool
 - overall_status: "ok" | "degraded" | "failed"
 
-Write this report both as JSON (DATABASE_ROOT/logs/stage1_data_quality_report_{timestamp}.json)
+Write as JSON (DATABASE_ROOT/logs/stage1_data_quality_report_{timestamp}.json)
 and print a human-readable summary table to stdout.
 
-Stage 1 must raise (not just log) if overall_status would be "failed" per the
-acceptance criteria in docs/roadmap.md §7 (e.g. ONS coverage < Jan/2022, or MCTI
-average factor coverage insufficient with no usable manual fallback either).
+Stage 1 must raise (not just log) if overall_status would be "failed" per
+roadmap §7 acceptance criteria.
 
 Acceptance:
-- pytest -v passes (fully mocked).
-- Running `python -m curtailmit.data_ingestion` end-to-end against mocks (via a
-  dedicated integration-style test using all mocked fixtures together) produces a
-  valid DataQualityReport JSON.
+- pytest -v -m "not integration" passes (fully mocked).
+- A dedicated integration-style test using all mocked fixtures together
+  produces a valid DataQualityReport JSON.
 - Commit message should reference "Stage 1 complete".
 ```
 
 ---
 
-## 11. TASK 9 — Stage 2: `calibration.py` [DONE]
+### TASK 13 — Stage 6 finalization: wire mitigation.py's OM/CM split + assemble results_writer output
 
 ```
-TASK 9 — Implement curtailment calibration function C(P).
+TASK 13 — Finish Stage 4/6 wiring and produce final outputs with full
+provenance.
 
-Read docs/methodology.md §2.3 first.
+Read docs/roadmap.md §8 and docs/methodology.md §3.7 first. NOTE: this task
+has been rewritten from its original scope because results_writer.py and its
+ResultsRow schema ALREADY EXIST, fully built and tested, with a richer schema
+than originally planned — it already separates
+mitigation_deficit_marginal_om_tco2 and mitigation_deficit_marginal_cm_tco2
+as two distinct columns (never one collapsed "marginal" figure). Do not
+change this schema. The remaining real work is upstream of it.
 
-Implement src/curtailmit/calibration.py:
+PART A — Enrich mitigation.py:
+mitigation.compute_mitigation() currently only computes one marginal deficit
+using a single om_factor. Update it (or add a new function alongside it, your
+call) to compute BOTH:
+- mitigation_deficit_marginal_om_tco2 = E_curt x OM (DEB proxy)
+- mitigation_deficit_marginal_cm_tco2 = E_curt x CM (REB proxy, CM from
+  emission_factors.compute_combined_margin(), already built)
+Both values must always be populated together — never report one without
+the other. If classification_available is False for a given row, both OM
+and CM proxies are still computed (they're proxies for curtailment CAUSE,
+not dependent on whether cause classification succeeded) but
+marginal_proxy_note must say so explicitly (matching results_writer's
+ResultsRow.marginal_proxy_note field).
 
-1. Input: the merged historical series combining ons_generation_by_source.parquet
-   (to compute historical P(t) = (solar+wind)/total generation, monthly or
-   annualized) and ons_curtailment_classified.parquet (curtailed energy, with or
-   without DEB/REB/EUB split depending on classification_available).
+PART B — Assembly:
+Write the orchestration logic (in results_writer.py or a thin new
+assemble_results.py, your call) that:
+1. Merges projection_results (Stage 3), the enriched mitigation output
+   (Part A), and hydrogen_results (Stage 5) on [scenario, year].
+2. Constructs one results_writer.ResultsRow per (scenario, year), populating
+   every field including source, is_interpolated, classification_available
+   (propagated end-to-end from Task 4's flag, via validation.py's existing
+   helpers — do not reinvent propagation logic).
+3. Calls results_writer.write_results_csv() and write_results_json()
+   (already built) to produce DATABASE_ROOT/outputs/tables/final_results.csv
+   and .json.
 
-2. Fit a calibration function C(P) — use a logistic/sigmoid functional form per
-   methodology (document the exact functional form and fitting method — e.g.
-   scipy.optimize.curve_fit — in a docstring and in a short addition to
-   docs/methodology.md §2.3 if the final form differs from a simple logistic).
+PART C — Reports and figures (as originally scoped):
+1. DATABASE_ROOT/outputs/reports/limitations_summary.md — auto-generated
+   from the actual flags present in the data (e.g. if
+   classification_available is False for any scenario, this must appear
+   here verbatim, matching language in docs/methodology.md §3.7 — pull from
+   the flags, don't invent new wording). Must also surface the
+   solar_curtailment_2020_baseline documented-zero note from D14.
+2. Basic matplotlib figures (DATABASE_ROOT/outputs/figures/): E_curt by
+   scenario/year, mitigation deficit (avg vs OM vs CM) by scenario/year, H2
+   potential range by scenario/year. Each figure's filename/caption must
+   indicate whether interpolated points are included.
+3. Enforce at runtime: if classification_available is False, any
+   column/figure referencing DEB/REB must instead be labeled "aggregate
+   (unclassified)" — write a unit test that fails if this mislabeling ever
+   occurs.
 
-3. Validate against the 2026-2029 validation_data (loaded separately, per D-series
-   decisions) — report fit error (RMSE or similar) on this held-out validation set
-   explicitly, never blended into the calibration fit itself.
-
-4. Persist fitted parameters to DATABASE_ROOT/processed/calibration_params.json
-   with the functional form name, parameters, fit date, and validation error.
-
-5. Provide `def apply_calibration(P: float, params: dict) -> float` as the
-   reusable function consumed by Stage 3.
-
-Tests: fit against a small synthetic fixture dataset with known structure;
-assert recovered parameters are reasonable; assert validation error is computed
-and reported separately.
+Tests:
+- mitigation.py: synthetic fixtures confirming both OM and CM columns are
+  always populated together and correctly traceable to their proxy source.
+- assembly: synthetic merged fixture with classification_available=False;
+  assert the output report contains "aggregate" and does NOT contain "DEB"
+  or "REB" in that scenario's section.
+- Full chain: a mocked end-to-end test producing a complete outputs/
+  directory.
 
 Acceptance:
-- pytest -v passes.
-- calibration_params.json includes both fit parameters and out-of-sample
-  validation error, clearly separated.
+- pytest -v -m "not integration" passes.
+- No ResultsRow is ever written with only one marginal figure — both OM and
+  CM columns populated on every row.
 ```
 
 ---
 
-## 12. TASK 10 — Stage 3: `projection.py` [DONE]
-
-```
-TASK 10 — Apply C(P) to PTE scenarios.
-
-Read docs/methodology.md §2.4 first.
-
-Implement src/curtailmit/projection.py:
-
-1. Load config/scenarios.yaml PTE table (via schemas.PipelineConfig) and
-   calibration_params.json from Stage 2.
-
-2. For each scenario s in {TB, TA, TG} and year t in year_grid
-   {2020, 2025, 2030, 2040, 2050}:
-   - P(s,t): from Table 2 (PTE config) for 2025/2030/2040/2050; from
-     baseline_2020_generation.json (tagged source: historical_ons) for 2020.
-   - Ĉ(s,t) = apply_calibration(P(s,t), params).
-   - E_curt(s,t) = solar_wind_generation_twh(s,t) × Ĉ(s,t).
-
-3. Implement linear interpolation (per D3) for any additional intermediate year
-   requested via a function parameter, clearly tagging interpolated rows with
-   `interpolated: true` in the output — never silently blended with the 5
-   anchor-point rows.
-
-4. Output a tidy DataFrame/parquet: DATABASE_ROOT/processed/projection_results.parquet
-   with columns [scenario, year, P, C_hat, E_curt_twh, source (historical_ons/
-   pte_published/interpolated)].
-
-5. Implement the §2.7 robustness cross-check using primary_energy_crosscheck from
-   config/scenarios.yaml IF enabled: true — if still enabled: false (because the
-   YAML TODO wasn't filled in), log a clear WARNING and skip the cross-check
-   without failing the pipeline (this one is non-blocking by design, per D4).
-
-Tests: synthetic calibration params + a small PTE fixture table; assert output
-schema and source tagging are correct, especially that 2020 is tagged
-historical_ons and interpolated years are tagged interpolated.
-
-Acceptance:
-- pytest -v passes.
-- Acceptance criterion from roadmap §7 enforced: 2020 is never tagged
-  pte_projection.
-```
-
----
-
-## 13. TASK 11 — Stage 4: `mitigation.py` [DONE]
-
-```
-TASK 11 — Compute the mitigation deficit, average vs. marginal sensitivity.
-
-Read docs/methodology.md §2.5 first.
-
-Implement src/curtailmit/mitigation.py:
-
-1. Load projection_results.parquet (Stage 3), mcti_average_factor.parquet, and
-   mcti_margin_factors.parquet (Stage 1/Task 5).
-
-2. For each (scenario, year) row:
-   - Mitigation_deficit_avg(s,t) = E_curt(s,t) × average_factor(t)
-   - Mitigation_deficit_marginal(s,t) = E_curt(s,t) × marginal_factor_proxy(t)
-     (document which of OM/BM/CM maps to which, per config
-     emission_factors.marginal.deb_proxy/reb_proxy, and whether
-     classification_available affects which proxy applies — if
-     classification_available is false, use a clearly documented default proxy
-     and flag it in the output row, e.g. `marginal_proxy_used: "OM_default_no_classification"`).
-
-3. Output DATABASE_ROOT/processed/mitigation_results.parquet with columns
-   [scenario, year, E_curt_twh, mitigation_deficit_avg_tco2,
-   mitigation_deficit_marginal_tco2, marginal_proxy_used, classification_available].
-
-4. Never report a single collapsed number without the two values + which factor
-   was used, per methodology §2.5 — enforce this in the schema (both columns are
-   required, not optional).
-
-Tests: synthetic projection + factor fixtures; assert both average and marginal
-columns are always populated and correctly traceable to their proxy source.
-
-Acceptance:
-- pytest -v passes.
-```
-
----
-
-## 14. TASK 12 — Stage 5: `hydrogen.py`
-
-```
-TASK 12 — Compute green-H2 valorization potential.
-
-Read docs/methodology.md §2.6 first.
-
-Implement src/curtailmit/hydrogen.py:
-
-1. Load mitigation_results.parquet (for E_curt) and
-   config.electrolyzer.sec_kwh_per_kg_h2 (min/max/central_estimate).
-
-2. For each row: H2_potential_min/central/max(s,t) = E_curt(s,t)_TWh × 1e9 (kWh) / SEC.
-
-3. Output DATABASE_ROOT/processed/hydrogen_results.parquet with columns
-   [scenario, year, h2_potential_min_kg, h2_potential_central_kg, h2_potential_max_kg].
-
-4. Never report only the central estimate in any downstream table without the
-   min/max range alongside it, per methodology §2.6.
-
-Tests: unit conversion correctness (TWh → kWh), range ordering (min <= central <= max).
-
-Acceptance:
-- pytest -v passes.
-```
-
----
-
-## 15. TASK 13 — Stage 6: `results_writer.py`
-
-```
-TASK 13 — Persist final tables/figures/reports with all data-quality flags
-propagated.
-
-Read docs/roadmap.md §8 (acceptance criteria) and docs/methodology.md §3.7
-(Limitations) first.
-
-Implement src/curtailmit/results_writer.py:
-
-1. Merge projection_results, mitigation_results, hydrogen_results into one final
-   tidy table, joined on [scenario, year].
-
-2. Propagate `classification_available`, `source` (historical_ons/pte_published/
-   interpolated), and `marginal_proxy_used` flags into this final table — every
-   row must carry its full provenance.
-
-3. Write:
-   - DATABASE_ROOT/outputs/tables/final_results.csv and .parquet
-   - DATABASE_ROOT/outputs/reports/limitations_summary.md — auto-generated from
-     the actual flags present in the data (e.g. if classification_available is
-     False for any scenario, this must appear here verbatim, matching the
-     language already in docs/methodology.md §3.7 — do not invent new wording,
-     pull from the flags).
-   - Basic matplotlib figures (DATABASE_ROOT/outputs/figures/): E_curt by
-     scenario/year, mitigation deficit (avg vs marginal) by scenario/year,
-     H2 potential range by scenario/year. Each figure's filename and caption
-     must indicate whether interpolated points are included.
-
-4. The acceptance criterion from roadmap §7 — "classification_available: false
-   must never appear in the paper as DEB/REB" — must be enforced here as a
-   runtime check: if classification_available is False, any column/figure
-   referencing DEB/REB must instead be labeled "aggregate (unclassified)" —
-   write a unit test that fails if this mislabeling ever occurs.
-
-Tests: synthetic merged fixture with classification_available=False; assert the
-output report contains the word "aggregate" and does NOT contain "DEB" or "REB"
-in that scenario's section.
-
-Acceptance:
-- pytest -v passes.
-- Running the full mocked pipeline end-to-end (Tasks 8-13 chained) produces a
-  complete outputs/ directory.
-```
-
----
-
-## 16. TASK 14 — End-to-end orchestration + CI
+### TASK 14 — End-to-end orchestration + CI
 
 ```
 TASK 14 — Wire everything into scripts/run_pipeline.py and add CI.
 
 1. Rewrite scripts/run_pipeline.py to run Stages 1-6 in order, respecting:
-   - pld.enabled flag from config (skip Stage/module if false, per D10).
-   - A `--use-cache` CLI flag (argparse) controlling acquisition.py's use_cache
-     behavior — default False (always fetch freshest data), explicit opt-in to
-     reuse cached raw files for faster iteration during development.
-   - A `--integration` flag to also run the @pytest.mark.integration-style live
-     calls as part of a manual full run (not part of default CI).
+   - pld.enabled flag from config (skip Stage/module if false, per D10 —
+     currently always false, CCEE permanently closed).
+   - A --use-cache CLI flag (argparse) controlling acquisition.py's
+     use_cache behavior — default False, explicit opt-in to reuse cached
+     raw files for faster iteration during development.
+   - A --integration flag to also run the @pytest.mark.integration-style
+     live calls as part of a manual full run (not part of default CI).
 
-2. Each stage's output path and the final DataQualityReport + limitations_summary.md
-   should be printed as a clear console summary at the end of the run.
+2. Each stage's output path and the final DataQualityReport +
+   limitations_summary.md should be printed as a clear console summary at
+   the end of the run.
 
 3. Fill in .github/workflows/ci.yml:
    - Run on push/PR to main.
-   - Set up Python 3.11, install requirements.txt + the package itself (pip install -e .).
-   - Run `pytest -v -m "not integration"` (never run live network calls in CI).
-   - Run `ruff check src tests`.
+   - Set up Python 3.11, install requirements.txt + the package itself
+     (pip install -e ".[dev]").
+   - Run pytest -v -m "not integration" (never run live network calls in CI).
+   - Run ruff check src tests.
 
-4. Update Makefile with a `run` target calling scripts/run_pipeline.py.
+4. Update Makefile with a run target calling scripts/run_pipeline.py.
 
 Acceptance:
-- `python scripts/run_pipeline.py` runs end-to-end against mocked/test
-  configuration without crashing (document how to run it against a small
-  synthetic config for a smoke test, vs. the real one that requires live network).
+- python scripts/run_pipeline.py runs end-to-end against mocked/test
+  configuration without crashing.
 - CI workflow file is valid YAML and the job list matches the steps above.
 ```
 
 ---
 
-## 17. TASK 15 — Reproducibility pass + documentation sync
+### TASK 15 — Reproducibility pass + documentation sync
 
 ```
 TASK 15 — Final reproducibility and documentation pass.
 
-1. Add a DATABASE_ROOT/logs/run_manifest_{timestamp}.json at the end of every full
-   pipeline run (scripts/run_pipeline.py), aggregating all individual retrieval
-   manifests (Task 1) used in that run — this is the single file that lets us say,
-   in the paper's methods section, exactly which data vintage produced a given
-   result.
+1. Add a DATABASE_ROOT/logs/run_manifest_{timestamp}.json at the end of
+   every full pipeline run, aggregating all individual retrieval manifests
+   (Task 1) used in that run.
 
-2. Update docs/roadmap.md §8 ("Remaining open items") — replace it with actual
-   outcomes now that the pipeline has run at least once: which resource_ids were
-   discovered, which fallback paths (if any) were triggered, what the final
-   calibration parameters were. This section becomes a record of execution
-   outcomes, not speculation.
+2. Update docs/roadmap.md §8 ("Remaining open items") — replace with actual
+   outcomes now that the pipeline has run at least once: which resource_ids
+   were discovered, which fallback paths (if any) were triggered, final
+   calibration parameters.
 
-3. Update README.md with real, tested instructions: how to run Stage 1 alone,
-   how to run the full pipeline, how to interpret outputs/reports/limitations_summary.md.
+3. Update README.md with real, tested instructions: how to run Stage 1
+   alone, how to run the full pipeline, how to interpret
+   outputs/reports/limitations_summary.md.
 
-4. Confirm every acceptance criterion listed in docs/roadmap.md §7 has a
+4. Confirm every acceptance criterion in docs/roadmap.md §7 has a
    corresponding passing test — list them explicitly in a new
    docs/acceptance_criteria_status.md, one row per criterion, with the test
    name that verifies it.
 
+5. Housekeeping: config/discovered_sources.yaml currently has decisions D13
+   and D14 in a structured `decisions:` block, while earlier decisions
+   (D10, D12) are inline comments. Normalize all decisions (D1-D14) into the
+   structured block format for consistency.
+
 Acceptance:
-- All of the above files exist and are internally consistent with the actual
-  code behavior (not aspirational).
+- All of the above files exist and are internally consistent with the
+  actual code behavior (not aspirational).
 - Full test suite (excluding integration-marked tests) passes.
 ```
 
 ---
 
-## Appendix — Candidate API/data endpoints to try first (starting points, not final)
-
-These are **starting points for discovery**, not confirmed final URLs — every task
-above requires Claude Code to verify them programmatically before relying on them,
-per Global Rule #3.
-
-| Source | Base / landing point | Notes |
-|---|---|---|
-| ONS Dados Abertos | `https://dados.ons.org.br/api/3/action/` | CKAN API. Known package: `restricao_coff_eolica_usi` (wind curtailment). Solar/PV and generation-by-source packages: discover via `package_search`. |
-| ANEEL Dados Abertos | `https://dadosabertos.aneel.gov.br/api/3/action/` | Also CKAN-based. Fallback source only (Task 6). |
-| MCTI | `gov.br/mcti` — search for "Fator médio de emissão de CO2 do SIN" and "Fatores de Emissão / Margem Operacional, Margem de Construção" | No CKAN API confirmed — requires HTML discovery (Task 5). Confirm current URL before coding against it. |
-| CCEE Dados Abertos | `https://dadosabertos.ccee.org.br/` | Confirm whether CKAN or custom REST API (Task 7). Optional module, non-blocking. |
-
----
-
-## Session restart checklist (paste if starting a new Claude Code session)
+## 5. Session restart checklist (paste if starting a new Claude Code session)
 
 ```
 Before continuing: read docs/roadmap.md, docs/methodology.md, and
-docs/claude_commands.md in full. Tell me which Task number we left off at
-(check the latest git log and which modules/tests already exist) before writing
-any new code.
+docs/claude_commands.md (sections 1 and 3) in full. Tell me which task number
+we left off at (check the latest git log and which modules/tests already
+exist) before writing any new code.
 ```
-```
-
----
-
----
----
-
-# STATUS ADDENDUM (supersedes the tasks listed below where noted)
-
-This section was added after a round of local pre-building and real API
-discovery probing, done outside of Claude Code to save tokens. Read this
-addendum before starting any of the tasks it references. See also
-`docs/progress_log.md` and `config/discovered_sources.yaml` for full detail.
-
-## Tasks marked DONE (pre-built and tested locally; review only, do not rebuild)
-
-- **Task 1** (Retrieval manifest + caching utility): DONE.
-  `src/curtailmit/acquisition.py` and `src/curtailmit/paths.py` exist,
-  fully tested. Only verify/extend if a real acquisition task surfaces a
-  gap in the manifest schema.
-- **Task 9** (Stage 2 calibration.py): PARTIALLY DONE. Generic logistic
-  fitting machinery (`fit_calibration`, `apply_calibration`,
-  `validate_against_holdout`, save/load) is complete and tested in
-  `src/curtailmit/calibration.py`. Remaining work: wire in real historical
-  ONS curtailment + generation data once Tasks 2 and 3 are complete.
-- **Task 11** (Stage 4 mitigation.py): DONE. `compute_mitigation()` is
-  complete and tested in `src/curtailmit/mitigation.py`. Review only.
-- **Task 12** (Stage 5 hydrogen.py): DONE. `compute_hydrogen_potential()`
-  is complete and tested in `src/curtailmit/hydrogen.py`. Review only.
-
-## Task 2 (ONS curtailment acquisition) — enriched with confirmed IDs
-
-Use these CONFIRMED package IDs (discovered via live `package_search` /
-`package_show`, not guessed):
-
-- Wind curtailment: `restricao_coff_eolica_usi`
-- Solar curtailment: `restricao_coff_fotovoltaica`
-
-Both follow the same resource naming pattern:
-`Restricoes_coff_eolicas-YYYY-MM` (and equivalent for fotovoltaica),
-available in CSV, XLSX, and (from ~2023 onward) PARQUET formats. Prefer
-PARQUET where available for a given month, falling back to CSV.
-
-Do not search for these again. Proceed directly to `package_show` on
-each to confirm current resource lists, then implement acquisition.
-
-## Task 3 (ONS generation-by-source) — narrowed, not resolved
-
-No single clean package was found. Two real candidates were identified
-via `package_search` (not guessed):
-
-- `geracao-usina-2` ("Geração por Usina em Base Horária") — per-plant
-  hourly generation, would require joining against plant metadata to
-  aggregate by source type (solar/wind/hydro/thermal).
-- `balanco-energia-subsistema` ("Balanço de Energia nos Subsistemas") —
-  subsystem-level energy balance, unclear if broken down by source type.
-
-**Your task**: run `package_show` on both, inspect one sample resource's
-actual column schema from each, and report back (column names, units,
-granularity) before writing any acquisition or aggregation code. Do not
-guess the schema or assume which one is correct.
-
-## Task 5 (MCTI emission factor discovery) — narrowed, not resolved
-
-Two real candidate pages were found via actual link extraction on the
-SIRENE landing page (not guessed):
-
-1. `https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao`
-   (link text: "Fatores de emissão MDL/SIN") — primary candidate.
-2. `https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/#fatores`
-   (link text: "Fatores de emissão de CO2") — secondary candidate.
-
-**Your task**: fetch both pages, extract all `<a href>` links ending in
-`.xls`/`.xlsx`/`.csv`/`.zip` or containing "fator"/"emissao"/"margem" in
-the href or link text, and report the exact file URLs found. If neither
-page yields a usable file link after this, STOP and report back with
-what you found rather than guessing further sub-paths or inventing a URL.
-
-## Task 6 (ANEEL fallback) — confirmed reachable
-
-ANEEL Dados Abertos is CONFIRMED CKAN-based and reachable at
-`https://dadosabertos.aneel.gov.br/api/3/action/` (`package_search` for
-"geracao" returned 10 real results). Proceed with building the fallback
-module as originally scoped; no further discovery needed before starting.
-
-## Task 7 (CCEE PLD) — closed as a permanent limitation
-
-CCEE (`https://dadosabertos.ccee.org.br/`) was probed twice, including
-once with realistic browser `User-Agent`/`Accept-Language` headers, and
-returned HTTP 403 "Acesso bloqueado" both times. This is a CDN/WAF-level
-block, not a CKAN or header issue, and will not be resolved by code
-changes.
-
-**Your task is reduced to**: build only the minimal `pld.enabled: false`
-stub/module boundary as originally scoped (so the pipeline architecture
-supports PLD if it's ever unblocked), and add a short note to
-`docs/methodology.md` or a new `docs/limitations.md` documenting that
-CCEE is not accessible via automated means as of this writing. Do NOT
-attempt further automated discovery against CCEE — this has already been
-tried twice and is considered closed.
-
-
----
----
-
-# STATUS ADDENDUM 2 — FULL DISCOVERY CLOSURE (supersedes ADDENDUM 1 narrowed items)
-
-This addendum fully resolves the items ADDENDUM 1 marked "narrowed, not
-resolved" (Tasks 3 and 5). All discovery is now closed. Everything
-described below is confirmed via live probes against the real APIs/pages
-(see `config/discovered_sources.yaml` for the complete provenance trail,
-`docs/progress_log.md` for the chronology). No further discovery should
-be attempted for ONS generation-by-source or MCTI before starting
-implementation.
-
-## New pre-built module (review only, do not rebuild)
-
-- **`src/curtailmit/emission_factors.py`**: DONE. Implements
-  `derive_annual_om_from_monthly()` (simple mean of 12 published monthly
-  OM values, since MCTI publishes no official annual OM figure) and
-  `compute_combined_margin()` (CM = 0.5×OM + 0.5×BM per decision D12,
-  UNFCCC CDM default weighting). Fully tested. Use this directly in Task
-  5's acquisition pipeline rather than reimplementing the math.
-
-## Decision D12 (new)
-
-CM (Combined Margin, the REB proxy per D9) is not published by MCTI and
-must be computed as CM = 0.5×OM + 0.5×BM. See `docs/roadmap.md` and
-`docs/methodology.md` for the full decision text. This value, and the
-derived annual OM it depends on, must be flagged as **computed/derived**
-in all output metadata — never presented as an MCTI-published figure.
-
-## Task 3 (ONS generation-by-source) — RESOLVED, no longer narrowed
-
-Package ID: `balanco-energia-subsistema` ("Balanço de Energia nos
-Subsistemas"). Confirmed schema (one CSV resource per YEAR, not monthly):
-id_subsistema, nom_subsistema, din_instante, val_gerhidraulica,
-val_gertermica, val_gereolica, val_gersolar, val_carga, val_intercambio
-
-- Filter to `id_subsistema == "SIN"` for the national aggregate (satisfies
-  OQ-1 directly — no plant-level joining or regional breakdown needed).
-- `wind_pct = val_gereolica / (val_gerhidraulica + val_gertermica + val_gereolica + val_gersolar)`,
-  same pattern for `solar_pct`. Compute in `data_ingestion.py`, never
-  hardcode (per global rule).
-- `val_gersolar` is NaN/0 for years before ~2017 — treat as 0 when
-  summing, this is expected, not a data quality failure.
-- `geracao-usina-2` (per-plant hourly, 12 columns including
-  `nom_tipousina`/`nom_tipocombustivel`) is demoted to an OPTIONAL
-  cross-check source only. Do not use it as the primary source.
-
-**Your task**: implement acquisition + SIN-level aggregation using
-`balanco-energia-subsistema` directly. No further package_show/schema
-exploration needed — proceed straight to implementation.
-
-## Task 5 (MCTI emission factor acquisition) — RESOLVED, no longer narrowed
-
-Full mapping (see `config/discovered_sources.yaml` → `mcti` section for
-complete detail including every confirmed URL and sheet name found):
-
-| Concept | File pattern | Granularity | Sheet name |
-|---|---|---|---|
-| Average SIN factor (D8) | `Inventario_{year_range}.xlsx` — ONE consolidated file, 2006→present | Monthly + annual | `inventário-todos` |
-| Build Margin (BM) | `Despacho_{YYYY}_*.xlsx` or `Margemdeconstruo_{YYYY}*.xlsx` — ONE FILE PER YEAR, inconsistent naming | Annual (direct) | `MDL` |
-| Operating Margin (OM), dispatch-analysis (DEB proxy, D9) | Same per-year file as BM | Monthly only (no annual published — derive via `emission_factors.derive_annual_om_from_monthly()`) | `MDL` |
-| Combined Margin (CM) (REB proxy, D9) | NOT PUBLISHED — compute via `emission_factors.compute_combined_margin()` per D12 | — | — |
-| Simple Adjusted OM (secondary/fallback only) | `FE_simplesajustado_{year}_web.xlsx` — ONE consolidated file, 2006→present | Annual | `Publicar` |
-
-**Critical acquisition note**: per-year BM/OM file naming is
-**inconsistent across years** (`Despacho_*` vs `Margemdeconstruo_*`,
-plus a legacy domain `antigo.mctic.gov.br` for pre-2021 years). A fixed
-URL pattern CANNOT be relied on. Your acquisition code must:
-1. Fetch the landing page
-   `https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao`
-2. Parse all `<a href>` tags ending in `.xlsx`/`.xls`
-3. Match the target year as a substring in the href or link text to
-   select the correct file for that year
-4. Log every discovered URL in the retrieval manifest (per Global Rule:
-   fetch_and_cache + manifest sidecar pattern, already built in
-   `acquisition.py`)
-5. If no file matches a required year, FAIL EXPLICITLY (per global
-   rule) rather than falling back to a guessed URL pattern.
-
-The average SIN factor and Simple Adjusted OM files are single
-consolidated downloads (no per-year scraping needed for those two).
-
-Technical note for context (not required reading, but explains why OM
-values may differ slightly from older MCTI publications): ONS revised
-its underlying plant database in Jan/2025 to include previously
-undercounted zero-emission plant clusters (biomass thermal, wind/solar
-clusters). Methodology itself unchanged. Source:
-`https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/NT_FE_jun25.pdf`.
-
-**Your task**: implement the scraping + acquisition + OM derivation + CM
-computation pipeline using the confirmed structure above. No further
-discovery needed — proceed straight to implementation.

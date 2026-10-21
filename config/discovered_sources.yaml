@@ -238,3 +238,27 @@ decisions:
         is not itself evidence about curtailment behavior, so these figures do not
         establish that 2020 solar curtailment was negligible. The documented-zero
         treatment rests on ONS not publishing earlier data (see decided/caveat).
+
+  D15:
+    status: adopted
+    date: "2026-10-21"
+    topic: "ONS generation-by-source: usable history starts 2016"
+    checked: >
+      ONS balanco-energia-subsistema (SIN rows), yearly resources 2000-2026, probed live.
+    found: >
+      Series is unreliable before 2016: wind generation is blank for all of 2000-2005 and
+      partially blank in 2006; 2015 has 24 hours with no source-level data at all (every source
+      NaN). From 2016 on the series is clean; the only blanks are partial val_gersolar in 2016
+      (the documented pre-2017 case, treated as 0).
+    decided: >
+      history_start_year: 2016 in config/acquisition_targets.yaml
+      (ons.packages.generation_by_source) is a hard floor for any use of this series; earlier
+      yearly resources are never downloaded or silently used. It must not be later than the
+      coverage-floor year (ons_generation raises ValidationError otherwise). Applies to the
+      acquisition config only - config/scenarios.yaml was not changed.
+    why: >
+      Fail-explicit rule: refusing to assume zero generation for missing wind/hydro/thermal data.
+    caveat: >
+      No effect on the 2020 baseline (single fully covered year, 8,784 h) or the 2021+ calibration
+      window (fully covered). It only excludes pre-2016 data from ever being used silently.
+    implemented_in: "curtailmit.ons_generation (Task 3, commit 3f69554)"
