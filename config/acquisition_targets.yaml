@@ -1,0 +1,144 @@
+# acquisition_targets.yaml
+#
+# Machine-readable acquisition configuration, consumed directly by
+# data_ingestion.py and future ONS/MCTI/ANEEL client modules. Every
+# value here was confirmed via live API discovery probes (package_show,
+# package_search, HTML link extraction) - see config/discovered_sources.yaml
+# for the full narrative provenance trail and docs/claude_commands.md
+# STATUS ADDENDUM 2 for chronology. Do not hand-edit package_ids or URLs
+# without re-confirming via a discovery probe (Global Rule #3).
+
+ons:
+  ckan_base_url: "https://dados.ons.org.br/api/3/action"
+  min_coverage_start: "2022-01-01"
+
+  packages:
+    curtailment_wind:
+      package_id: "restricao_coff_eolica_usi"
+      resource_name_pattern: "Restricoes_coff_eolicas-YYYY-MM"
+      preferred_formats: ["PARQUET", "CSV", "XLSX"]
+
+    curtailment_solar:
+      package_id: "restricao_coff_fotovoltaica"
+      resource_name_pattern: "Restricoes_coff_fotovoltaica-YYYY-MM"
+      preferred_formats: ["PARQUET", "CSV", "XLSX"]
+
+    generation_by_source:
+      package_id: "balanco-energia-subsistema"
+      title: "Balanco de Energia nos Subsistemas"
+      granularity: "one_csv_resource_per_year"
+      resource_name_pattern: "Balanco_de_Energia_Subsistema-YYYY"
+      filter:
+        column: "id_subsistema"
+        value: "SIN"
+      schema_columns:
+        - id_subsistema
+        - nom_subsistema
+        - din_instante
+        - val_gerhidraulica
+        - val_gertermica
+        - val_gereolica
+        - val_gersolar
+        - val_carga
+        - val_intercambio
+      computation:
+        wind_pct: "val_gereolica / (val_gerhidraulica + val_gertermica + val_gereolica + val_gersolar)"
+        solar_pct: "val_gersolar / (val_gerhidraulica + val_gertermica + val_gereolica + val_gersolar)"
+      notes: >
+        val_gersolar is NaN/0 before ~2017; treat as 0 when summing,
+        this is expected and not a data quality failure.
+      deprioritized_candidate:
+        package_id: "geracao-usina-2"
+        title: "Geracao por Usina em Base Horaria"
+        role: "optional_crosscheck_only"
+        notes: >
+          Per-plant hourly generation; would require joining against
+          plant metadata to aggregate by source type. Demoted since
+          balanco-energia-subsistema provides a direct SIN-level
+          aggregate with no joining required.
+
+classification:
+  mapping:
+    "Razao Energetica": "DEB"
+    "Confiabilidade": "REB"
+    "Indisponibilidade Externa": "EUB"
+  fallback_on_missing_classification: true
+  notes: >
+    If the classified series is not exportable via API, fall back to
+    the unclassified aggregate with classification_available: false
+    (D6). EUB is its own category, never merged into or dropped in
+    favor of DEB/REB.
+
+aneel:
+  ckan_base_url: "https://dadosabertos.aneel.gov.br/api/3/action"
+  role: "fallback_only"
+  status: "confirmed_reachable"
+  notes: >
+    Confirmed CKAN-based via package_search for 'geracao' (10 real
+    results). Not wired into the default pipeline; invoked only after
+    a documented ONS failure.
+
+mcti:
+  landing_page: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao"
+  methodology_note_pdf: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/NT_FE_jun25.pdf"
+
+  average_sin_factor:
+    concept: "D8_average_emission_factor"
+    acquisition_method: "single_consolidated_download"
+    file_pattern: "Inventario_{year_range}.xlsx"
+    sheet_name: "inventário-todos"
+    granularity: "monthly_and_annual"
+    notes: >
+      Single download covers the full historical series (2006-present).
+      No per-year scraping required.
+
+  operating_margin_build_margin:
+    concept: "D9_marginal_deb_proxy_om_and_bm"
+    acquisition_method: "scrape_landing_page_match_year_substring"
+    file_pattern_examples:
+      - "Despacho_{YYYY}_*.xlsx"
+      - "Margemdeconstruo_{YYYY}*.xlsx"
+    legacy_domain_pre_2021: "antigo.mctic.gov.br"
+    sheet_name: "MDL"
+    om_granularity: "monthly_only_derive_annual_via_simple_mean"
+    bm_granularity: "annual_direct"
+    notes: >
+      File naming is inconsistent year-to-year; a fixed URL pattern
+      cannot be relied on. Must scrape the landing page's <a href> list
+      and match on year substring in href or link text. Fail explicitly
+      if no file matches a required year - never fall back to a guessed
+      URL pattern. Log every discovered URL in the retrieval manifest
+      (see manifest.py::write_manifest).
+
+  combined_margin:
+    concept: "D9_marginal_reb_proxy_cm"
+    acquisition_method: "computed_not_downloaded"
+    formula: "CM = 0.5 * OM + 0.5 * BM"
+    decision_reference: "D12"
+    implementation: "curtailmit.emission_factors.compute_combined_margin"
+    notes: >
+      Not published by MCTI under any circumstance. Must always be
+      flagged as a derived/computed quantity in output metadata, never
+      presented as an MCTI-published value.
+
+  simple_adjusted_om_secondary:
+    concept: "om_fallback_if_dispatch_analysis_file_unavailable"
+    acquisition_method: "single_consolidated_download"
+    file_pattern: "FE_simplesajustado_{year}_web.xlsx"
+    sheet_name: "Publicar"
+    granularity: "annual"
+    role: "secondary_fallback_only"
+    notes: >
+      Not used unless the primary dispatch-analysis OM file is
+      unavailable for a given year; usage must be explicitly flagged,
+      consistent with the classification_available flagging pattern.
+
+ccee_pld:
+  enabled: false
+  status: "blocked_permanent"
+  http_status_observed: 403
+  role: "optional_non_blocking"
+  notes: >
+    CCEE dadosabertos.ccee.org.br confirmed blocked by CDN/WAF (HTTP 403),
+    probed twice including with realistic browser headers. Closed
+    permanently; no further automated discovery planned (D10).
