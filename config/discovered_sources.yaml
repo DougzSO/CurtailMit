@@ -224,3 +224,17 @@ decisions:
     caveat: >
       3.3 GW of PV existed in 2020, so zero is an assumption backed by ONS not
       publishing earlier data, not a measurement. Revisit if ONS back-fills.
+    corroborating_context:
+      label: "Corroborating context only - NOT proof that 2020 solar curtailment was negligible"
+      source: "ANEEL SIGA, siga-empreendimentos-geracao.csv (UFV, DscFaseUsina=Operacao, cumulative by DatEntradaOperacao)"
+      scope: "Centralized utility-scale installed capacity only; EXCLUDES distributed generation (MMGD)."
+      installed_capacity_gw:
+        2019: 2.5
+        2020: 3.3
+        2022: 7.5
+        2024: 17.2
+      interpretation: >
+        2020 capacity was ~19% of 2024's - small but not zero. Installed capacity
+        is not itself evidence about curtailment behavior, so these figures do not
+        establish that 2020 solar curtailment was negligible. The documented-zero
+        treatment rests on ONS not publishing earlier data (see decided/caveat).
