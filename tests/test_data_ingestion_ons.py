@@ -12,19 +12,20 @@ import responses
 
 from curtailmit import data_ingestion as di
 from curtailmit.ons_client import CkanClient, CoverageError, ResourceInfo
+from curtailmit.validation import ONS_MIN_COVERAGE_DATE, ValidationError, resolve_ons_min_coverage
 
 FIXTURES = Path(__file__).parent / "fixtures" / "ons"
 BASE = "https://dados.ons.org.br/api/3/action"
 WIND_URL = "https://files.test/wind-2022-01.csv"
-SOLAR_URL = "https://files.test/solar-2022-01.csv"
+SOLAR_URL = "https://files.test/solar-2024-04.csv"
 
 TARGETS = {
     "ons": {
         "ckan_base_url": BASE,
         "min_coverage_start": "2022-01-01",
         "packages": {
-            "curtailment_wind": {"package_id": "restricao_coff_eolica_usi", "resource_name_pattern": "Restricoes_coff_eolicas-YYYY-MM", "preferred_formats": ["PARQUET", "CSV", "XLSX"]},
-            "curtailment_solar": {"package_id": "restricao_coff_fotovoltaica", "resource_name_pattern": "Restricoes_coff_fotovoltaica-YYYY-MM", "preferred_formats": ["PARQUET", "CSV", "XLSX"]},
+            "curtailment_wind": {"package_id": "restricao_coff_eolica_usi", "resource_name_pattern": "Restricoes_coff_eolicas-YYYY-MM", "preferred_formats": ["PARQUET", "CSV", "XLSX"], "min_coverage_start": "2022-01-01"},
+            "curtailment_solar": {"package_id": "restricao_coff_fotovoltaica", "resource_name_pattern": "Restricoes_coff_fotovoltaica-YYYY-MM", "preferred_formats": ["PARQUET", "CSV", "XLSX"], "min_coverage_start": "2024-04-01"},
         },
     }
 }
@@ -55,17 +56,17 @@ def tmp_database(tmp_path, monkeypatch):
     return tmp_path
 
 
-def _mock_happy_path(rsps: responses.RequestsMock, wind_file: str = "coff_wind_2022-01.csv") -> None:
+def _mock_happy_path(rsps: responses.RequestsMock, wind_file: str = "coff_wind_2022-01.csv", solar_file: str = "coff_solar_2024-04.csv") -> None:
     rsps.add(responses.GET, f"{BASE}/package_show", match=[responses.matchers.query_param_matcher({"id": "restricao_coff_eolica_usi"})], json=_pkg("restricao_coff_eolica_usi", [
         _res("w1", "Restricoes_coff_eolicas-2022-01", "CSV", WIND_URL),
         _res("w0", "Restricoes_coff_eolicas-2021-12", "CSV", "https://files.test/should-not-be-fetched.csv"),
         _res("wd", "Dicionario de Dados", "PDF", "https://files.test/dict.pdf"),
     ]))
     rsps.add(responses.GET, f"{BASE}/package_show", match=[responses.matchers.query_param_matcher({"id": "restricao_coff_fotovoltaica"})], json=_pkg("restricao_coff_fotovoltaica", [
-        _res("s1", "Restricoes_coff_fotovoltaica-2022-01", "CSV", SOLAR_URL),
+        _res("s1", "Restricoes_coff_fotovoltaica-2024-04", "CSV", SOLAR_URL),
     ]))
     rsps.add(responses.GET, WIND_URL, body=(FIXTURES / wind_file).read_bytes())
-    rsps.add(responses.GET, SOLAR_URL, body=(FIXTURES / "coff_solar_2022-01.csv").read_bytes())
+    rsps.add(responses.GET, SOLAR_URL, body=(FIXTURES / solar_file).read_bytes())
 
 
 def test_parse_frame_computes_mwh_from_interval():
@@ -133,6 +134,35 @@ def test_short_coverage_raises_coverage_error():
 
 
 @responses.activate
+def test_per_package_floors_are_respected(caplog):
+    """Wind clears its 2022-01 floor and solar clears its own 2024-04 floor in the same run."""
+    _mock_happy_path(responses)
+    with caplog.at_level(logging.INFO, logger=di.logger.name):
+        result = di.acquire_ons_curtailment(targets=TARGETS)
+    by_source = {p["source"]: p for p in result["packages"]}
+    assert by_source["wind"]["earliest_date"] == "2022-01-01"
+    assert by_source["solar"]["earliest_date"] == "2024-04-01"
+    assert "[wind] coverage floor: 2022-01-01" in caplog.text
+    assert "[solar] coverage floor: 2024-04-01" in caplog.text
+
+
+@responses.activate
+def test_solar_below_its_own_floor_raises_coverage_error():
+    """Solar starting 2024-06 does not reach its own 2024-04 floor and must still fail."""
+    _mock_happy_path(responses, solar_file="coff_solar_2024-06_short.csv")
+    with pytest.raises(CoverageError, match="2024-06-01"):
+        di.acquire_ons_curtailment(targets=TARGETS)
+
+
+def test_solar_floor_is_not_the_wind_default():
+    cfg = TARGETS["ons"]["packages"]["curtailment_solar"]
+    assert resolve_ons_min_coverage("solar", cfg) == date(2024, 4, 1)
+    assert resolve_ons_min_coverage("wind", {}) == ONS_MIN_COVERAGE_DATE
+    with pytest.raises(ValidationError):
+        resolve_ons_min_coverage("solar", {})
+
+
+@responses.activate
 def test_stale_package_id_falls_back_to_search_with_warning(caplog):
     responses.add(responses.GET, f"{BASE}/package_show", match=[responses.matchers.query_param_matcher({"id": "restricao_coff_fotovoltaica"})], status=404, json={"success": False})
     responses.add(responses.GET, f"{BASE}/package_search", json={"success": True, "result": {"results": [
@@ -140,12 +170,12 @@ def test_stale_package_id_falls_back_to_search_with_warning(caplog):
         {"name": "restricao_coff_fv_novo", "title": "Restrição COFF Fotovoltaica"},
     ]}})
     responses.add(responses.GET, f"{BASE}/package_show", match=[responses.matchers.query_param_matcher({"id": "restricao_coff_fv_novo"})], json=_pkg("restricao_coff_fv_novo", [
-        _res("s1", "Restricoes_coff_fotovoltaica-2022-01", "CSV", SOLAR_URL),
+        _res("s1", "Restricoes_coff_fotovoltaica-2024-04", "CSV", SOLAR_URL),
     ]))
-    responses.add(responses.GET, SOLAR_URL, body=(FIXTURES / "coff_solar_2022-01.csv").read_bytes())
+    responses.add(responses.GET, SOLAR_URL, body=(FIXTURES / "coff_solar_2024-04.csv").read_bytes())
 
     with caplog.at_level(logging.WARNING, logger=di.logger.name):
-        data, info = di.acquire_curtailment_source(CkanClient(BASE), "solar", TARGETS["ons"]["packages"]["curtailment_solar"], date(2022, 1, 1))
+        data, info = di.acquire_curtailment_source(CkanClient(BASE), "solar", TARGETS["ons"]["packages"]["curtailment_solar"], date(2024, 4, 1))
 
     assert info.used_fallback_search and info.resolved_package_id == "restricao_coff_fv_novo"
     assert "STALE" in caplog.text
@@ -172,7 +202,7 @@ def test_fallback_search_without_candidates_raises():
 
 
 def test_read_table_xlsx_and_parquet(tmp_path):
-    raw = pd.read_csv(FIXTURES / "coff_solar_2022-01.csv", sep=";")
+    raw = pd.read_csv(FIXTURES / "coff_solar_2024-04.csv", sep=";")
     raw.to_excel(tmp_path / "a.xlsx", index=False)
     raw.to_parquet(tmp_path / "a.parquet", index=False)
     for name, fmt in (("a.xlsx", "XLSX"), ("a.parquet", "PARQUET")):

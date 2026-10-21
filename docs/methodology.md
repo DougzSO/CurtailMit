@@ -60,6 +60,14 @@ Requirements, enforced by explicit failure rather than silent assumption:
 (b) the classification field is present in the returned series;
 (c) mapping to DEB/REB/EUB (D5) is programmatically confirmed, or the pipeline falls back to
     the unclassified aggregate with classification_available: false (D6).
+Requirement (a) is applied per package (D14): wind from 2022-01, solar from its own published
+start (2024-04).
+
+Curtailed energy (wind and solar) is taken from ONS's own ascertained figure,
+`val_geracaonaorealizadaapurada` (MW, integrated over the sampling interval to MWh), not derived
+by subtracting realized from reference generation, because the reference column
+(`val_geracaoreferenciafinal`) is sparsely populated (D13; verified equivalent on the 3,746
+populated rows of the 2022-01 wind sample).
 
 ### Emission factor data - RESOLVED, same empirical discovery pattern (new in v3.1)
 
@@ -124,6 +132,13 @@ other stage (D10).
 - The marginal emission factor (DEB/REB) uses MCTI's OM/BM/CM margin methodology as a proxy,
   not a bespoke grid-dispatch marginal estimate - a methodological limitation, stated
   explicitly.
+- Utility-scale solar curtailment in Brazil's SIN is not published by ONS before 2024-04 (earliest
+  observed record 2024-04-01; wind is available from 2021-10), and no ANEEL dataset provides an
+  alternative series (D14). ANEEL's SIGA registry shows ~3.3 GW of centralized utility-scale PV in
+  operation at end-2020 versus ~17.2 GW at end-2024 (~19% of the later level), which is consistent
+  with, but does NOT prove, negligible solar curtailment in 2020. The 2020 baseline's solar
+  curtailment is therefore a documented zero, not a measured value; this is reported explicitly in
+  the data-quality report (`solar_curtailment_2020_baseline`) and is never silently assumed.
 - The financial estimate (2.8, optional) excludes externality costs.
 - Electrolyzer SEC is a literature-range assumption (50-55 kWh/kg H2), not a measured value.
 

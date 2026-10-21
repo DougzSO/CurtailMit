@@ -165,3 +165,62 @@ mcti:
       Not used unless the dispatch-analysis OM file is unavailable for a
       given year, in which case fall back to this with
       classification_available-style explicit flagging.
+
+# ---------------------------------------------------------------------------
+# Methodological / sourcing decisions recorded from discovery work.
+# (D10 CCEE blocked and D12 Combined Margin are documented inline above.)
+# ---------------------------------------------------------------------------
+decisions:
+  D13:
+    status: adopted
+    date: "2026-10-21"
+    topic: "Curtailment energy column (wind and solar)"
+    checked: >
+      ONS COFF resources (restricao_coff_eolica_usi, restricao_coff_fotovoltaica),
+      wind 2022-01 sample: 200,880 rows.
+    found: >
+      val_geracaoreferenciafinal is populated in only 295 rows;
+      val_geracaonaorealizadaapurada (ONS's ascertained curtailed power, MW) is
+      populated in 3,746 rows, exactly the rows with cod_razaorestricao set.
+      On populated rows it is the figure ONS itself reports as non-realized generation.
+    decided: >
+      Curtailed energy = val_geracaonaorealizadaapurada x sampling interval (h).
+      Blank means no restriction in the interval (0 MWh, logged). Reference-minus-
+      realized derivation is used only if the column is absent from a resource,
+      with a WARNING.
+    why: >
+      The reference column is too sparse to derive curtailment from; using ONS's
+      own ascertained value avoids a derived quantity with large coverage gaps.
+    implemented_in: "curtailmit.data_ingestion.parse_curtailment_frame (Task 2)"
+
+  D14:
+    status: adopted
+    date: "2026-10-21"
+    topic: "Per-package ONS coverage floors; solar 2020 baseline = documented zero"
+    checked: >
+      (1) ONS resource listings: wind monthly resources 2021-10..2026-10;
+      solar 2024-04..2026-10; earliest solar row 2024-04-01 00:00.
+      (2) ANEEL CKAN package_search, 13 queries (restricao/curtailment/corte/
+      constrained off/fotovoltaica/capacidade instalada/SIGA, PT and EN), 20
+      distinct packages: none is a curtailment/constrained-off series (all are
+      registries, capacity totals, auctions, inspections, tariffs).
+      (3) Capacity corroboration, ANEEL SIGA (siga-empreendimentos-geracao.csv),
+      UFV in operation, cumulative by DatEntradaOperacao, centralized plants only
+      (MMGD is a separate dataset): 2019 2.5 GW; 2020 3.3 GW; 2021 4.7 GW;
+      2022 7.5 GW; 2023 11.6 GW; 2024 17.2 GW; 2025 20.1 GW.
+    found: >
+      No ANEEL source improves on ONS solar coverage (Branch A). 2020 utility-scale
+      PV capacity was about 19% of the 2024 level - low, but not zero, so it
+      corroborates a small effect without proving curtailment was nil.
+    decided: >
+      Coverage floor is read per package from acquisition_targets.yaml
+      (wind 2022-01-01, solar 2024-04-01); ONS_MIN_COVERAGE_DATE remains the wind
+      default only and is never reused for solar (validation.resolve_ons_min_coverage).
+      The 2020 baseline solar curtailment is a DOCUMENTED ZERO (not measured),
+      surfaced in the Stage 1 data-quality report and methodology.md 3.7.
+    why: >
+      Keeps the CoverageError fail-explicit guarantee per package while allowing
+      real runs to complete, without silently inventing or back-filling solar data.
+    caveat: >
+      3.3 GW of PV existed in 2020, so zero is an assumption backed by ONS not
+      publishing earlier data, not a measurement. Revisit if ONS back-fills.

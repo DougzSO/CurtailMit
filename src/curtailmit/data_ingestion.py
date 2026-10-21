@@ -28,6 +28,7 @@ from curtailmit.ckan import MONTHLY_NAME_PATTERN
 from curtailmit.ons_client import CkanClient, ResourceInfo
 from curtailmit.paths import get_interim_dir, get_raw_dir
 from curtailmit.schemas import CurtailmentPackageDiscovery, PipelineConfig
+from curtailmit.validation import resolve_ons_min_coverage
 
 logger = logging.getLogger(__name__)
 
@@ -291,11 +292,13 @@ def acquire_ons_curtailment(targets: dict | None = None, client: CkanClient | No
     targets = targets or load_acquisition_targets()
     ons_cfg = targets["ons"]
     client = client or CkanClient(ons_cfg["ckan_base_url"])
-    min_coverage = date.fromisoformat(ons_cfg["min_coverage_start"])
 
     frames, infos = [], []
     for source, key in _SOURCE_KEYS.items():
-        data, info = acquire_curtailment_source(client, source, ons_cfg["packages"][key], min_coverage, use_cache=use_cache)
+        pkg_cfg = ons_cfg["packages"][key]
+        min_coverage = resolve_ons_min_coverage(source, pkg_cfg)  # per-package floor (D14)
+        logger.info("[%s] coverage floor: %s", source, min_coverage)
+        data, info = acquire_curtailment_source(client, source, pkg_cfg, min_coverage, use_cache=use_cache)
         frames.append(data)
         infos.append(info)
         logger.info("[%s] FINAL package_id=%s (fallback=%s)", source, info.resolved_package_id, info.used_fallback_search)
@@ -351,6 +354,7 @@ def run_stage1() -> dict:
         "config_valid": True,
         "classification_available": classification_available,
         "ons_discovered": discovered,
+        "solar_curtailment_2020_baseline": "documented_zero_not_measured (D14: ONS solar curtailment starts 2024-04)",
         "mcti_discovered": mcti,
         "validation_data_loaded": bool(validation_data.get("years")),
     }

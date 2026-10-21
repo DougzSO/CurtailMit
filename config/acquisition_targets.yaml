@@ -10,6 +10,7 @@
 
 ons:
   ckan_base_url: "https://dados.ons.org.br/api/3/action"
+  # Default floor (wind). Per-package values under packages.* take precedence (D14).
   min_coverage_start: "2022-01-01"
 
   packages:
@@ -17,11 +18,18 @@ ons:
       package_id: "restricao_coff_eolica_usi"
       resource_name_pattern: "Restricoes_coff_eolicas-YYYY-MM"
       preferred_formats: ["PARQUET", "CSV", "XLSX"]
+      # Per-package coverage floor (D14). Wind data observed back to 2021-10.
+      min_coverage_start: "2022-01-01"
 
     curtailment_solar:
       package_id: "restricao_coff_fotovoltaica"
       resource_name_pattern: "Restricoes_coff_fotovoltaica-YYYY-MM"
       preferred_formats: ["PARQUET", "CSV", "XLSX"]
+      # D14: ONS does not publish utility-scale solar curtailment before
+      # 2024-04 (earliest observed row: 2024-04-01 00:00, Task 2). No ANEEL
+      # alternative exists. The 2020 baseline solar curtailment is therefore a
+      # DOCUMENTED ZERO, not a measured value (see methodology.md 3.7).
+      min_coverage_start: "2024-04-01"
 
     generation_by_source:
       package_id: "balanco-energia-subsistema"

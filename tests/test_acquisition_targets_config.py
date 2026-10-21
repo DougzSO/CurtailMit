@@ -46,6 +46,12 @@ def test_ons_min_coverage_start_matches_methodology():
     assert config["ons"]["min_coverage_start"] == "2022-01-01"
 
 
+def test_per_package_ons_coverage_floors():
+    packages = _load_config()["ons"]["packages"]
+    assert packages["curtailment_wind"]["min_coverage_start"] == "2022-01-01"
+    assert packages["curtailment_solar"]["min_coverage_start"] == "2024-04-01"
+
+
 def test_classification_mapping_complete():
     config = _load_config()
     mapping = config["classification"]["mapping"]

@@ -124,6 +124,31 @@ def validate_ons_coverage(max_available_date: date) -> None:
         )
 
 
+def resolve_ons_min_coverage(source: str, package_cfg: Mapping[str, Any]) -> date:
+    """
+    Return the ONS coverage floor for one curtailment package (decision D14).
+
+    The per-package ``min_coverage_start`` in config/acquisition_targets.yaml
+    is used when present. ONS_MIN_COVERAGE_DATE is the default for wind only;
+    any other source without an explicit floor is a configuration error and
+    is never silently given the wind floor.
+
+    Raises
+    ------
+    ValidationError
+        If no floor is configured for a non-wind source.
+    """
+    configured = package_cfg.get("min_coverage_start")
+    if configured:
+        return date.fromisoformat(str(configured))
+    if source == "wind":
+        return ONS_MIN_COVERAGE_DATE
+    raise ValidationError(
+        f"No min_coverage_start configured for ONS '{source}' curtailment package; "
+        "refusing to reuse the wind floor (D14). Set it in config/acquisition_targets.yaml."
+    )
+
+
 def validate_mcti_factor_coverage(
     available_years: Sequence[int],
     required_years: Sequence[int],
