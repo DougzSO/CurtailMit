@@ -81,6 +81,15 @@ classification:
     "Confiabilidade": "REB"
     "Indisponibilidade Externa": "EUB"
   fallback_on_missing_classification: true
+  # ONS COFF packages ship a JSON data dictionary; cod_razaorestricao is described there as free text
+  # (probed live 2026-10-21: REL = indisponibilidade externa, CNF = confiabilidade, ENE = razao energetica,
+  # PAR = restricao indicada no parecer de acesso). The code -> D5 label crosswalk is derived AT RUN TIME by
+  # matching these stems (accent-insensitive) against each code's dictionary text; PAR matches none and is
+  # deliberately left without a category (never forced into DEB/REB/EUB).
+  dictionary_keywords:
+    "Razao Energetica": ["energ"]
+    "Confiabilidade": ["confiabilidade"]
+    "Indisponibilidade Externa": ["indisponibilidade externa"]
   notes: >
     If the classified series is not exportable via API, fall back to
     the unclassified aggregate with classification_available: false

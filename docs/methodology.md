@@ -78,6 +78,14 @@ Observed 2020 values (retrieved 2026-10-21): total 554.35 TWh, wind 54.30 TWh, s
 wind+solar penetration. This ONS SIN total is on a narrower footing than the PTE `total_generation_twh` figures in
 config/scenarios.yaml (e.g. 836 TWh for 2025); this is intentional and left unreconciled (D16, see 2.4).
 
+Classification (D5/D6, D17): the COFF series carries `cod_razaorestricao`, which the ONS data dictionary defines
+as ENE (razao energetica), CNF (confiabilidade), REL (indisponibilidade externa) and PAR (parecer de acesso). The
+code-to-label crosswalk is derived at run time from that dictionary and mapped by D5 to DEB / REB / EUB (EUB kept
+separate). Over 2022-01..2026-10 the split of curtailed wind+solar energy was DEB 47.75 TWh, REB 27.81 TWh and EUB
+10.35 TWh, with 0.0027 % of energy lacking a code. PAR is documented but unmapped and never forced into a category;
+if the dictionary or code field were missing the pipeline would fall back to the unclassified aggregate with
+`classification_available: false` (D6).
+
 ### Emission factor data - RESOLVED, same empirical discovery pattern (new in v3.1)
 
 - Average SIN factor (D8): MCTI's official monthly Fator Medio de Emissao de CO2 do SIN

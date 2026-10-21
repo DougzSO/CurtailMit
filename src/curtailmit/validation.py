@@ -56,7 +56,7 @@ ONS_MIN_COVERAGE_DATE = date(2022, 1, 1)
 
 # Fields that may only appear on records explicitly flagged as
 # classification_available: True.
-_CLASSIFIED_FIELDS = ("deb", "reb", "eub", "classification")
+_CLASSIFIED_FIELDS = ("deb", "reb", "eub", "classification", "deb_reb_eub")
 
 
 def validate_penetration_ceiling(records: Iterable[Mapping[str, Any]]) -> None:

@@ -300,6 +300,36 @@ decisions:
     reference: "docs/pte_ons_basis_investigation.md"
     implemented_in: "documentation only; behaviour already in projection.py (source labels) and ons_generation.py"
 
+  D17:
+    status: adopted
+    date: "2026-10-21"
+    topic: "Curtailment classification: ONS reason codes -> DEB / REB / EUB"
+    checked: >
+      Live ONS COFF data (wind 2022-01..2026-10, solar 2024-04..2026-10; 15,776,640 half-hourly plant rows) and the
+      JSON data dictionary shipped with each package (field cod_razaorestricao).
+    found: >
+      Distinct codes in the data: ENE, CNF, REL. The dictionary defines REL = indisponibilidade externa (eletrica),
+      CNF = atendimento a requisitos de confiabilidade, ENE = razao energetica, and also PAR = restricao indicada
+      no parecer de acesso (PAR never occurs in the data checked). Curtailed energy 2022-01..2026-10 (wind + solar):
+      DEB (ENE) 47.75 TWh, REB (CNF) 27.81 TWh, EUB (REL) 10.35 TWh; 2,330 MWh (0.0027%) of curtailed energy has no
+      code at all. classification_available = true.
+    decided: >
+      Two steps, both config-driven: (1) code -> D5 label derived AT RUN TIME from the live dictionary text via
+      classification.dictionary_keywords (nothing hardcoded; undocumented code in the data raises
+      ClassificationError); (2) label -> DEB/REB/EUB via the existing classification.mapping (D5). EUB stays its own
+      category. Documented codes with no D5 label (PAR) and rows without a code get a NULL deb_reb_eub and remain in the
+      aggregate - never forced into a category. The flag is global: true only if every source is classifiable,
+      otherwise false for all rows with no classified field written (D6). The classified column is named
+      deb_reb_eub and was added to validation._CLASSIFIED_FIELDS so the existing leak guard actually covers it.
+    why: >
+      A full run is 15.8M rows, so the propagation check runs on the distinct (source, deb_reb_eub, flag) record shapes,
+      which is equivalent because the rules depend only on those fields.
+    caveat: >
+      The ONS dictionary is partly published with U+FFFD replacement characters in place of accents/dashes; the parser
+      and keyword stems ("energ") are written to tolerate this. The ENE -> DEB / CNF -> REB / REL -> EUB equivalence is
+      the project's D5 proxy mapping, not an ONS-defined taxonomy.
+    implemented_in: "curtailmit.ons_classification (Task 4)"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

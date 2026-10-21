@@ -320,11 +320,16 @@ def discover_ons_resources(raw_config: dict | None = None) -> dict:
 
 
 def check_classification_availability(raw_config: dict, discovered: dict) -> bool:
-    """TODO: inspect resource schemas to confirm whether the classified series is exportable.
-    Must return False (not raise) if unavailable - fallback is a valid, logged path.
+    """Task 4: classify the interim ONS curtailment series (see ons_classification.py) and return classification_available.
+
+    Returns False (never raises) when the classified series is genuinely unavailable (D6 fallback, logged and written to
+    processed/classification_available.json); schema drift such as undocumented reason codes does raise.
     """
-    logger.warning("Classification availability check not yet implemented - defaulting to False.")
-    return False
+    from curtailmit.ons_classification import classify_ons_curtailment
+
+    package_ids = {p["source"]: p["resolved_package_id"] for p in discovered.get("packages", [])}
+    interim = Path(discovered["interim_path"]) if discovered.get("interim_path") else None
+    return classify_ons_curtailment(interim_path=interim, package_ids=package_ids)["classification_available"]
 
 
 def discover_mcti_factors(raw_config: dict) -> dict:

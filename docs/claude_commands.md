@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus three real Claude Code sessions (Task 2, Task 2B, Task 3) that did live
-API discovery and acquisition. Full test suite currently: **149 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **161 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -56,7 +56,7 @@ API discovery and acquisition. Full test suite currently: **149 passed, 0 failed
 - **Coverage floors are per-package**, not global: wind requires ≥2022-01, solar requires ≥2024-04 (`validation.resolve_ons_min_coverage()`, config-driven). Raises `ValidationError`/`CoverageError` explicitly if a floor is missing or unmet.
 - **D13**: curtailment energy sourced from `val_geracaonaorealizadaapurada` (ONS's own ascertained figure), not derived via reference-minus-realized subtraction (reference column mostly empty); verified equivalent on 2022-01 sample.
 - **D14**: ANEEL probed (13 queries, 20 packages inspected) — no solar curtailment series exists there; nothing improves on ONS's 2024-04 floor. The 2020 baseline's solar curtailment is therefore a **documented zero, not a measurement** — flagged in the data-quality report (`solar_curtailment_2020_baseline: documented_zero_not_measured`), never silently assumed. SIGA capacity figures (2019: 2.5GW → 2024: 17.2GW, centralized/SIGA only, excludes MMGD) recorded as corroborating context only, not proof.
-- Raw reason codes (`CNF`, `REL`, etc.) are stored as-is in `reason_category` — DEB/REB/EUB mapping is Task 4's job, not done yet.
+- Raw reason codes (`CNF`, `REL`, etc.) are stored as-is in `reason_category` — the DEB/REB/EUB mapping is applied by Task 4 (see 1.3c).
 - 128→132 tests added across this work; one `@pytest.mark.integration` test confirmed live against real ONS (both packages resolve, no fallback triggered).
 - Commits: `f32eac5` (Task 2), `d7b267e` (Task 2B), `bc5a0bb` (docs).
 
@@ -72,6 +72,16 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 - **D15**: series usable only from `history_start_year: 2016` (`config/acquisition_targets.yaml`); wind blank 2000-2005 and partly 2006, 2015 has 24 h with no data. Does not affect the 2020 baseline or the 2021+ calibration window.
 - **RESOLVED (D16) — PTE vs ONS generation basis:** historical/calibration data stay ONS-SIN-based (`historical_ons`); PTE years are used as published on their own basis (`pte_projection`), deliberately not rescaled (the PTE is the evaluated object). BEN 2021 (~621.2 TWh, ONS SIN ~89 %) only explains why the scopes differ. Remaining sub-questions are optional paper-discussion items, not pipeline blockers. See D16 in `config/discovered_sources.yaml` and `docs/pte_ons_basis_investigation.md` (kept as background).
 
+### 1.3c ONS curtailment classification (Task 4) — DONE (D17)
+
+- Module `src/curtailmit/ons_classification.py`; `data_ingestion.check_classification_availability` now delegates to it (stub replaced).
+- Code crosswalk derived at run time from each package's JSON data dictionary (`classification.dictionary_keywords` in `acquisition_targets.yaml`) and mapped by D5: ENE -> DEB, CNF -> REB, REL -> EUB. PAR (documented, never observed) and code-less rows stay unclassified (`deb_reb_eub` null), kept in the aggregate.
+- Outputs: `processed/ons_curtailment_classified.parquet` (adds `deb_reb_eub`, `classification_available`) and `processed/classification_available.json` (flag, reason, crosswalk, energy by category).
+- Real run (2022-01..2026-10, 15.78M rows): `classification_available = true`; DEB 47.75 TWh, REB 27.81 TWh, EUB 10.35 TWh, 0.0027 % unclassified.
+- Unavailable branch (no dictionary / field not described / no D5 match in any source) -> `classification_available = false`, no classified column; undocumented codes raise `ClassificationError`.
+- `validation._CLASSIFIED_FIELDS` extended with `deb_reb_eub` so the leak guard covers the new column. Large-file loading is categorical/Arrow based (full file does not fit as object dtype).
+- Open observation (not Task 4): ~86 TWh curtailed in ~4.8 years looks large; sanity-check against another ONS total before calibration (Task 9).
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
@@ -83,7 +93,6 @@ do not re-discover, proceed straight to coding:
 
 ### 1.5 Still fully open (no discovery done yet)
 
-- **Task 4** — DEB/REB/EUB classification mapping (logic exists in `validation.py`, not yet applied to real parsed ONS data).
 - **Task 8** — Stage 1 finalization / full data-quality report (`DataQualityReport` schema exists, orchestration doesn't).
 - **Task 13** — needs rewriting (see below) to reflect that `results_writer.py` already exists with a richer schema than originally scoped; remaining work is wiring `mitigation.py`'s OM/CM split + final assembly + figures/limitations doc.
 - **Tasks 14, 15** — untouched.
@@ -167,8 +176,8 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 2 | ONS curtailment discovery & acquisition (wind + solar) | `ons_client.py`, `data_ingestion.py` | ✅ DONE |
 | 2B | ANEEL solar gap probe + per-package coverage floors | `validation.py`, config | ✅ DONE |
 | 3 | ONS generation-by-source discovery & acquisition | `ons_generation.py` | ✅ DONE (D15; PTE/ONS basis RESOLVED as D16) |
-| 4 | Curtailment classification (DEB/REB/EUB mapping) | `data_ingestion.py` | ⬜ NEXT |
-| 5 | MCTI emission factor discovery & acquisition | `mcti_client.py`, `data_ingestion.py` | ⬜ |
+| 4 | Curtailment classification (DEB/REB/EUB mapping) | `ons_classification.py` | ✅ DONE (D17) |
+| 5 | MCTI emission factor discovery & acquisition | `mcti_client.py`, `data_ingestion.py` | ⬜ NEXT |
 | 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ⬜ |
 | 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
 | 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ |
@@ -188,71 +197,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 
 ---
 
-### TASK 4 — Curtailment classification availability + DEB/REB/EUB mapping
-
-```
-TASK 4 — Implement the classification availability check and mapping logic
-(Decisions D5/D6).
-
-Read docs/roadmap.md §2 (D5, D6) and §6/§7 (acceptance criteria) first.
-IMPORTANT: the mapping logic and propagation rules already exist and are
-TESTED in src/curtailmit/validation.py — reuse them, do not rewrite:
-- validation.ClassificationFlag (dataclass: classification_available, reason)
-- validation.attach_classification_flag(record, flag) -> new dict
-- validation.validate_classification_propagation(records)
-The mapping itself (reason-string -> DEB/REB/EUB) is already defined in
-config/acquisition_targets.yaml under classification.mapping:
-  "Razão Energética" -> DEB, "Confiabilidade" -> REB,
-  "Indisponibilidade Externa" -> EUB (own category, never merged).
-classification.fallback_on_missing_classification: true is also already set.
-
-Implement check_classification_availability() for real (replacing the current
-stub) in data_ingestion.py, applied to the REAL parsed ONS curtailment data
-from Task 2 (interim/ons_curtailment_raw.parquet, column reason_category,
-currently holding raw codes like "CNF", "REL"):
-
-1. Inspect the distinct values actually present in reason_category. Check
-   whether they correspond (directly, or via a documented code->label
-   crosswalk you derive by inspecting the ONS resource's accompanying
-   documentation/dictionary if available) to the three categories in
-   config/acquisition_targets.yaml's classification.mapping. Log the exact
-   distinct values found and your crosswalk reasoning.
-
-2. If a usable mapping is found: apply it to produce a `deb_reb_eub` column
-   (values: DEB/REB/EUB). Use validation.attach_classification_flag with
-   ClassificationFlag(classification_available=True) for each record. Log a
-   value_counts() summary.
-
-3. If not found, or only an aggregate series is available: set
-   classification_available = False with a specific reason via
-   ClassificationFlag, apply attach_classification_flag accordingly (this
-   enforces, per validation.py's existing rules, that no classified
-   DEB/REB/EUB fields leak into records marked unavailable), log a clear
-   WARNING explaining exactly what was checked and why it failed. The
-   aggregate (unclassified) series must remain fully usable downstream.
-
-4. Persist the result to
-   DATABASE_ROOT/processed/ons_curtailment_classified.parquet, plus a
-   top-level flag file DATABASE_ROOT/processed/classification_available.json
-   = {"classification_available": bool, "checked_at_utc": ..., "reason": "..."}.
-
-5. Run validation.validate_classification_propagation() over the final
-   records as a hard check before writing output — if it raises, treat that
-   as a real bug, not something to catch and suppress.
-
-6. Tests: one fixture simulating real-looking CNF/REL-style raw codes with a
-   documented crosswalk (passes through mapping correctly), one fixture
-   simulating an aggregate-only resource (correctly sets
-   classification_available: false, validate_classification_propagation
-   still passes, no classified fields leak through).
-
-Acceptance:
-- pytest -v -m "not integration" passes.
-- classification_available.json is produced with a clear, human-readable
-  reason field in both branches.
-- No scenario silently defaults to a specific DEB/REB/EUB value without the
-  flag being correctly set to False first.
-```
+### TASK 4 — DONE (see section 1.3c; prompt removed)
 
 ---
 
