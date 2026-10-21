@@ -262,3 +262,55 @@ decisions:
       No effect on the 2020 baseline (single fully covered year, 8,784 h) or the 2021+ calibration
       window (fully covered). It only excludes pre-2016 data from ever being used silently.
     implemented_in: "curtailmit.ons_generation (Task 3, commit 3f69554)"
+
+  D16:
+    status: adopted
+    date: "2026-10-21"
+    topic: "Generation basis: ONS SIN (historical) vs PTE/BLUES (projection) - not reconciled by design"
+    checked: >
+      The gap between ONS SIN total generation in 2020 (554.35 TWh) and the PTE total_generation_twh
+      for 2025 (836 / 834 / 836 TWh for TB / TA / TG), documented in docs/pte_ons_basis_investigation.md.
+    found: >
+      BEN 2021 (EPE Anuario fact sheet) gives a national total of ~621.2 TWh for 2020; ONS SIN is
+      ~89% of it. The residual (+66.9 TWh, almost all in the thermal-type block, plus ~5.5 TWh solar)
+      is plausibly MMGD + self-production (autoproducao) + isolated systems outside the ONS SIN
+      balance. A secondary gap of roughly 5% remains unexplained at 2025 even after adjusting for the
+      BEN/ONS ratio (700.4 TWh x ~1.12 = ~785 TWh vs 836 TWh). The PTE report (CEBRI PTE2, Grafico 13)
+      does not define what its total includes.
+    decided: >
+      Historical baseline (2020) and calibration window (2021+) stay on real, reported ONS SIN data
+      (source: historical_ons). PTE projection years (2025, 2030, 2040, 2050) use the PTE/BLUES
+      total_generation_twh and wind/solar shares AS PUBLISHED, on their own accounting basis, with NO
+      rescaling or reconciliation to ONS scope (source: pte_projection). The existing `source` field
+      doubles as the generation-basis indicator and must be read as such. No code or config values change.
+    why: >
+      The PTE scenarios are the object evaluated by the paper (how their stated trajectories fare
+      against curtailment reality), not a ground truth to be made to agree with ONS accounting.
+      Forcing agreement would defeat the comparison. The BEN cross-check explains WHY the scopes differ;
+      it is not used to rescale any value.
+    caveat: >
+      The calibrated curtailment function C(P), fit on ONS-SIN-basis P, is applied to PTE-basis P(s,t)
+      under the ASSUMPTION that curtailment risk scales with wind+solar penetration share regardless of
+      the accounting scope of total generation. This is an assumption, not a proven equivalence.
+    open_subquestions_non_blocking: >
+      Optional discussion-section questions for the PTE/CEBRI authors, NOT pipeline items: the exact
+      Grafico 13 definition (MMGD / autoproducao inclusion); the ~5% residual at 2025; the BEN
+      autoproducao split (106.5 / 60.7 TWh, secondary source only); whether the ONS hydro excess is
+      the Paraguayan share of Itaipu; whether BEN solar includes MMGD.
+    reference: "docs/pte_ons_basis_investigation.md"
+    implemented_in: "documentation only; behaviour already in projection.py (source labels) and ons_generation.py"
+
+ben_cross_check:
+  status: reference_only
+  wired_into_pipeline: false
+  client_built: false
+  note: >
+    BEN 2021 (EPE Anuario Estatistico de Energia Eletrica 2021 fact sheet, base year 2020) was consulted
+    MANUALLY, once, as a verification source for the D16 investigation. Not wired into the pipeline and
+    no client exists; do not treat as an acquisition source.
+  consulted: "2026-10-21"
+  url: "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/PublicacoesArquivos/publicacao-160/topico-168/EPEFactSheetAnuario2021.pdf"
+  values_2020:
+    national_total_twh: 621.2     # derived: hydro 396,381 GWh = 63.8% of total
+    ons_sin_total_twh: 554.35
+    ons_sin_share_of_national: 0.89

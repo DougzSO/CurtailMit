@@ -38,7 +38,7 @@ API discovery and acquisition. Full test suite currently: **149 passed, 0 failed
 | `paths.py` | ✅ | `get_database_root()`, `get_raw_dir()` — reads `.env` + `config/paths.yaml`. |
 | `validation.py` | ✅ | Acceptance-criteria logic: `validate_penetration_ceiling()`, `resolve_ons_min_coverage()` (per-package coverage floors), `validate_mcti_factor_coverage()`, `ClassificationFlag`/`attach_classification_flag()`/`validate_classification_propagation()` (DEB/REB/EUB propagation rules). **Reuse this in Tasks 4 and 8 — do not rewrite classification/coverage logic.** |
 | `emission_factors.py` | ✅ | `derive_annual_om_from_monthly()` (mean of 12 monthly OM values), `compute_combined_margin()` (CM = 0.5×OM + 0.5×BM, decision D12). **Reuse directly in Task 5.** |
-| `calibration.py` | ✅ (generic logic only) | Logistic-fit machinery: `fit_calibration`, `apply_calibration`, `validate_against_holdout`, save/load. **Not yet wired to real data — Task 3's output now exists; see the open PTE/ONS basis question in 1.3b.** |
+| `calibration.py` | ✅ (generic logic only) | Logistic-fit machinery: `fit_calibration`, `apply_calibration`, `validate_against_holdout`, save/load. **Not yet wired to real data — Task 3's output now exists; the PTE/ONS basis question is settled in 1.3b (D16).** |
 | `projection.py` | ✅ | P(s,t) interpolation, headline-table/anchor-point logic, enforces 2020 = `historical_ons` only. |
 | `mitigation.py` | ✅ (partial) | `compute_mitigation()` works but currently emits only ONE marginal column (`om_factor`). **Needs enrichment to emit both OM and CM columns — folded into Task 13 below.** |
 | `hydrogen.py` | ✅ | `compute_hydrogen_potential()` — SEC range 50/52.5/55 kWh/kg, min/central/max always reported together. |
@@ -64,13 +64,13 @@ API discovery and acquisition. Full test suite currently: **149 passed, 0 failed
 
 CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every probe, including with browser headers — confirmed twice, **do not re-probe**. `pld.py` stub built, tested, `pld.enabled: false` enforced. This is a closed limitation, not an open task.
 
-### 1.3b ONS generation-by-source (Task 3) — DONE (commit `3f69554`; closeout D15 + basis investigation)
+### 1.3b ONS generation-by-source (Task 3) — DONE (commit `3f69554`; closeout D15, D16)
 
 - Module `src/curtailmit/ons_generation.py` (package `balanco-energia-subsistema`, re-confirmed at runtime via `package_show`, `package_search` recovery path, yearly resources PARQUET > CSV > XLSX, `id_subsistema == "SIN"`, hourly MW integrated to MWh). Values are published as decimal *text* and are coerced explicitly. Blank `val_gersolar` -> 0 (documented); a blank in any other source fails explicitly.
 - Outputs (under `DATABASE_ROOT`): `interim/ons_generation_by_source.parquet`, `processed/ons_penetration_monthly.parquet`, `processed/ons_penetration_annual.parquet`, `processed/baseline_2020_generation.json` (validated against `schemas.Baseline2020Generation`; requires every hour of 2020).
 - **2020 baseline (observed, ONS SIN):** total **554.35 TWh**, wind **54.30 TWh**, solar **5.23 TWh**, wind+solar penetration **10.74 %**.
 - **D15**: series usable only from `history_start_year: 2016` (`config/acquisition_targets.yaml`); wind blank 2000-2005 and partly 2006, 2015 has 24 h with no data. Does not affect the 2020 baseline or the 2021+ calibration window.
-- **OPEN — PTE vs ONS generation basis (pending our decision, NOT resolved):** ONS SIN total (554 TWh in 2020, 700 TWh in 2025) is on a different, narrower basis than the PTE `total_generation_twh` (836 TWh in 2025). Evidence and unconfirmed items: `docs/pte_ons_basis_investigation.md`. Decide how to reconcile P(t)'s denominator basis between calibration and projection **before Task 9**.
+- **RESOLVED (D16) — PTE vs ONS generation basis:** historical/calibration data stay ONS-SIN-based (`historical_ons`); PTE years are used as published on their own basis (`pte_projection`), deliberately not rescaled (the PTE is the evaluated object). BEN 2021 (~621.2 TWh, ONS SIN ~89 %) only explains why the scopes differ. Remaining sub-questions are optional paper-discussion items, not pipeline blockers. See D16 in `config/discovered_sources.yaml` and `docs/pte_ons_basis_investigation.md` (kept as background).
 
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
@@ -166,13 +166,13 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 1 | Retrieval manifest + caching utility | `acquisition.py` | ✅ DONE |
 | 2 | ONS curtailment discovery & acquisition (wind + solar) | `ons_client.py`, `data_ingestion.py` | ✅ DONE |
 | 2B | ANEEL solar gap probe + per-package coverage floors | `validation.py`, config | ✅ DONE |
-| 3 | ONS generation-by-source discovery & acquisition | `ons_generation.py` | ✅ DONE (D15; PTE/ONS basis question OPEN) |
+| 3 | ONS generation-by-source discovery & acquisition | `ons_generation.py` | ✅ DONE (D15; PTE/ONS basis RESOLVED as D16) |
 | 4 | Curtailment classification (DEB/REB/EUB mapping) | `data_ingestion.py` | ⬜ NEXT |
 | 5 | MCTI emission factor discovery & acquisition | `mcti_client.py`, `data_ingestion.py` | ⬜ |
 | 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ⬜ |
 | 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
 | 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ |
-| 9 | Stage 2: `calibration.py` | `calibration.py` | 🔶 logic done, needs real-data wiring (Task 3 done; resolve the PTE/ONS basis question first) |
+| 9 | Stage 2: `calibration.py` | `calibration.py` | 🔶 logic done, needs real-data wiring (Task 3 done; PTE/ONS basis settled by D16) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
 | 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 done, needs OM/CM split (folded into Task 13) |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |

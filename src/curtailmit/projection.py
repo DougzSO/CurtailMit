@@ -10,6 +10,11 @@ Rules enforced here (per methodology, non-negotiable):
 - Headline tables (for the paper) use ONLY the 5 anchor points, never interpolated years.
 - Linear interpolation is allowed ONLY for continuous-curve figures, and every
   interpolated year must be explicitly labeled is_interpolated=True, source="interpolated".
+- Generation basis (D16): no basis reconciliation is performed here, by design. The 2020 anchor
+  (baseline_2020_generation.json, source="historical_ons") is on ONS SIN scope; 2025-2050 anchors
+  (config/scenarios.yaml pte_scenarios, source="pte_projection") are on the PTE/BLUES model's own
+  published scope, used as published and never rescaled to ONS. The PTE scenarios are the evaluated
+  object, not ground truth. See docs/pte_ons_basis_investigation.md.
 - This module must NEVER be used for the primary-energy 6-point grid (that grid is a
   robustness cross-check handled elsewhere and must not substitute this series).
 """
@@ -84,7 +89,9 @@ def validate_anchor_set(anchors: Sequence[AnchorPoint]) -> None:
 
 def build_anchor_points(scenario_rows: Sequence[dict]) -> list[AnchorPoint]:
     """Build AnchorPoint objects from plain dict rows (e.g. loaded from scenarios.yaml
-    merged with historical ONS data for 2020)."""
+    merged with historical ONS data for 2020).
+
+    D16: rows keep the generation basis of their `source`; no ONS/PTE rescaling happens here."""
     anchors = [
         AnchorPoint(
             year=int(row["year"]),

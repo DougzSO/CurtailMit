@@ -75,8 +75,8 @@ Generation by source (P(t) history and the D1 2020 baseline) comes from ONS `bal
 and partly 2006; 24 h missing in 2015). Blank `val_gersolar` (partial in 2016) is treated as 0, as documented; a
 blank in any other source fails explicitly. The 2020 baseline requires every hour of 2020 to be present.
 Observed 2020 values (retrieved 2026-10-21): total 554.35 TWh, wind 54.30 TWh, solar 5.23 TWh, i.e. 10.74 %
-wind+solar penetration. Note that this ONS SIN total is on a different footing from the PTE `total_generation_twh`
-figures in config/scenarios.yaml (e.g. 836 TWh for 2025), so P(t) must not be mixed across the two bases.
+wind+solar penetration. This ONS SIN total is on a narrower footing than the PTE `total_generation_twh` figures in
+config/scenarios.yaml (e.g. 836 TWh for 2025); this is intentional and left unreconciled (D16, see 2.4).
 
 ### Emission factor data - RESOLVED, same empirical discovery pattern (new in v3.1)
 
@@ -102,6 +102,17 @@ For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
 - P(s,t) - from Table 2, or linearly interpolated (D3) if needed.
 - C_hat(s,t) = C(P(s,t)) - from the calibrated logistic function (2.3), produced by Stage 2.
 - E_curt(s,t) = Solar+wind generation(s,t) [Table 2] x C_hat(s,t).
+
+**Denominator basis of P (D16).** P differs in accounting scope between the two domains: in the
+historical/calibration domain (2020, 2021+) it is wind+solar over ONS SIN-reported total generation
+(`source: historical_ons`); in the projection domain (2025-2050) it is the PTE/BLUES model's own
+published shares and total generation (`source: pte_projection`), likely inclusive of MMGD,
+self-production and isolated systems according to the BEN 2021 cross-check. This is a deliberate
+methodological choice, not an inconsistency: the PTE scenarios are the object being evaluated, not a
+dataset to be reconciled with ONS accounting, so no rescaling is performed. The calibrated function
+C_hat(P), fit on real ONS SIN data, is applied to the PTE's own-scope P(s,t) under the assumption that
+curtailment risk scales with wind+solar penetration share regardless of the exact accounting scope of
+total generation. This is an assumption, not a proven equivalence.
 
 ## 2.5. Step 3 - Mitigation deficit (Stage 4)
 
@@ -148,6 +159,15 @@ other stage (D10).
   with, but does NOT prove, negligible solar curtailment in 2020. The 2020 baseline's solar
   curtailment is therefore a documented zero, not a measured value; this is reported explicitly in
   the data-quality report (`solar_curtailment_2020_baseline`) and is never silently assumed.
+- Generation-basis difference between calibration and projection (D16). Calibration and the 2020 baseline use
+  ONS SIN-reported generation (2020: 554.35 TWh), while PTE projection years use the PTE/BLUES model's own
+  total generation (e.g. 836 TWh in 2025). BEN 2021 reports a national total of ~621.2 TWh for 2020, of which
+  ONS SIN is ~89 %; the remainder is plausibly MMGD, self-production and isolated systems outside the SIN
+  balance. This supports, but does not prove, that the PTE total is on a broader national-style basis, and
+  about 5 % of the 2025 gap stays unexplained even after that adjustment. The PTE report does not define its
+  total. No reconciliation is applied by design (the PTE is the evaluated object); applying C_hat(P) across
+  the two bases assumes penetration share governs curtailment risk irrespective of accounting scope.
+  Full detail: docs/pte_ons_basis_investigation.md.
 - The financial estimate (2.8, optional) excludes externality costs.
 - Electrolyzer SEC is a literature-range assumption (50-55 kWh/kg H2), not a measured value.
 
