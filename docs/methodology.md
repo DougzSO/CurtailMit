@@ -69,6 +69,15 @@ by subtracting realized from reference generation, because the reference column
 (`val_geracaoreferenciafinal`) is sparsely populated (D13; verified equivalent on the 3,746
 populated rows of the 2022-01 wind sample).
 
+Generation by source (P(t) history and the D1 2020 baseline) comes from ONS `balanco-energia-subsistema`
+(`id_subsistema == "SIN"`, hourly average power in MW, integrated to MWh over the inferred 1 h interval;
+`ons_generation.py`). Only years from 2016 are used: earlier resources have unusable gaps (wind blank 2000-2005
+and partly 2006; 24 h missing in 2015). Blank `val_gersolar` (partial in 2016) is treated as 0, as documented; a
+blank in any other source fails explicitly. The 2020 baseline requires every hour of 2020 to be present.
+Observed 2020 values (retrieved 2026-10-21): total 554.35 TWh, wind 54.30 TWh, solar 5.23 TWh, i.e. 10.74 %
+wind+solar penetration. Note that this ONS SIN total is on a different footing from the PTE `total_generation_twh`
+figures in config/scenarios.yaml (e.g. 836 TWh for 2025), so P(t) must not be mixed across the two bases.
+
 ### Emission factor data - RESOLVED, same empirical discovery pattern (new in v3.1)
 
 - Average SIN factor (D8): MCTI's official monthly Fator Medio de Emissao de CO2 do SIN

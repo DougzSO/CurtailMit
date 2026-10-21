@@ -183,3 +183,17 @@ class CurtailmentPackageDiscovery(BaseModel):
     n_rows: int = Field(default=0, ge=0)
     earliest_date: str | None = None
     latest_date: str | None = None
+
+
+class GenerationPackageDiscovery(BaseModel):
+    """Outcome of discovering/re-confirming the ONS generation-by-source CKAN package (Task 3)."""
+
+    configured_package_id: str
+    resolved_package_id: str
+    used_fallback_search: bool = False
+    n_resources: int = Field(ge=0)
+    formats_seen: list[str] = Field(default_factory=list)
+    n_years_downloaded: int = Field(default=0, ge=0)
+    n_rows: int = Field(default=0, ge=0)
+    earliest_date: str | None = None
+    latest_date: str | None = None

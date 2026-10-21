@@ -36,6 +36,16 @@ ons:
       title: "Balanco de Energia nos Subsistemas"
       granularity: "one_csv_resource_per_year"
       resource_name_pattern: "Balanco_de_Energia_Subsistema-YYYY"
+      preferred_formats: ["PARQUET", "CSV", "XLSX"]
+      # Floor = the D1 baseline year: the series must reach back to 2020-01-01 (checked on the earliest
+      # yearly resource before downloading, and again on the parsed data). Confirmed live 2026-10-21:
+      # yearly resources exist for 2000-2026, hourly samples, values in MW (published as decimal text).
+      min_coverage_start: "2020-01-01"
+      # Only yearly resources >= history_start_year are downloaded. Probed live 2026-10-21: wind is blank for
+      # all of 2000-2005 and partially in 2006, and 2015 has 24 h with no data in any source, so earlier
+      # history is unusable under the fail-explicitly rule and not needed (baseline 2020, calibration 2021+).
+      # 2016 is the first clean year (solar still partly blank = the documented pre-2017 case, treated as 0).
+      history_start_year: 2016
       filter:
         column: "id_subsistema"
         value: "SIN"
