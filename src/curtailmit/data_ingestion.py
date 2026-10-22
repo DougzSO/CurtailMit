@@ -1,21 +1,24 @@
 ﻿"""Stage 1 - data ingestion, discovery, and validation.
 
-Order of operations:
-1. Load + validate config/scenarios.yaml against schemas.py.
-2. ONS discovery (curtailment wind/solar + generation by source) via CKAN.
-3. Classification availability check + fallback decision (logged, never silent).
-4. MCTI discovery (average + marginal emission factors).
-5. Load 2026-2029 validation_data, kept separate from calibration_data.
-6. Produce data-quality report.
+`run_stage1` (Task 8) orchestrates ONLY Stage 1 (acquisition + preparation + the data-quality report), in dependency order:
+1. Load + validate config/scenarios.yaml against schemas.py (solar_pct + wind_pct <= 100).
+2. ONS curtailment, wind + solar, per-package coverage floors (D14)  -> interim/ons_curtailment_raw.parquet.
+3. ONS dispatched-plant capacity-factor files, schema-checked (D20; required before generation).
+4. ONS generation by source: P(t) on the dispatched-solar basis (D20), 2020 baseline (D15)  -> interim/, processed/.
+5. Curtailment classification DEB/REB/EUB (D17)  -> processed/ons_curtailment_classified.parquet + classification_available.json.
+6. MCTI average + margin factors (D12/D18).
+7. validation_data (2026-2029), kept apart from calibration data.
+8. Data-quality report (JSON in DATABASE_ROOT + docs/stage1_data_quality_report.md). Any FAIL raises Stage1Error.
 
-Step 2 (ONS curtailment wind+solar) is implemented; steps 3-4 are still TODO skeletons,
-with control flow, logging, and fail-explicit behavior already structured.
+It never runs calibration, mitigation or Stage 3 logic, never touches PLD (disabled, D10), and never calls the generation fallback of the
+secondary source (a failing ONS step fails Stage 1 explicitly; the fallback needs a human-supplied reason).
 """
 
 from __future__ import annotations
 
 import logging
 import unicodedata
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
@@ -346,26 +349,97 @@ def load_validation_data(raw_config: dict) -> dict:
     return validation
 
 
-def run_stage1() -> dict:
+class Stage1Error(RuntimeError):
+    """Raised by run_stage1 when a step fails or the data-quality report status would be 'failed' (a report is still written)."""
+
+
+REPO_REPORT_PATH = Path(__file__).resolve().parents[2] / "docs" / "stage1_data_quality_report.md"
+
+
+def _step_curtailment(targets: dict, use_cache: bool) -> dict:
+    return acquire_ons_curtailment(targets=targets, use_cache=use_cache)
+
+
+def _step_capacity_factor(targets: dict, use_cache: bool) -> dict:
+    from curtailmit.ons_solar_gap import acquire_capacity_factor_range
+
+    ons_cfg = targets["ons"]
+    basis = ons_cfg["packages"]["generation_by_source"].get("solar_basis") or {}
+    if not basis.get("dispatched_from"):
+        raise CurtailmentDiscoveryError("config ons.packages.generation_by_source.solar_basis.dispatched_from is required (D20).")
+    first_year = int(str(basis["dispatched_from"])[:4])
+    paths, findings = acquire_capacity_factor_range(CkanClient(ons_cfg["ckan_base_url"]), first_year, use_cache=use_cache)
+    return {"paths": {k: str(v) for k, v in paths.items()}, "findings": findings}
+
+
+def _step_generation(targets: dict, use_cache: bool) -> dict:
+    from curtailmit.ons_generation import acquire_ons_generation
+
+    return acquire_ons_generation(targets=targets, use_cache=use_cache)
+
+
+def _step_classification(targets: dict, curtailment: dict) -> dict:
+    from curtailmit.ons_classification import classify_ons_curtailment
+
+    package_ids = {p["source"]: p["resolved_package_id"] for p in curtailment.get("packages", [])}
+    interim = Path(curtailment["interim_path"]) if curtailment.get("interim_path") else None
+    return classify_ons_curtailment(targets=targets, interim_path=interim, package_ids=package_ids)
+
+
+def _step_mcti(targets: dict, use_cache: bool) -> dict:
+    from curtailmit.mcti_client import acquire_mcti_factors
+
+    return acquire_mcti_factors(targets=targets, use_cache=use_cache)
+
+
+def run_stage1(
+    steps: dict[str, Callable] | None = None,
+    use_cache: bool = False,
+    markdown_path: Path | None = None,
+    print_summary: bool = True,
+) -> dict:
+    """Run Stage 1 end to end and write the data-quality report. See the module docstring for the order.
+
+    `steps` may override individual step callables (tests): keys curtailment(targets, use_cache), capacity_factor(targets, use_cache),
+    generation(targets, use_cache), classification(targets, curtailment_result), mcti(targets, use_cache).
+    Returns {"report": <DataQualityReport as dict>, "overall_status": str, "paths": {...}}.
+    """
+    from curtailmit import stage1_report as sr
+    from curtailmit.paths import get_database_root, get_interim_dir, get_logs_dir, get_processed_dir
+
+    steps = steps or {}
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         raw_config = yaml.safe_load(f)
-
-    config = load_config()
-    discovered = discover_ons_resources(raw_config)
-    classification_available = check_classification_availability(raw_config, discovered)
-    mcti = discover_mcti_factors(raw_config)
+    config = load_config()  # raises on solar_pct + wind_pct > 100
+    targets = load_acquisition_targets()
     validation_data = load_validation_data(raw_config)
+    results: dict = {"targets": targets, "config": config, "validation_data": validation_data}
 
-    report = {
-        "config_valid": True,
-        "classification_available": classification_available,
-        "ons_discovered": discovered,
-        "solar_curtailment_2020_baseline": "documented_zero_not_measured (D14: ONS solar curtailment starts 2024-04)",
-        "mcti_discovered": mcti,
-        "validation_data_loaded": bool(validation_data.get("years")),
-    }
-    logger.info("Stage 1 data-quality report: %s", report)
-    return report
+    def run_step(name: str, default: Callable, *args):
+        logger.info("Stage 1 step '%s' ...", name)
+        try:
+            return steps.get(name, default)(*args)
+        except Exception as exc:  # recorded in a FAIL report, then re-raised as Stage1Error
+            logger.error("Stage 1 step '%s' FAILED: %s", name, exc)
+            report = sr.failed_report(name, exc, validation_data)
+            sr.write_report(report, get_processed_dir(), get_logs_dir(), markdown_path or REPO_REPORT_PATH)
+            raise Stage1Error(f"Stage 1 step '{name}' failed: {exc}") from exc
+
+    results["curtailment"] = run_step("curtailment", _step_curtailment, targets, use_cache)
+    results["capacity_factor"] = run_step("capacity_factor", _step_capacity_factor, targets, use_cache)
+    results["generation"] = run_step("generation", _step_generation, targets, use_cache)
+    results["classification"] = run_step("classification", _step_classification, targets, results["curtailment"])
+    results["mcti"] = run_step("mcti", _step_mcti, targets, use_cache)
+
+    report = sr.build_report(results, get_interim_dir(), get_processed_dir(), get_database_root() / "raw")
+    paths = sr.write_report(report, get_processed_dir(), get_logs_dir(), markdown_path or REPO_REPORT_PATH)
+    if print_summary:
+        print(sr.summary_table(report))
+    logger.info("Stage 1 data-quality report: overall status %s", report.overall_status)
+    if report.overall_status == "failed":
+        failed = [c.name for c in report.checks if c.status == "FAIL"]
+        raise Stage1Error(f"Stage 1 data-quality report status is 'failed': {failed}")
+    return {"report": report.model_dump(), "overall_status": report.overall_status, "paths": {k: str(v) for k, v in paths.items()}}
 
 
 if __name__ == "__main__":

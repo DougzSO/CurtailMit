@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import requests
 
@@ -35,10 +35,10 @@ class CkanResource:
     name: str
     format: str
     url: str
-    last_modified: Optional[str] = None
+    last_modified: str | None = None
 
     @classmethod
-    def from_api(cls, raw: dict[str, Any]) -> "CkanResource":
+    def from_api(cls, raw: dict[str, Any]) -> CkanResource:
         return cls(
             id=raw["id"],
             name=raw.get("name", ""),
@@ -97,7 +97,7 @@ def get_resources(package_metadata: dict[str, Any]) -> list[CkanResource]:
 def pick_best_resource(
     resources: list[CkanResource],
     preferred_formats: tuple[str, ...] = PREFERRED_FORMATS_DEFAULT,
-) -> Optional[CkanResource]:
+) -> CkanResource | None:
     """
     Among a list of resources (expected to be duplicates of the same
     logical dataset in different formats), pick the first available

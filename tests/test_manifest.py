@@ -4,9 +4,9 @@ from pathlib import Path
 
 from curtailmit.manifest import (
     compute_sha256,
+    load_manifest,
     manifest_path_for,
     write_manifest,
-    load_manifest,
 )
 
 

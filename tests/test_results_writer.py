@@ -5,32 +5,32 @@ from pathlib import Path
 import pytest
 
 from curtailmit.results_writer import (
-    ResultsRow,
     RESULTS_COLUMNS,
-    write_results_csv,
-    write_results_json,
+    ResultsRow,
     load_results_csv,
     load_results_json,
+    write_results_csv,
+    write_results_json,
 )
 from curtailmit.validation import ValidationError
 
 
 def _valid_row(**overrides) -> ResultsRow:
-    defaults = dict(
-        scenario="TB",
-        year=2025,
-        source="pte_projection",
-        is_interpolated=False,
-        classification_available=True,
-        E_curt_twh=10.0,
-        mitigation_deficit_avg_tco2=1000.0,
-        mitigation_deficit_marginal_om_tco2=1500.0,
-        mitigation_deficit_marginal_cm_tco2=1200.0,
-        marginal_proxy_note="OM=DEB proxy, CM=REB proxy",
-        h2_potential_min_kg=100.0,
-        h2_potential_central_kg=110.0,
-        h2_potential_max_kg=120.0,
-    )
+    defaults = {
+        "scenario": "TB",
+        "year": 2025,
+        "source": "pte_projection",
+        "is_interpolated": False,
+        "classification_available": True,
+        "E_curt_twh": 10.0,
+        "mitigation_deficit_avg_tco2": 1000.0,
+        "mitigation_deficit_marginal_om_tco2": 1500.0,
+        "mitigation_deficit_marginal_cm_tco2": 1200.0,
+        "marginal_proxy_note": "OM=DEB proxy, CM=REB proxy",
+        "h2_potential_min_kg": 100.0,
+        "h2_potential_central_kg": 110.0,
+        "h2_potential_max_kg": 120.0,
+    }
     defaults.update(overrides)
     return ResultsRow(**defaults)
 

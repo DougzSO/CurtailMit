@@ -21,8 +21,8 @@ Rules enforced here (per methodology, non-negotiable):
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Callable, Sequence
 
 ANCHOR_YEARS = (2020, 2025, 2030, 2040, 2050)
 HISTORICAL_ANCHOR_YEAR = 2020

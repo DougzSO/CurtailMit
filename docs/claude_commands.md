@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
-API discovery and acquisition. Full test suite currently: **240 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **249 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -220,7 +220,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 5 | MCTI emission factor discovery & acquisition | `mcti_client.py` | ✅ DONE (D18) |
 | 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ✅ DONE (D19) |
 | 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
-| 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ NEXT |
+| 8 | Stage 1 finalization: `run_stage1` end to end + data-quality report | `data_ingestion.py`, `stage1_report.py` | ✅ DONE (`docs/stage1_data_quality_report.md`) |
 | 9 | Stage 2: `calibration.py` + D20 solar basis | `calibration.py`, `ons_generation.py` | ✅ DONE (D20; report `docs/task9_calibration_report.md`; logistic identifiability open, see report) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
 | 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 done, needs OM/CM split (folded into Task 13) |
@@ -249,54 +249,9 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 
 ---
 
-### TASK 8 — Stage 1 finalization: full data-quality report
+### TASK 8 — DONE (see `docs/stage1_data_quality_report.md`; prompt removed)
 
-```
-TASK 8 — Consolidate Stage 1 into a single, complete data-quality report.
-
-Read docs/roadmap.md §6 and §7 (acceptance criteria) first — this task
-enforces those criteria in code. schemas.DataQualityReport ALREADY EXISTS —
-extend it if a field is missing, do not recreate it from scratch.
-
-Rewrite run_stage1() in data_ingestion.py to orchestrate, in order:
-1. load_config().
-2. ONS curtailment discovery (Task 2/2B) for wind + solar, respecting the
-   per-package coverage floors in validation.resolve_ons_min_coverage().
-3. ONS generation-by-source discovery (Task 3), including baseline_2020
-   extraction.
-4. Classification availability check (Task 4).
-5. MCTI emission factor discovery (Task 5), with manual_ingestion.py fallback
-   if needed.
-6. Load validation_data (2026-2029 prospection) from config/scenarios.yaml,
-   explicitly kept out of any calibration-data variable used later.
-7. ANEEL fallback (Task 6) — invoked only if an ONS step raised a
-   CoverageError/ValidationError or schema mismatch; must be clearly logged
-   as "fallback invoked" with the specific reason, never used silently as the
-   primary path.
-
-Populate schemas.DataQualityReport with at minimum:
-- timestamp_utc
-- ons_wind_coverage / ons_solar_coverage: {earliest_date, latest_date, n_records}
-- solar_curtailment_2020_baseline: "documented_zero_not_measured" (per D14 —
-  already decided, just needs to be surfaced in this report)
-- classification_available: bool, reason: str
-- mcti_average_factor_coverage / mcti_marginal_factor_coverage
-- fallback_sources_used: list[str] (empty if none)
-- validation_data_loaded: bool
-- overall_status: "ok" | "degraded" | "failed"
-
-Write as JSON (DATABASE_ROOT/logs/stage1_data_quality_report_{timestamp}.json)
-and print a human-readable summary table to stdout.
-
-Stage 1 must raise (not just log) if overall_status would be "failed" per
-roadmap §7 acceptance criteria.
-
-Acceptance:
-- pytest -v -m "not integration" passes (fully mocked).
-- A dedicated integration-style test using all mocked fixtures together
-  produces a valid DataQualityReport JSON.
-- Commit message should reference "Stage 1 complete".
-```
+`run_stage1` runs, in order: config, ONS curtailment (D14 floors), capacity-factor files (D20), generation + P(t) on the dispatched basis (D15/D20), classification (D17), MCTI (D12/D18), validation_data, then writes `processed/data_quality_report.json`, `logs/stage1_data_quality_report_<ts>.json` and the Markdown report. Statuses: PASS / WARNING / NOT APPLICABLE / FAIL; any FAIL raises `Stage1Error`. It never runs calibration, mitigation or the secondary generation fallback. Calibration has its own entry point (`calibration.run_calibration`).
 
 ---
 

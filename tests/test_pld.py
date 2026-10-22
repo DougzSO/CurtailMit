@@ -1,6 +1,6 @@
 import pytest
 
-from curtailmit.pld import fetch_pld, PldDisabledError
+from curtailmit.pld import PldDisabledError, fetch_pld
 
 
 def test_fetch_pld_raises_when_disabled():

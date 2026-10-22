@@ -4,11 +4,11 @@ import responses
 from curtailmit.ckan import (
     CkanApiError,
     CkanResource,
-    package_show,
-    package_search,
     get_resources,
-    pick_best_resource,
     group_monthly_resources,
+    package_search,
+    package_show,
+    pick_best_resource,
 )
 
 BASE_URL = "https://example-ckan.test/api/3/action"

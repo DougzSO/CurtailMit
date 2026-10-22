@@ -15,7 +15,7 @@ class ScenarioYearData(BaseModel):
     total_generation_twh: float = Field(gt=0)
 
     @model_validator(mode="after")
-    def check_penetration_bound(self) -> "ScenarioYearData":
+    def check_penetration_bound(self) -> ScenarioYearData:
         total = self.solar_pct + self.wind_pct
         if total > 100:
             raise ValueError(
@@ -43,7 +43,7 @@ class ElectrolyzerSEC(BaseModel):
     central_estimate: float
 
     @model_validator(mode="after")
-    def check_bounds(self) -> "ElectrolyzerSEC":
+    def check_bounds(self) -> ElectrolyzerSEC:
         if not (self.min <= self.central_estimate <= self.max):
             raise ValueError("central_estimate must lie within [min, max].")
         return self
@@ -108,6 +108,19 @@ class Baseline2020Generation(BaseModel):
         return 100 * (self.solar_twh + self.wind_twh) / self.total_twh
 
 
+CheckStatus = Literal["PASS", "WARNING", "NOT APPLICABLE", "FAIL"]
+
+
+class CheckResult(BaseModel):
+    """One checked item of the Stage 1 report. WARNING = a documented, non-blocking limitation (never collapsed into PASS)."""
+
+    id: str
+    name: str
+    status: CheckStatus
+    detail: str
+    decisions: list[str] = Field(default_factory=list)
+
+
 class DataQualityReport(BaseModel):
     timestamp_utc: str
     ons_wind_coverage: CoverageInfo
@@ -119,6 +132,28 @@ class DataQualityReport(BaseModel):
     fallback_sources_used: list[str] = Field(default_factory=list)
     validation_data_loaded: bool
     overall_status: Literal["ok", "degraded", "failed"]
+    # --- Task 8 extension (all optional: older callers keep working) ---
+    stage: str = "stage1"
+    solar_curtailment_2020_baseline: str = "documented_zero_not_measured"  # D14
+    ons_generation_coverage: CoverageInfo = Field(default_factory=CoverageInfo)
+    dispatched_solar_coverage: CoverageInfo = Field(default_factory=CoverageInfo)  # D20 (earliest/latest = months, n_records = months)
+    solar_basis_dispatched_from: str | None = None
+    baseline_2020: dict[str, float | str] = Field(default_factory=dict)
+    pre_2023_solar_gap: dict[str, float | str | None] = Field(default_factory=dict)
+    anomalous_days: list[str] = Field(default_factory=list)
+    capacity_factor_schema_differences: list[str] = Field(default_factory=list)
+    classification_energy_gwh_by_category: dict[str, float] = Field(default_factory=dict)
+    classification_unclassified_share_pct: float | None = None
+    mcti_average_years: list[int] = Field(default_factory=list)
+    mcti_skipped_years: dict[str, str] = Field(default_factory=dict)
+    mcti_om_is_derived: bool | None = None
+    mcti_cm_is_derived: bool | None = None
+    mcti_manual_ingestion_used: list[str] = Field(default_factory=list)
+    pld_enabled: bool = False  # D10
+    aneel_fallback_invoked: bool = False  # D19
+    manifest_summary: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    checks: list[CheckResult] = Field(default_factory=list)
+    calibration_readiness_note: str = ""  # forward-looking (D21/D22); NOT a Stage 1 data-quality finding
 
 
 # --- Stage 2 outputs ---------------------------------------------------------
@@ -164,7 +199,7 @@ class HydrogenRow(BaseModel):
     h2_potential_max_kg: float
 
     @model_validator(mode="after")
-    def check_ordering(self) -> "HydrogenRow":
+    def check_ordering(self) -> HydrogenRow:
         if not (self.h2_potential_min_kg <= self.h2_potential_central_kg <= self.h2_potential_max_kg):
             raise ValueError("H2 potential range must satisfy min <= central <= max.")
         return self

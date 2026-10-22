@@ -1,5 +1,7 @@
 ﻿from datetime import date
+
 import pytest
+
 from curtailmit.ons_client import CkanClient, CoverageError
 
 

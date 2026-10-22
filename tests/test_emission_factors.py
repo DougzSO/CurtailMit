@@ -2,8 +2,8 @@ import pytest
 
 from curtailmit.emission_factors import (
     EmissionFactorError,
-    derive_annual_om_from_monthly,
     compute_combined_margin,
+    derive_annual_om_from_monthly,
 )
 
 

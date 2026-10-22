@@ -1,11 +1,16 @@
-﻿import numpy as np
+﻿from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
 
 from curtailmit.calibration import (
-    fit_calibration, apply_calibration, validate_against_holdout,
-    save_calibration, load_calibration, logistic,
+    apply_calibration,
+    fit_calibration,
+    load_calibration,
+    logistic,
+    save_calibration,
+    validate_against_holdout,
 )
 
 
@@ -57,7 +62,7 @@ def test_empty_dataframe_raises():
 
 # ---------------------------------------------------------------- D21: bounded L and bootstrap CI
 
-from curtailmit.calibration import bootstrap_calibration_ci  # noqa: E402
+from curtailmit.calibration import bootstrap_calibration_ci
 
 
 def test_fit_bounds_L_to_at_most_one_even_when_the_data_ask_for_more():

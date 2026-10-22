@@ -4,9 +4,9 @@ import pytest
 
 from curtailmit.projection import (
     ANCHOR_YEARS,
-    AnchorPoint,
     HISTORICAL_SOURCE_LABEL,
     INTERPOLATED_SOURCE_LABEL,
+    AnchorPoint,
     ProjectionError,
     build_anchor_points,
     headline_table,

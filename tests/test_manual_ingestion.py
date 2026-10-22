@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from curtailmit.manual_ingestion import load_manually_placed_file, ManualIngestionRequired
+from curtailmit.manual_ingestion import ManualIngestionRequired, load_manually_placed_file
 
 
 def test_raises_actionable_error_when_missing(tmp_path: Path):

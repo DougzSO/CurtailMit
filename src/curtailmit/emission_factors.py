@@ -19,8 +19,8 @@ Every output here must be flagged by the caller as "derived" /
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 DEFAULT_OM_WEIGHT = 0.5
 DEFAULT_BM_WEIGHT = 0.5

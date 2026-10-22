@@ -5,15 +5,14 @@ from datetime import date
 import pytest
 
 from curtailmit.validation import (
-    ValidationError,
-    validate_penetration_ceiling,
-    validate_ons_coverage,
-    validate_mcti_factor_coverage,
     ClassificationFlag,
+    ValidationError,
     attach_classification_flag,
     validate_classification_propagation,
+    validate_mcti_factor_coverage,
+    validate_ons_coverage,
+    validate_penetration_ceiling,
 )
-
 
 # --- validate_penetration_ceiling ---
 

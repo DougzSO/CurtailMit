@@ -169,15 +169,18 @@ def daily_gap(dispatched_hourly: pd.Series, balanco_solar_mw: pd.Series) -> pd.S
 
 
 def find_step_day(daily: pd.Series, month: str, margin_days: int = 31) -> tuple[pd.Timestamp, float, float]:
-    """Day with the largest day-over-day increase of the daily gap inside `month` +/- `margin_days` -> (day, gap that day, gap the day before).
+    """Day with the largest increase of the daily gap over the median of the previous 7 days, inside `month` +/- `margin_days`
+    -> (day, gap that day, median gap of the 7 days before).
 
-    The window is needed because isolated ONS data glitches elsewhere (e.g. 2024-11-09, see report) have larger one-day jumps.
+    The 7-day median (not the previous day) keeps an isolated glitch day (e.g. 2024-11-09, see report) from creating a bigger "jump" on the day
+    after it; the window excludes glitches elsewhere in the series.
     """
     start = pd.Period(month).start_time - pd.Timedelta(days=margin_days)
     end = pd.Period(month).end_time + pd.Timedelta(days=margin_days)
-    window = daily[start:end]
-    day = window.diff().idxmax()
-    return day, float(daily.loc[day]), float(daily.shift(1).loc[day])
+    baseline = daily.shift(1).rolling(7, min_periods=3).median()
+    jump = (daily - baseline)[start:end]
+    day = jump.idxmax()
+    return day, float(daily.loc[day]), float(baseline.loc[day])
 
 
 def glitch_days(daily: pd.Series, after: str, below_mwmed: float) -> pd.Series:
@@ -260,6 +263,7 @@ def analyse_gap(m: pd.DataFrame, trivial_pct: float = 5.0, rt_gwh: float = RT_MM
 
 
 DISPATCHED_MONTHLY_FILENAME = "ons_solar_dispatched_monthly.parquet"
+DAILY_GAP_FILENAME = "ons_solar_gap_daily.parquet"  # day, gap_mwmed (val_gersolar - dispatched solar); used by the Stage 1 report
 
 
 def build_dispatched_monthly(client: CkanClient, balanco_solar_mw: pd.Series, first_year: int = 2021, use_cache: bool = True, write: bool = True) -> pd.DataFrame:
@@ -270,11 +274,14 @@ def build_dispatched_monthly(client: CkanClient, balanco_solar_mw: pd.Series, fi
     unusable = [f.label for f in findings if not f.usable]
     if unusable:
         raise ProbeError(f"Capacity-factor files without the required columns: {unusable}")
-    table = compare_with_balanco(aggregate_dispatched_solar(paths), balanco_solar_mw)
+    hourly = aggregate_dispatched_solar(paths)
+    table = compare_with_balanco(hourly, balanco_solar_mw)
     if write:
         from curtailmit.paths import get_interim_dir
 
         write_monthly(table, get_interim_dir() / DISPATCHED_MONTHLY_FILENAME)
+        daily = daily_gap(hourly, balanco_solar_mw).rename_axis("day").reset_index()
+        daily.to_parquet(get_interim_dir() / DAILY_GAP_FILENAME, index=False)
     return table
 
 

@@ -1,4 +1,5 @@
 ﻿import pytest
+
 from curtailmit.schemas import ScenarioYearData
 
 

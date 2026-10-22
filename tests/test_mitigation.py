@@ -1,7 +1,7 @@
 ﻿import pandas as pd
 import pytest
 
-from curtailmit.mitigation import compute_mitigation, DEFAULT_MARGINAL_PROXY_NO_CLASSIFICATION
+from curtailmit.mitigation import DEFAULT_MARGINAL_PROXY_NO_CLASSIFICATION, compute_mitigation
 
 
 def _fixtures():
