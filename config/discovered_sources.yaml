@@ -534,6 +534,51 @@ decisions:
       extrapolation for both curves; the bootstrap interval (sampling uncertainty only) must be propagated by Stage 3 (D21).
     implemented_in: "Task 7D: calibration.build_technology_frames, TechnologyCurve, CalibrationResult, run_calibration"
 
+  D23:
+    status: pending
+    date: "2026-10-23"
+    topic: "Gross (potential) vs net (delivered) basis of the PTE/BLUES generation, and the E_curt formula"
+    source_task: "Task 11C section (a) - docs/task11c_investigation_report.md"
+    found: >
+      The CEBRI PTE2 technical report never says whether the published generation is before or after curtailment; curtailment is not modeled (policy
+      risk only, PDF pp. 62 and 64) and the NEWAVE step takes "as quantidades de energia definidas no cenario" (PDF p. 110). No wind/solar capacity is
+      published, so PTE capacity factors cannot be computed. Indicative 2025 cross-check against ONS (scope not reconciled, D16): PTE wind 117.0 TWh vs
+      ONS realized 115.4 (+1.5 percent) and potential 141.6 (-17.3 percent); implied capacity 35.0 GW at the observed realized capacity factor vs ANEEL
+      SIGA 34.75 GW. PTE solar 100.3 TWh vs ONS balance realized 91.8 (+9.2 percent) and realized + centralized curtailed 102.8 (-2.4 percent): the two
+      technologies point in opposite directions.
+    options:
+      gross: "E_curt = generation x C (the Task 11B formula; PTE generation read as potential)"
+      net: "E_curt = generation x C / (1 - C) (PTE generation read as delivered); with the current extrapolated C it gives implied potentials up to 25,142 TWh (TA 2050 wind) vs total PTE generation of 1,417 TWh, i.e. unusable"
+      redefine_rate: "calibrate the rate on realized generation (curtailed / realized) so that a delivered-type PTE generation is the right base without a division (a calibration change)"
+    sensitivity: "net / gross ratio 1.9x (TB 2040 solar) to 43.3x (TA 2050 wind) at the Task 11B central C"
+    working_reading: "low confidence: closer to a delivered (net-like) quantity, because a model without curtailment reports what it dispatches; not a finding"
+    decided: "nothing; to be decided by the user (candidate action: ask the PTE/CEBRI authors what Grafico 13 represents)"
+
+  D24:
+    status: pending
+    date: "2026-10-23"
+    topic: "Adequacy of national P as the only driver of C for 2040/2050; regional/mechanism hypothesis"
+    source_task: "Task 11C sections (b) and (c) - docs/task11c_investigation_report.md"
+    found: >
+      (b) The Task 11B central estimates (C_wind 0.87-0.98, C_solar 0.70-0.86 at P 44-58 percent) are far outside every international figure retrieved
+      (Northern Ireland wind 29.6 percent, South Australia grid-scale solar offloading 32 percent and wind 11 percent, Ireland all-island wind 14.0 percent,
+      Denmark near 0-5 percent), although Denmark (64 percent of consumption) and South Australia (~77 percent of generation) reach the PTE penetration
+      range; those systems are strongly interconnected with different dispatch rules, so this is a plausibility check only.
+      (c) Wind curtailment is 94.7-98.6 percent in the Northeast (which holds 90-93 percent of wind generation); solar curtailment splits NE/SE in
+      proportion to generation. Curtailment occurs at very low local penetration (SE solar rate 24-26 percent at local P 4-7 percent; S wind up to 55 percent
+      at local P 3-13 percent), while the NE at local P 49-84 percent shows annual rates of 9-19 percent. The fastest-growing class is DEB (energy reason,
+      100 percent systemic; share 8.5 -> 69 percent, 2022 -> 2026); EUB (external unavailability) is flat against P (slope 0.05) and its share fell 59 -> 11
+      percent; local-origin restrictions fell from 42 to 16-18 percent. C correlates more with calendar time (Spearman 0.91) than with P (0.73); partial
+      Spearman of C on P given time is 0.45 (57 months) and 0.63 (last 30 months).
+    reading: >
+      Moderately undermines national P as a structural driver for extrapolation without supporting a simple transmission-bottleneck explanation: the growing
+      component is a systemic energy-balance restriction that depends on demand, hydro and flexibility, which PTE scenarios change and P does not capture.
+      Descriptive, in-sample, one regime; no causality shown.
+    open_questions:
+      a: "Keep national P as the only driver (with the D21/D22 uncertainty and the caveat), or move to a mechanism-aware formulation separating the energy-balance (DEB) component from the network components (REB/EUB)?"
+      b: "If the latter: which data (for example transmission-expansion assumptions) would be needed - a possible future acquisition task, NOT started."
+    decided: "nothing; to be decided by the user"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

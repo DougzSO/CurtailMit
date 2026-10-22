@@ -122,6 +122,10 @@ Logged after Task 9. (Numbered 1.3g because 1.3f is the ANEEL fallback section.)
 - The PTE scenarios reach P (solar+wind, table values) of 26-29 % in 2025-2030 (inside the observed range) but 36-44 % in 2040 and 47-58 % in 2050, i.e. well outside it (see D21 in `config/discovered_sources.yaml` and `docs/task9_calibration_report.md`).
 - **Must be resolved before Stage 3 (PTE scenario projection), not before Task 8.** Open sub-questions: (a) constrain L <= 1 in `fit_calibration`? (b) how to treat the wind-only months (include as-is, downweight, or fit separately from solar months)?
 
+### 1.3h Task 11C investigation (pre-Task 13) - RUN, findings pending user review
+
+Investigation only (no pipeline, fit or locked-decision change): `docs/task11c_investigation_report.md`, throwaway code in `analysis/task11c_diagnostics.py`. Covers (a) PTE gross vs net generation basis, (b) international curtailment benchmarks, (c) subsystem and DEB/REB/EUB diagnostic. Outcome status: **sources silent on (a); Brazilian 2040/2050 central estimates far outside the international envelope (b); (c) moderately undermines national P as a structural driver without supporting a simple transmission-bottleneck story.** Candidate decisions D23 and D24 are logged as `pending` in `config/discovered_sources.yaml`; nothing adopted. Task 13 and any Task 11D (data acquisition) are NOT started and wait for the user's decision.
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
