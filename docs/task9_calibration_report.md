@@ -49,6 +49,10 @@ Reading:
 - The remaining 2025 gap (-0.54 pp) is against a figure from a secondary source whose exact denominator is unknown, so it cannot be attributed.
 - The 2024 ONS value (9.3 %) is still 0.27 pp above the scope-consistent rate; ONS's own definition of potential generation (plant set, interval) remains unreconstructed.
 
+## Documented limitation: residual gap to ONS (permanent)
+
+The scope-consistent rates remain 0.01 / 0.15 / 0.27 / 0.54 pp below ONS's published values for 2022-2025 (about 3-4 % relative in 2023-2025). The numerators agree with ONS, so the difference sits in the potential-generation denominator, whose ONS definition was not reconstructed. The 2025 ONS figure (~20.7 %) is a secondary-source citation (Ensaio Energetico), not an ONS primary publication, so the 2025 residual cannot be fully attributed. Also recorded in `docs/methodology.md` section 3.7.
+
 ## Fit (`processed/calibration_params.json`, `processed/calibration_frame.parquet`)
 
 Input: 57 complete months 2022-01..2026-09 (27 wind-only, 30 wind+solar), P(s,t) from 10.3 % to 29.4 %, C from 0 to 29.7 %.
@@ -63,6 +67,18 @@ Input: 57 complete months 2022-01..2026-09 (27 wind-only, 30 wind+solar), P(s,t)
 **The logistic is not well identified by the observed range.** All the data sit below P = 29.4 %, but P0 is 35-44 % (and 169 % in the unbounded sensitivity). The saved primary fit has L = 1.25, i.e. a curtailment fraction above 100 % at high P (C(60 %) = 1.226), which is unphysical; with `L <= 1` the in-sample fit is the same (RMSE 0.0612) but C(30 %) = 0.31, C(40 %) = 0.71, C(60 %) = 0.99, while the wind+solar-only bounded fit gives 0.25 / 0.42 / 0.77: the extrapolation to PTE penetrations is very sensitive to this choice. I did not change `fit_calibration` (no bounds, as before); whether to bound L at 1 (and how to treat the mixed wind-only / wind+solar scope) is a methodological decision for you, since it drives Stage 3.
 
 In-sample RMSE (6 pp) is large because monthly C is noisy (it depends on hydrology, transmission and demand as well as P); the fit uses P only, as designed.
+
+## Extrapolation exposure (read-only diagnostic, PTE table values from config/scenarios.yaml; no fit decision taken)
+
+P = solar_pct + wind_pct (%). Observed calibration range: 10.3-29.4 %.
+
+| Scenario | 2025 | 2030 | 2040 | 2050 | Maximum |
+|---|---:|---:|---:|---:|---:|
+| TB | 26 | 29 | 36 | 50 | 50 |
+| TA | 26 | 29 | 44 | 58 | 58 |
+| TG | 26 | 28 | 39 | 47 | 47 |
+
+2025-2030 are inside the observed range; 2040 and 2050 are outside in all three scenarios (tracked as candidate D21 and section 1.3g of `claude_commands.md`).
 
 ## Tests
 

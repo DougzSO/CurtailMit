@@ -182,6 +182,11 @@ other stage (D10).
   with, but does NOT prove, negligible solar curtailment in 2020. The 2020 baseline's solar
   curtailment is therefore a documented zero, not a measured value; this is reported explicitly in
   the data-quality report (`solar_curtailment_2020_baseline`) and is never silently assumed.
+- Residual gap to ONS-published curtailment rates (permanent limitation, Task 9). After D20 our scope-consistent annual rates (0.49 / 3.45 / 9.03 / 20.16 %
+  for 2022-2025) stay 0.01 / 0.15 / 0.27 / 0.54 percentage points below ONS's published 0.5 / 3.6 / 9.3 / ~20.7 % (about 3-4 % relative for 2023-2025). The
+  numerators match ONS (absolute MWmed within ~1 %), so the residual is in the potential-generation denominator, whose exact ONS definition (plant set,
+  interval) was not reconstructed. The 2025 reference (~20.7 %) is a secondary-source citation (Ensaio Energetico, attributed to IEA/ONS), not an ONS primary
+  publication, so the 2025 residual cannot be fully attributed. The rates are therefore reported as "close to, not equal to" ONS's.
 - Solar basis and MMGD (D20). The calibration uses ONS-dispatched (centralized) solar, not `val_gersolar`, because the latter includes an
   estimated MMGD component from 2023-04-29. This is a project-level methodological choice backed by measurement (Task 6C), not an
   ONS-confirmed statement for that field. A smaller non-zero gap (89-197 MWmed) exists from 2021-03 to 2023-03; it is documented

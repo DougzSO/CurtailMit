@@ -466,7 +466,27 @@ decisions:
       this specific field. The pre-2023-03 secondary gap is not corrected for (no
       curtailment data exists in that window to be affected). Does not alter D16
       (ONS-SIN vs PTE-basis treatment of projection years) in any way.
-    implemented_in: "to be implemented in Task 9 (calibration.py wiring)"
+    implemented_in: "commit 224ad96 (Task 9: ons_generation.py P(t) tables, ons_solar_gap.py, calibration.py wiring); report docs/task9_calibration_report.md"
+
+  D21:
+    status: "pending (not adopted)"
+    date: "2026-10-23"
+    topic: "Calibration curve identifiability: unbounded L and the treatment of wind-only months"
+    source_task: "Task 9 (docs/task9_calibration_report.md)"
+    found: >
+      The logistic C(P) fitted on the D20 basis (57 monthly points 2022-01..2026-09, P 10.3-29.4 percent) gives L=1.254, k=0.164, P0=36.8,
+      i.e. curtailment above 100 percent at high P (C(60)=1.23), which is physically impossible. Constraining L<=1 leaves the in-sample
+      RMSE unchanged (0.0612), so the data do not discriminate. Including vs excluding the 27 wind-only months (2022-01..2024-03) changes
+      the extrapolated C(40) from 0.71 to 0.42 (L<=1 bounded fits); the wind+solar-only unbounded fit degenerates (L=2236, P0=169).
+    extrapolation_exposure: >
+      PTE scenario penetration (solar_pct + wind_pct at the table years, read from config/scenarios.yaml; observed calibration maximum is
+      29.4 percent): TB 26 / 29 / 36 / 50 percent, TA 26 / 29 / 44 / 58 percent, TG 26 / 28 / 39 / 47 percent for 2025 / 2030 / 2040 / 2050.
+      2025-2030 lie inside the observed range; 2040 and 2050 lie outside it in every scenario, so the unresolved choice drives the Stage 3 results.
+    open_subquestions:
+      a: "Constrain L<=1 in fit_calibration?"
+      b: "Treat wind-only months in the calibration frame: include as-is, downweight, or fit separately from solar months?"
+    decided: "nothing; to be decided before Stage 3 (not before Task 8)"
+    fit_calibration_changed: false
 
 ben_cross_check:
   status: reference_only

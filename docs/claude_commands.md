@@ -110,6 +110,16 @@ PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 
 - Limitation (D19): ANEEL has no SIN generation-energy series, so the fallback returns installed capacity (MW) and shares by source, flagged `is_generation_energy = False`; it cannot replace the ONS P(t) without a capacity-factor decision.
 - Side finding: ONS solar vs ANEEL capacity suggests MMGD is included in the ONS solar series from 2023 (see 1.3e evidence update).
 
+### 1.3g PENDING ITEM — calibration curve identifiability (candidate D21)
+
+Logged after Task 9; **nothing decided and `fit_calibration` unchanged.** (Numbered 1.3g because 1.3f is the ANEEL fallback section.)
+
+- The saved logistic fit on the D20 basis (57 monthly points 2022-01..2026-09, P 10.3-29.4 %) has L = 1.254, k = 0.164, P0 = 36.8: L > 1 means curtailment above 100 % at high P, which is physically impossible (C(60 %) = 1.23).
+- Constraining L <= 1 does not worsen the in-sample RMSE (0.0612 in both cases): the data do not discriminate between the two, they only constrain the curve below P ~ 30 %.
+- Including vs excluding the 27 wind-only months (2022-01..2024-03, no solar curtailment published) changes the extrapolated C(40 %) from 0.71 to 0.42 (L <= 1 bounded fits); the wind+solar-only unbounded fit degenerates (L = 2,236, P0 = 169).
+- The PTE scenarios reach P (solar+wind, table values) of 26-29 % in 2025-2030 (inside the observed range) but 36-44 % in 2040 and 47-58 % in 2050, i.e. well outside it (see D21 in `config/discovered_sources.yaml` and `docs/task9_calibration_report.md`).
+- **Must be resolved before Stage 3 (PTE scenario projection), not before Task 8.** Open sub-questions: (a) constrain L <= 1 in `fit_calibration`? (b) how to treat the wind-only months (include as-is, downweight, or fit separately from solar months)?
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
