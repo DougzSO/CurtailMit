@@ -104,6 +104,19 @@ aneel:
     Confirmed CKAN-based via package_search for 'geracao' (10 real
     results). Not wired into the default pipeline; invoked only after
     a documented ONS failure.
+  generation_fallback:
+    queries: ["geracao usina", "geracao fonte", "capacidade instalada geracao"]
+    resource_name_hint: "empreendimentos-geracao"
+    # Probed live 2026-10-21 (8 queries, 33 distinct packages). ANEEL publishes NO SIN energy-generation (MWh) series by
+    # source, so the fallback can only return INSTALLED CAPACITY by source from the SIGA plant registry. Assessed alternatives:
+    assessed_alternatives:
+      siga-sistema-de-informacoes-de-geracao-da-aneel: "CHOSEN. Plant registry (25k plants): generation type, phase, entry-into-operation date, fiscalized kW."
+      capacidade-instalada-por-unidade-da-federacao: "Rejected: capacity by UF only, no source split."
+      empreendimentos-em-operacao: "Rejected: counts of plants, no energy."
+      relacao-de-empreendimentos-de-geracao-distribuida: "Rejected for this role: MMGD registry (different scope)."
+      samp-balanco: "Rejected: energy balance of distribution companies only (energy received/injected by source), not SIN generation."
+      cfurh: "Rejected: hydro royalties only."
+      geracao: "Rejected: discontinued inspection counts."
 
 mcti:
   landing_page: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao"

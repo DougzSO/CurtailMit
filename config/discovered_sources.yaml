@@ -378,6 +378,36 @@ decisions:
       a text cell there means no BM yet), with a corresponding test added
       (test_parse_margin_grid_incomplete_year_is_flagged_not_silently_filled). Fix shipped in the Task 5 commit (dfe1cb5).
 
+  D19:
+    status: adopted
+    date: "2026-10-22"
+    topic: "ANEEL fallback for generation-by-source: capacity only, explicit invocation"
+    checked: >
+      ANEEL CKAN (8 candidate queries, 33 distinct packages) for a generation-by-source series usable if ONS (Task 3) fails.
+      Not re-probed for curtailment (Task 2B already did: none).
+    found: >
+      ANEEL publishes no SIN energy-generation (MWh) series by source. Source-level data exists only as installed capacity: the SIGA
+      plant registry (generation type, phase, entry date, fiscalized kW; ~25k plants). Other candidates are capacity by UF only (no
+      source split), plant counts, the distributed-generation (MMGD) registry, the distributors' energy balance (SAMP-Balanco: energy
+      received/injected by source, distribution companies only), hydro royalties (CFURH: hydro only) and a discontinued inspection
+      dataset. Centralized capacity from SIGA: solar 3.35 GW (2020) -> 17.24 GW (2024) -> 20.09 GW (2025); wind 17.13 -> 32.88 -> 34.75 GW.
+    decided: >
+      aneel_client.fetch_generation_fallback returns INSTALLED CAPACITY (MW) and capacity shares by source at year-end, flagged
+      quantity=installed_capacity_mw and is_generation_energy=False in every row; it is not a drop-in for the ONS generation-based P(t)
+      and invents no capacity factors. It is never invoked by the default pipeline: the caller must pass an explicit reason (the
+      documented ONS failure), which is logged as a WARNING. Package choice is a documented deterministic score, logged for every
+      candidate with the reasons the others lost, and backed by a schema check on the downloaded file.
+    why: >
+      Fail-explicit rule: a "fallback" that silently pretended capacity was generation would corrupt the calibration input.
+    caveat: >
+      SIGA lists only plants in operation, so earlier years are cumulative by entry date and understate retired capacity; MMGD is
+      excluded. Using the fallback for P(t) would need an explicit capacity-factor assumption and a new decision.
+    side_finding: >
+      docs/ons_solar_mmgd_capacity_crosscheck.md: ONS solar generation implies a ~21 percent capacity factor against centralized
+      capacity in 2018-2022 but 52-58 percent in 2023-2025, suggesting ONS solar includes estimated MMGD from 2023 (unconfirmed;
+      wind shows no break). Flagged for review; no change made.
+    implemented_in: "curtailmit.aneel_client (Task 6)"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

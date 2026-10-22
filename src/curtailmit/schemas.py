@@ -185,6 +185,19 @@ class CurtailmentPackageDiscovery(BaseModel):
     latest_date: str | None = None
 
 
+class AneelFallbackChoice(BaseModel):
+    """Outcome of the ANEEL fallback package discovery (Task 6): what was chosen and why the alternatives lost."""
+
+    queries: list[str]
+    package_id: str
+    title: str = ""
+    score: int
+    resource_name: str
+    resource_format: str
+    n_candidates: int = Field(ge=1)
+    rejected: dict[str, str] = Field(default_factory=dict)
+
+
 class GenerationPackageDiscovery(BaseModel):
     """Outcome of discovering/re-confirming the ONS generation-by-source CKAN package (Task 3)."""
 

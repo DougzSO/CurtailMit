@@ -105,6 +105,9 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 - Calibrated C(P) function parameters - produced by Stage 2 at run time.
 - Confirmation that MCTI margin (OM/BM/CM) publication has a stable public endpoint vs.
   PDF-only release (if PDF-only, flag as a manual-ingestion limitation).
+- ANEEL (`aneel_client.py`, Task 6) is a FALLBACK, not the default path: standalone, never invoked automatically, and it can only
+  provide installed capacity by source (ANEEL has no SIN generation-energy series), so it cannot replace the ONS generation-based P(t)
+  without a new decision (D19).
 
 ## 9. Next steps
 

@@ -25,8 +25,8 @@
 
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
-token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5) that did live
-API discovery and acquisition. Full test suite currently: **177 passed, 0 failed**
+token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
+API discovery and acquisition. Full test suite currently: **187 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -94,6 +94,15 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 ### 1.3e PENDING DECISION FOR TASK 9 — curtailment-rate denominator
 
 PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 2.40% / 6.61% / 15.23% for 2022-2025, partial 2026 figure unconfirmed) do not match ONS's own published rates (0.5% / 3.6% / 9.3% for 2022-2024; ~20.7% cited for 2025 via secondary source) despite the absolute MW/GWh curtailment figures matching almost exactly (see `docs/curtailment_magnitude_sanity_check.md`). The discrepancy is attributed to an undetermined difference in the "potential generation" denominator definition used by ONS vs. our computation (realized + curtailed generation). This denominator choice must be made explicitly, and recorded as a decision, before `calibration.py` (Task 9) is implemented — it changes the computed curtailment rate by up to ~25% relative. Reference `docs/curtailment_magnitude_sanity_check.md` for full detail.
+
+**Evidence update (Task 6, still PENDING — nothing decided):** `docs/ons_solar_mmgd_capacity_crosscheck.md` shows ONS solar generation implying a ~21 % capacity factor vs. ANEEL centralized capacity in 2018-2022 but 52-58 % in 2023-2025 (wind shows no break), which suggests the ONS balance solar (and the total) includes estimated MMGD from 2023 (unconfirmed). The COFF curtailment numerator covers centralized plants only, so a centralized-scope denominator would land at ~8.7 % (2024) and ~19.9 % (2025), close to ONS's 9.3 % and ~20.7 %. If confirmed, the Task 9 calibration series also has a definitional break in 2023 (solar term and total-generation denominator); the 2020 baseline is unaffected.
+
+### 1.3f ANEEL fallback (Task 6) — DONE (D19)
+
+- Module `src/curtailmit/aneel_client.py` (`fetch_generation_fallback(years, reason, ...)`): standalone fallback, NOT wired into `data_ingestion`/Stage 1 (a test enforces this); the caller must pass the documented ONS failure as `reason`, logged as a WARNING.
+- Package discovery by `package_search` (3 candidate queries) with a documented score; every candidate and every rejection is logged and returned in `AneelFallbackChoice`; schema of the downloaded file is verified. Chosen: SIGA plant registry (`siga-sistema-de-informacoes-de-geracao-da-aneel`).
+- Limitation (D19): ANEEL has no SIN generation-energy series, so the fallback returns installed capacity (MW) and shares by source, flagged `is_generation_energy = False`; it cannot replace the ONS P(t) without a capacity-factor decision.
+- Side finding: ONS solar vs ANEEL capacity suggests MMGD is included in the ONS solar series from 2023 (see 1.3e evidence update).
 
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
@@ -191,9 +200,9 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 3 | ONS generation-by-source discovery & acquisition | `ons_generation.py` | ✅ DONE (D15; PTE/ONS basis RESOLVED as D16) |
 | 4 | Curtailment classification (DEB/REB/EUB mapping) | `ons_classification.py` | ✅ DONE (D17) |
 | 5 | MCTI emission factor discovery & acquisition | `mcti_client.py` | ✅ DONE (D18) |
-| 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ⬜ NEXT |
+| 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ✅ DONE (D19) |
 | 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
-| 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ |
+| 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ NEXT |
 | 9 | Stage 2: `calibration.py` | `calibration.py` | 🔶 logic done, needs real-data wiring (Task 3 done; PTE/ONS basis settled by D16) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
 | 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 done, needs OM/CM split (folded into Task 13) |
@@ -218,45 +227,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 
 ---
 
-### TASK 6 — ANEEL fallback discovery (generation-by-source)
-
-```
-TASK 6 — Implement ANEEL open data as a secondary/fallback source for
-generation-by-source data, used only if ONS (Task 3) coverage or schema turns
-out to be insufficient for any specific scenario/year.
-
-Read docs/roadmap.md and docs/methodology.md first. ANEEL's CKAN base
-(https://dadosabertos.aneel.gov.br/api/3/action/) is CONFIRMED reachable — no
-further reachability check needed.
-
-IMPORTANT CONTEXT: a prior probe (Task 2B) already searched ANEEL specifically
-for CURTAILMENT data across 13 queries and found none (20 packages inspected,
-all registries/capacity/auctions/tariffs). Do not re-probe ANEEL for
-curtailment — this task's fallback role is GENERATION-BY-SOURCE data only,
-not curtailment.
-
-Create src/curtailmit/aneel_client.py, reusing CkanClient against ANEEL's CKAN
-base URL. Discover the correct generation-by-source package via
-package_search (candidate queries: "geracao usina", "geracao fonte",
-"capacidade instalada geracao"), log every candidate, pick the best match
-using a documented heuristic, log final choice and why alternatives were
-rejected.
-
-This task should NOT be wired into the default Stage 1 pipeline — implement
-as a standalone, tested module with a clear docstring explaining it's a
-fallback path, callable explicitly (e.g.
-aneel_client.fetch_generation_fallback(...)) but not invoked automatically
-unless data_ingestion.py explicitly calls it after a documented ONS failure
-in Task 3/8.
-
-Tests: same mocked-fixture pattern as previous tasks.
-
-Acceptance:
-- pytest -v -m "not integration" passes.
-- Module is self-contained, documented as "fallback, not default path" in its
-  module docstring and in a short note added to docs/roadmap.md §8 under
-  "Remaining open items".
-```
+### TASK 6 — DONE (see section 1.3f; prompt removed)
 
 ---
 
