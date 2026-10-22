@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
-API discovery and acquisition. Full test suite currently: **249 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **256 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -223,7 +223,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 8 | Stage 1 finalization: `run_stage1` end to end + data-quality report | `data_ingestion.py`, `stage1_report.py` | ✅ DONE (`docs/stage1_data_quality_report.md`) |
 | 9 | Stage 2: `calibration.py` + D20 solar basis | `calibration.py`, `ons_generation.py` | ✅ DONE (D20; report `docs/task9_calibration_report.md`; logistic identifiability open, see report) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
-| 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 done, needs OM/CM split (folded into Task 13) |
+| 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 two-curve low/central/high wired (Task 11B); OM/CM split still folded into Task 13 |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
 | 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⬜ (rewritten below) |
 | 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ⬜ |
@@ -262,7 +262,7 @@ Stage 3 (PTE scenario application, `projection.py` wiring; a future task) MUST u
 (2) each curve carries its own bootstrap 95 % interval (`calibration.bootstrap_calibration_ci`, 1000 resamples; stored in `processed/calibration_ci_wind.parquet` and `calibration_ci_solar.parquet`), and every 2040/2050 figure (P = 36-58 %, outside the calibration range 10.3-29.4 % for both curves) must be reported with lower/upper bounds instead of a point estimate alone;
 (3) state that the intervals cover sampling uncertainty only, not the logistic functional form;
 (4) the combined single curve (`calibration_params_combined_diagnostic.json`) is a non-primary diagnostic and must not feed Stage 3 deficits.
-Reference: D21, D22, `docs/task9_calibration_report.md`. Not implemented yet by design.
+Reference: D21, D22, `docs/task9_calibration_report.md`. **Curtailment side implemented in Task 11B** (`projection.project_curtailment_two_curves`, low/central/high carried through `mitigation.compute_mitigation`; results in `docs/stage3_pte_curtailment_report.md`). The OM/CM split and results_writer wiring remain Task 13.
 
 ---
 

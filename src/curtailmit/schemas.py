@@ -187,6 +187,25 @@ class MitigationRow(BaseModel):
     mitigation_deficit_marginal_tco2: float
     marginal_proxy_used: str
     classification_available: bool
+    # Task 11B (additive, optional): low/high from the bootstrap CI of the two curves (sampling uncertainty only, D21/D22) and the wind/solar split.
+    E_curt_twh_low: float | None = None
+    E_curt_twh_high: float | None = None
+    E_curt_wind_twh: float | None = None
+    E_curt_wind_twh_low: float | None = None
+    E_curt_wind_twh_high: float | None = None
+    E_curt_solar_twh: float | None = None
+    E_curt_solar_twh_low: float | None = None
+    E_curt_solar_twh_high: float | None = None
+    mitigation_deficit_avg_tco2_low: float | None = None
+    mitigation_deficit_avg_tco2_high: float | None = None
+    mitigation_deficit_marginal_tco2_low: float | None = None
+    mitigation_deficit_marginal_tco2_high: float | None = None
+    mitigation_deficit_avg_wind_tco2: float | None = None
+    mitigation_deficit_avg_solar_tco2: float | None = None
+    mitigation_deficit_marginal_wind_tco2: float | None = None
+    mitigation_deficit_marginal_solar_tco2: float | None = None
+    extrapolated_wind: bool | None = None
+    extrapolated_solar: bool | None = None
 
 
 # --- Stage 5 outputs ---------------------------------------------------------

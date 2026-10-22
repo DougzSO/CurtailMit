@@ -6,6 +6,12 @@ Per docs/methodology.md Section 2.5:
 
 Both values are always computed and reported together - never collapsed into a
 single number without labeling which factor was used.
+
+Task 11B: when projection_df also carries the two-curve outputs of projection.project_curtailment_two_curves
+(E_curt_twh_low / E_curt_twh_high, E_curt_{wind,solar}_twh[_low|_high], extrapolated_{wind,solar}), the same factors are applied to them and
+the low/high deficits plus the wind/solar split are carried through. The low/high values are bootstrap bounds of the two calibrated curves:
+SAMPLING uncertainty only, not logistic functional-form uncertainty (D21/D22), which dominates for the extrapolated 2040/2050 points.
+The single marginal-factor input is passed through unchanged (the OM/CM dual-column split is Task 13).
 """
 
 from __future__ import annotations
@@ -74,6 +80,23 @@ def compute_mitigation(
         "mitigation_deficit_avg_tco2", "mitigation_deficit_marginal_tco2",
         "marginal_proxy_used", "classification_available",
     ]
+    # Task 11B: low/high bounds and the wind/solar split, same factors, only for the columns that are present.
+    for suffix in ("_low", "_high"):
+        if f"E_curt_twh{suffix}" in merged.columns:
+            merged[f"mitigation_deficit_avg_tco2{suffix}"] = merged[f"E_curt_twh{suffix}"] * twh_to_mwh * merged["factor_tco2_per_mwh"]
+            merged[f"mitigation_deficit_marginal_tco2{suffix}"] = merged[f"E_curt_twh{suffix}"] * twh_to_mwh * merged["marginal_factor_used"]
+            out_cols += [f"E_curt_twh{suffix}", f"mitigation_deficit_avg_tco2{suffix}", f"mitigation_deficit_marginal_tco2{suffix}"]
+    for tech in ("wind", "solar"):
+        for suffix in ("", "_low", "_high"):
+            col = f"E_curt_{tech}_twh{suffix}"
+            if col in merged.columns:
+                out_cols.append(col)
+        if f"E_curt_{tech}_twh" in merged.columns:
+            merged[f"mitigation_deficit_avg_{tech}_tco2"] = merged[f"E_curt_{tech}_twh"] * twh_to_mwh * merged["factor_tco2_per_mwh"]
+            merged[f"mitigation_deficit_marginal_{tech}_tco2"] = merged[f"E_curt_{tech}_twh"] * twh_to_mwh * merged["marginal_factor_used"]
+            out_cols += [f"mitigation_deficit_avg_{tech}_tco2", f"mitigation_deficit_marginal_{tech}_tco2"]
+        if f"extrapolated_{tech}" in merged.columns:
+            out_cols.append(f"extrapolated_{tech}")
     result = merged[out_cols].copy()
 
     for row in result.itertuples(index=False):

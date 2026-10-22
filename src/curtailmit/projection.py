@@ -21,10 +21,17 @@ Rules enforced here (per methodology, non-negotiable):
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
+import numpy as np
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+
 ANCHOR_YEARS = (2020, 2025, 2030, 2040, 2050)
+PROJECTION_YEARS = (2025, 2030, 2040, 2050)  # PTE grid years; 2020 is the historical anchor, not a projection
 HISTORICAL_ANCHOR_YEAR = 2020
 HISTORICAL_SOURCE_LABEL = "historical_ons"
 PROJECTION_SOURCE_LABEL = "pte_projection"
@@ -169,3 +176,80 @@ def interpolate_series(
             )
     series.append(anchor_points[ordered[-1].year])
     return series
+
+
+def project_curtailment_two_curves(pte_table, result, years: Sequence[int] = PROJECTION_YEARS, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
+    """D22 combination rule applied to the PTE scenarios (Task 11B). One row per (scenario, year).
+
+        wind_curtailed(s,t)  = wind_gen(s,t)  x C_wind(P(s,t))
+        solar_curtailed(s,t) = solar_gen(s,t) x C_solar(P(s,t))
+        total_curtailed      = wind_curtailed + solar_curtailed
+
+    with P(s,t) = solar_pct + wind_pct of the PTE table (D16: PTE basis as published, no rescaling) and wind_gen/solar_gen = share x the PTE
+    total generation. The PTE generation is treated as potential generation (the base of the calibrated rate), as in methodology 2.4
+    (E_curt = generation x C_hat). The retained single "combined_diagnostic" curve is NOT used.
+
+    low/central/high: central uses the fitted curve; low/high use the 2.5 / 97.5 percentile of each curve's own bootstrap (`bootstrap_calibration_ci`,
+    resampling the calibration months, evaluated at the scenario's P). total low/high are the SUM of the wind and solar bounds - a conservative
+    envelope, wider than a joint 95 % interval because the two bounds are not reached together.
+    THESE INTERVALS CAPTURE SAMPLING UNCERTAINTY ONLY - not the uncertainty of the logistic functional form, which dominates far outside the
+    calibrated range (D21/D22). `extrapolated_wind` / `extrapolated_solar` are True when P lies outside that curve's observed P range.
+
+    `pte_table` is a schemas.PTEScenarioTable; `result` a calibration.CalibrationResult.
+    """
+    from curtailmit.calibration import apply_calibration, bootstrap_calibration_ci
+
+    rows = []
+    for scenario in ("TB", "TA", "TG"):
+        data = getattr(pte_table, scenario)
+        for year in years:
+            if year not in data:
+                raise ProjectionError(f"PTE table has no {year} entry for scenario {scenario}.")
+            d = data[year]
+            rows.append({"scenario": scenario, "year": int(year), "source": PROJECTION_SOURCE_LABEL, "solar_pct": d.solar_pct, "wind_pct": d.wind_pct,
+                         "P": d.penetration_pct, "total_generation_twh": d.total_generation_twh,
+                         "wind_gen_twh": d.wind_pct / 100 * d.total_generation_twh, "solar_gen_twh": d.solar_pct / 100 * d.total_generation_twh})
+    out = pd.DataFrame(rows)
+    p_values = sorted(out["P"].unique().tolist())
+    for tech, curve, frame in (("wind", result.wind, result.wind_frame), ("solar", result.solar, result.solar_frame)):
+        ci = bootstrap_calibration_ci(frame, p_values, n_boot=n_boot, seed=seed).set_index("P")
+        if ci["n_failed"].max() > 0:
+            logger.warning("%s bootstrap: %d of %d refits failed and were skipped", tech, int(ci["n_failed"].max()), n_boot)
+        params = curve.calibration.params
+        central = np.array([apply_calibration(p, params) for p in out["P"]])
+        out[f"C_{tech}_central"] = central
+        out[f"C_{tech}_low"] = ci.loc[out["P"], "lo"].to_numpy()
+        out[f"C_{tech}_high"] = ci.loc[out["P"], "hi"].to_numpy()
+        if not ((out[f"C_{tech}_low"] <= central + 1e-9) & (central <= out[f"C_{tech}_high"] + 1e-9)).all():
+            logger.warning("%s: the fitted central estimate lies outside its bootstrap interval for some scenario/year (reported as is)", tech)
+        for level in ("low", "central", "high"):
+            out[f"{tech}_curtailed_twh_{level}"] = out[f"{tech}_gen_twh"] * out[f"C_{tech}_{level}"]
+        out[f"extrapolated_{tech}"] = ~out["P"].between(curve.p_min, curve.p_max)
+    for level in ("low", "central", "high"):
+        out[f"total_curtailed_twh_{level}"] = out[f"wind_curtailed_twh_{level}"] + out[f"solar_curtailed_twh_{level}"]
+    # columns consumed by mitigation.compute_mitigation (central + bounds)
+    out["E_curt_twh"] = out["total_curtailed_twh_central"]
+    out["E_curt_twh_low"] = out["total_curtailed_twh_low"]
+    out["E_curt_twh_high"] = out["total_curtailed_twh_high"]
+    for tech in ("wind", "solar"):
+        for level, suffix in (("central", ""), ("low", "_low"), ("high", "_high")):
+            out[f"E_curt_{tech}_twh{suffix}"] = out[f"{tech}_curtailed_twh_{level}"]
+    return out
+
+
+PTE_CURTAILMENT_FILENAME = "pte_curtailment_two_curves.parquet"
+
+
+def build_pte_curtailment_table(n_boot: int = 1000, seed: int = 0, processed_dir=None) -> pd.DataFrame:
+    """Task 11B entry point: refit the two D22 curves from the Stage 1 artifacts, apply them to the PTE table and write
+    processed/pte_curtailment_two_curves.parquet. Needs Stage 1 (run_stage1) to have populated interim/ and processed/."""
+    from curtailmit.calibration import run_calibration
+    from curtailmit.data_ingestion import load_config
+    from curtailmit.paths import get_processed_dir
+
+    processed_dir = processed_dir or get_processed_dir()
+    result = run_calibration(processed_dir=processed_dir)
+    table = project_curtailment_two_curves(load_config().pte_scenarios, result, n_boot=n_boot, seed=seed)
+    table.to_parquet(processed_dir / PTE_CURTAILMENT_FILENAME, index=False)
+    logger.info("Wrote %s (%d rows)", processed_dir / PTE_CURTAILMENT_FILENAME, len(table))
+    return table
