@@ -409,29 +409,64 @@ decisions:
     implemented_in: "curtailmit.aneel_client (Task 6)"
 
   D20:
-    status: "pending (not adopted)"
-    date: "2026-10-22"
-    topic: "ONS balance val_gersolar includes an estimated MMGD component from 2023-04-29"
-    source_task: "Task 6C (direct measurement); follows Task 6B circumstantial evidence"
+    status: adopted
+    date: "2026-10-23"
+    topic: "ONS balance val_gersolar includes a non-dispatched (MMGD-like) component from 2023-04-29 onward; centralized-only dispatched solar must be used consistently for both P(t) and the curtailment-rate denominator"
+    source_task: "Task 6B (circumstantial) + Task 6C (direct measurement)"
     evidence_measured: >
-      Monthly series 2021-01..2026-10 of val_gersolar minus ONS-dispatched solar (plant-level capacity-factor files, 59 files,
-      schema-checked); see docs/ons_solar_mmgd_verification.md (Task 6C section). Step exactly on 2023-04-29: daily gap 98-105 MWmed
-      until 04-28, then 2,546 / 3,034 / 3,069 MWmed; dispatched solar has no step. From 2023-05 the gap is 58.8-68.5 percent of
-      val_gersolar in every month and grows with capacity (2,940 MWmed in 2023-05, 4,000-6,600 in 2024, 5,400-8,300 in 2025).
-      2024 annual gap 45,789 GWh vs RT ONS DGL 0189/2025 MMGD estimate 45,752 GWh (ratio 1.0007; 0.981 after removing the
-      pre-step baseline), inside the stated +/-10 percent tolerance. One glitch day after the step (2024-11-09, gap 68 MWmed).
-    deviation_from_expected: >
-      The gap is not zero before the step: 89-197 MWmed (5.0-13.1 percent of val_gersolar) from 2021-03 to 2023-03, ~15 MWmed in
-      2021-01/02. The 2021-03 jump matches the month ONS says non-dispatched plants were added to the load (inference from the
-      carga-energia notes). About 1/30 of the post-step level.
+      Monthly val_gersolar minus ONS-dispatched solar (plant-level capacity-factor
+      files, 59 files, schema-checked, 2021-01..2026-10). Clean step on 2023-04-29:
+      daily gap 98-105 MWmed until 04-28, then 2,546 / 3,034 / 3,069 MWmed; dispatched
+      solar itself has no step, nor do wind/hydro/thermal. From 2023-05 onward the gap
+      is a stable 58.8-68.5 percent of val_gersolar every month and grows with
+      installed capacity. 2024 annual gap: 45,789 GWh vs ONS's own RT DGL-ONS 0189/2025
+      MMGD estimate of 45,752 GWh (ratio 1.0007), well inside the stated +/-10 percent
+      tolerance.
+    secondary_finding_pre_2023: >
+      A smaller, earlier, non-zero gap exists from 2021-03 to 2023-03 (89-197 MWmed,
+      5.0-13.1 percent of val_gersolar), roughly 1/30 of the post-2023-04-29 level.
+      The 2021-03 onset matches the month ONS's carga-energia notes say non-dispatched
+      plants were first added to load. This contradicts the original "near-zero before
+      the step" sub-hypothesis but is consistent with a staged MMGD-inclusion history
+      (two methodology changes, not one). NOT material to this decision: ONS solar
+      curtailment data only exists from 2024-04-01 onward (D14 coverage floor), so the
+      window where curtailment-rate and calibration decisions actually apply falls
+      entirely within the well-measured, stable post-2023-04-29 regime. Documented as
+      a limitation, not resolved further.
     not_confirmed: >
-      No ONS statement for this field (the balance dictionary is silent); the step could contain other non-dispatched solar;
-      the RT gives a figure for 2024 only, so the magnitude check rests on one year.
-    proposed_consequences_if_adopted: >
-      (1) Split calibration inputs into a centralized-scope series (val_gersolar minus the gap, or the dispatched series) and a
-      total-scope series; (2) use a centralized-scope denominator for curtailment rates (section 1.3e); (3) revisit the D16 wording
-      for 2023+. 2020 baseline unaffected. None of this is done.
-    decided: "nothing; to be decided jointly with the user"
+      No ONS document states this for val_gersolar specifically (the balance
+      dictionary is silent); the gap may include other non-dispatched-but-not-MMGD
+      solar; the RT magnitude check rests on a single year (2024); one glitch day
+      (2024-11-09, gap drops to 68 MWmed) is unexplained but isolated.
+    decided: >
+      For the calibration window (2021 onward) and all curtailment-rate calculations,
+      "solar generation" is defined as the directly-measured ONS-dispatched solar
+      series (summed from the per-plant capacity-factor dataset acquired in Task 6C,
+      interim/ons_solar_dispatched_monthly.parquet), NOT raw val_gersolar. This
+      dispatched-solar series is used consistently in BOTH places val_gersolar
+      previously fed the pipeline: (1) the solar_pct component of P(s,t), and the
+      solar term in the total-SIN-generation denominator used to compute it; (2) the
+      "potential generation" (realized + curtailed) denominator of the solar
+      curtailment rate. Wind is unaffected (no step found) and continues to use
+      val_gereolica as before. The 2020 historical baseline is unaffected (predates
+      dataset coverage and both measured steps; D14's documented-zero solar
+      curtailment baseline stands). raw val_gersolar remains available in outputs for
+      diagnostic/reporting purposes only (e.g., to show total including MMGD) but is
+      never the calibration or curtailment-rate basis.
+    why: >
+      MMGD is never subject to COFF curtailment and is not centrally dispatched, so
+      including it in P(t) dilutes the actual penetration-vs-curtailment relationship
+      the calibration is meant to capture, and including it in the curtailment-rate
+      denominator understates the rate by diluting it with non-curtailable energy.
+      Using the directly-measured dispatched series (rather than an assumed capacity
+      factor, as in the earlier Task 6 sanity check) keeps the correction grounded in
+      measurement, not assumption.
+    caveat: >
+      This is a project-level methodological choice, not an ONS-confirmed fact for
+      this specific field. The pre-2023-03 secondary gap is not corrected for (no
+      curtailment data exists in that window to be affected). Does not alter D16
+      (ONS-SIN vs PTE-basis treatment of projection years) in any way.
+    implemented_in: "to be implemented in Task 9 (calibration.py wiring)"
 
 ben_cross_check:
   status: reference_only

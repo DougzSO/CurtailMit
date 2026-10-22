@@ -164,3 +164,35 @@ def test_live_resource_listing_and_cached_schema():
     out = sg.list_capacity_factor_resources(CkanClient.resources_from_package(client.package_show("fator-capacidade-2")), 2021)
     assert "2021" in out and "2022-01" in out and "2024-06" in out
     assert all(k == "2021" or len(k) == 7 for k in out)
+
+
+def test_compare_exposes_matched_energy_for_d20():
+    idx = pd.date_range("2024-03-01", periods=10, freq="h")
+    m = sg.compare_with_balanco(pd.Series(5.0, index=idx), pd.Series(12.0, index=idx[:8]))
+    assert m.iloc[0]["dispatched_matched_mwh"] == pytest.approx(40.0) and m.iloc[0]["balanco_matched_mwh"] == pytest.approx(96.0)
+
+
+def test_load_dispatched_monthly_roundtrip_and_old_file_rejected(tmp_path):
+    idx = pd.date_range("2024-02-01", periods=24 * 29, freq="h")
+    m = sg.compare_with_balanco(pd.Series(100.0, index=idx), pd.Series(300.0, index=idx))
+    back = sg.load_dispatched_monthly(sg.write_monthly(m, tmp_path / "ok.parquet"))
+    assert back.index[0] == pd.Period("2024-02") and back.loc[pd.Period("2024-02"), "hours"] == 696
+    old = m.drop(columns=["dispatched_matched_mwh"])
+    with pytest.raises(ProbeError, match="rebuild"):
+        sg.load_dispatched_monthly(sg.write_monthly(old, tmp_path / "old.parquet"))
+
+
+def test_build_dispatched_monthly_raises_on_unusable_file(monkeypatch, tmp_path):
+    monkeypatch.setattr(sg, "acquire_capacity_factor_range", lambda *a, **k: ({"2024-01": tmp_path / "x"}, [sg.SchemaFinding("2024-01", missing_required=["val_geracaoverificada"])]))
+    with pytest.raises(ProbeError, match="required columns"):
+        sg.build_dispatched_monthly(None, pd.Series(dtype=float), write=False)
+
+
+def test_build_dispatched_monthly_aggregates_and_writes(monkeypatch, tmp_path):
+    path = cf_file(tmp_path / "a.parquet", "2024-01-01", 744, solar_mw=100)
+    monkeypatch.setattr(sg, "acquire_capacity_factor_range", lambda *a, **k: ({"2024-01": path}, [sg.SchemaFinding("2024-01")]))
+    monkeypatch.setattr("curtailmit.paths.get_interim_dir", lambda: tmp_path)
+    balance = pd.Series(300.0, index=pd.date_range("2024-01-01", periods=744, freq="h"))
+    m = sg.build_dispatched_monthly(None, balance)
+    assert m.iloc[0]["gap_mwmed"] == pytest.approx(200.0)
+    assert sg.load_dispatched_monthly(tmp_path / sg.DISPATCHED_MONTHLY_FILENAME).iloc[0]["dispatched_matched_mwh"] == pytest.approx(100 * 744)

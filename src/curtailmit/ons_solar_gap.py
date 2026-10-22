@@ -149,6 +149,9 @@ def compare_with_balanco(dispatched_hourly: pd.Series, balanco_solar_mw: pd.Seri
     both = both.dropna()
     g = both.groupby(both.index.to_period("M"))
     m = pd.DataFrame({"dispatched_mwmed": g["dispatched_mw"].mean(), "balanco_mwmed": g["balanco_mw"].mean(), "hours": g.size()})
+    # Energy over the matched hours only (hourly samples: MW x 1 h). Task 9 (D20) uses these so a partial month stays consistent with the other sources.
+    m["dispatched_matched_mwh"] = g["dispatched_mw"].sum()
+    m["balanco_matched_mwh"] = g["balanco_mw"].sum()
     m["hours_in_month"] = [calendar.monthrange(p.year, p.month)[1] * 24 for p in m.index]
     m["coverage"] = m["hours"] / m["hours_in_month"]
     m["dispatched_gwh"] = m["dispatched_mwmed"] * m["hours_in_month"] / 1000
@@ -254,6 +257,35 @@ def analyse_gap(m: pd.DataFrame, trivial_pct: float = 5.0, rt_gwh: float = RT_MM
         rt_ratio_2024=ratio, rt_ratio_2024_adjusted=ratio_adj, rt_tolerance_pct=rt_tolerance_pct,
         rt_consistent=bool(len(y24) == 12 and abs(ratio - 1) * 100 <= rt_tolerance_pct and abs(ratio_adj - 1) * 100 <= rt_tolerance_pct),
     )
+
+
+DISPATCHED_MONTHLY_FILENAME = "ons_solar_dispatched_monthly.parquet"
+
+
+def build_dispatched_monthly(client: CkanClient, balanco_solar_mw: pd.Series, first_year: int = 2021, use_cache: bool = True, write: bool = True) -> pd.DataFrame:
+    """Acquire (cached) capacity-factor files, aggregate dispatched solar and compare with the balance series -> monthly table (D20 basis).
+
+    A file whose required columns are missing is a hard error (it would silently drop months from the solar basis)."""
+    paths, findings = acquire_capacity_factor_range(client, first_year, use_cache=use_cache)
+    unusable = [f.label for f in findings if not f.usable]
+    if unusable:
+        raise ProbeError(f"Capacity-factor files without the required columns: {unusable}")
+    table = compare_with_balanco(aggregate_dispatched_solar(paths), balanco_solar_mw)
+    if write:
+        from curtailmit.paths import get_interim_dir
+
+        write_monthly(table, get_interim_dir() / DISPATCHED_MONTHLY_FILENAME)
+    return table
+
+
+def load_dispatched_monthly(path: Path) -> pd.DataFrame:
+    """Read interim/ons_solar_dispatched_monthly.parquet back with the string 'month' column as a PeriodIndex."""
+    frame = pd.read_parquet(path)
+    required = {"month", "hours", "dispatched_matched_mwh", "balanco_matched_mwh"}
+    if not required <= set(frame.columns):
+        raise ProbeError(f"{path} lacks {sorted(required - set(frame.columns))}; rebuild it with ons_solar_gap.build_dispatched_monthly.")
+    frame.index = pd.PeriodIndex(frame.pop("month"), freq="M")
+    return frame
 
 
 def write_monthly(m: pd.DataFrame, path: Path) -> Path:

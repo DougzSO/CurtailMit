@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
-API discovery and acquisition. Full test suite currently: **210 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **231 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -91,7 +91,11 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 - Required years are in config (`mcti.required_years: [2020, 2025]`); manual-ingestion fallback implemented and tested (declared in the result via `manual_ingestion_used`; Task 8 must surface it in the data-quality report).
 - Open for Task 13: factors exist only for completed years, so the 2025+ grid points need an explicit, logged choice of which year's factor applies.
 
-### 1.3e PENDING DECISION FOR TASK 9 — curtailment-rate denominator
+### 1.3e RESOLVED (D20) — curtailment-rate denominator
+
+**RESOLVED by D20 (adopted 2026-10-23, `config/discovered_sources.yaml`):** for the calibration window (2021+) and every curtailment-rate calculation, solar generation is the directly measured ONS-dispatched (centralized) series (`interim/ons_solar_dispatched_monthly.parquet`), not `val_gersolar`, in both the solar term of P(s,t) (numerator and total-generation denominator) and the potential-generation denominator (realized + curtailed) of the solar curtailment rate. Wind and the 2020 baseline are unchanged; raw `val_gersolar` stays in the outputs as `solar_gen_ons_balance_raw_mwh`, diagnostic only. Wired in Task 9 (`ons_generation.py`, `calibration.py`); the recomputed rates are in `docs/task9_calibration_report.md`. The text below is the historical record of the question and the evidence.
+
+*(Original pending text follows.)*
 
 PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 2.40% / 6.61% / 15.23% for 2022-2025, partial 2026 figure unconfirmed) do not match ONS's own published rates (0.5% / 3.6% / 9.3% for 2022-2024; ~20.7% cited for 2025 via secondary source) despite the absolute MW/GWh curtailment figures matching almost exactly (see `docs/curtailment_magnitude_sanity_check.md`). The discrepancy is attributed to an undetermined difference in the "potential generation" denominator definition used by ONS vs. our computation (realized + curtailed generation). This denominator choice must be made explicitly, and recorded as a decision, before `calibration.py` (Task 9) is implemented — it changes the computed curtailment rate by up to ~25% relative. Reference `docs/curtailment_magnitude_sanity_check.md` for full detail.
 
@@ -205,7 +209,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ✅ DONE (D19) |
 | 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
 | 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ NEXT |
-| 9 | Stage 2: `calibration.py` | `calibration.py` | 🔶 logic done, needs real-data wiring (Task 3 done; PTE/ONS basis settled by D16) |
+| 9 | Stage 2: `calibration.py` + D20 solar basis | `calibration.py`, `ons_generation.py` | ✅ DONE (D20; report `docs/task9_calibration_report.md`; logistic identifiability open, see report) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
 | 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 done, needs OM/CM split (folded into Task 13) |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |

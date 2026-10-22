@@ -104,6 +104,19 @@ Three-layer structure: historical calibration (ONS, 2021-present) -> short-term 
 extrapolation (PTE scenarios, 2020/2025/2030/2040/2050 per Table 2, interpolated only where a
 continuous curve is needed).
 
+**Solar basis in the calibration window (D20).** The ONS balance series `val_gersolar` includes an estimated non-dispatched
+(MMGD-like) component from 2023-04-29 (measured in Task 6C: a step of about +2.5 to +3 GWmed on that day, absent from dispatched
+solar; 2024 gap 45,789 GWh vs ONS's own MMGD estimate of 45,752 GWh). MMGD is never subject to COFF curtailment, so for the
+calibration window (2021 onward) "solar generation" is the ONS-dispatched (centralized) series summed from the per-plant
+capacity-factor dataset, used consistently in (a) the solar term of P(t) (numerator and the solar part of the total-generation
+denominator) and (b) the potential-generation denominator (realized + curtailed) of the solar curtailment rate. Consequences:
+(i) wind is unaffected (no step) and keeps `val_gereolica`; (ii) the 2020 baseline (554.35 TWh total, 54.30 wind, 5.23 solar,
+10.74 %) is unaffected and was left untouched; (iii) raw `val_gersolar` is kept only as the diagnostic column
+`solar_gen_ons_balance_raw_mwh`; (iv) projection years (PTE/BLUES, D16) are not rescaled. Limitation: a smaller gap (89-197 MWmed,
+5-13 % of `val_gersolar`) already exists from 2021-03 to 2023-03, consistent with an earlier staged inclusion of non-dispatched
+plants; it is documented and not material because ONS curtailment data (wind from 2022-01, solar from 2024-04) leaves this window
+with no curtailment to be mis-scaled in the solar term, and the dispatched series is used there too.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
@@ -169,6 +182,11 @@ other stage (D10).
   with, but does NOT prove, negligible solar curtailment in 2020. The 2020 baseline's solar
   curtailment is therefore a documented zero, not a measured value; this is reported explicitly in
   the data-quality report (`solar_curtailment_2020_baseline`) and is never silently assumed.
+- Solar basis and MMGD (D20). The calibration uses ONS-dispatched (centralized) solar, not `val_gersolar`, because the latter includes an
+  estimated MMGD component from 2023-04-29. This is a project-level methodological choice backed by measurement (Task 6C), not an
+  ONS-confirmed statement for that field. A smaller non-zero gap (89-197 MWmed) exists from 2021-03 to 2023-03; it is documented
+  as a non-blocking limitation (the dispatched series is used throughout, and the curtailment series that calibrate C(P) begin
+  in 2022 for wind and 2024-04 for solar). The 2020 baseline and wind are unaffected.
 - Generation-basis difference between calibration and projection (D16). Calibration and the 2020 baseline use
   ONS SIN-reported generation (2020: 554.35 TWh), while PTE projection years use the PTE/BLUES model's own
   total generation (e.g. 836 TWh in 2025). BEN 2021 reports a national total of ~621.2 TWh for 2020, of which

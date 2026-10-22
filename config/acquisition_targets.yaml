@@ -46,6 +46,11 @@ ons:
       # history is unusable under the fail-explicitly rule and not needed (baseline 2020, calibration 2021+).
       # 2016 is the first clean year (solar still partly blank = the documented pre-2017 case, treated as 0).
       history_start_year: 2016
+      # D20 (Task 9): from this month on, solar in P(t) (numerator and total-generation denominator) is the ONS-dispatched
+      # (centralized) solar summed from the per-plant capacity-factor dataset (fator-capacidade-2), not val_gersolar, which
+      # includes an estimated MMGD component from 2023-04-29. Wind and the 2020 baseline are unaffected.
+      solar_basis:
+        dispatched_from: "2021-01"
       filter:
         column: "id_subsistema"
         value: "SIN"

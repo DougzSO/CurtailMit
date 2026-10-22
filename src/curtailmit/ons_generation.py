@@ -10,6 +10,12 @@ Only years >= `history_start_year` (config) are downloaded: earlier resources ha
 Values in the source are average power (MW) per hourly sample; energy is power x the sampling interval
 inferred from the timestamps (1 h in practice).
 
+Solar basis (D20, Task 9): from `solar_basis.dispatched_from` (config; 2021-01) the solar term of P(t) - numerator AND the solar part of the
+total-generation denominator - is the ONS-dispatched (centralized) solar summed from the per-plant capacity-factor dataset
+(`ons_solar_gap`), not the balance `val_gersolar`, which includes an estimated MMGD component from 2023-04-29. The raw balance solar stays in the
+outputs as `solar_gen_ons_balance_raw_mwh`, a diagnostic that is never used in P(t) or curtailment-rate math. Wind and the 2020 baseline are unchanged.
+A month of the window missing from the dispatched series fails explicitly (no silent fallback to `val_gersolar`).
+
 Output (all under DATABASE_ROOT):
 - interim/ons_generation_by_source.parquet   tidy hourly series [timestamp, date, source_type, generation_mwh]
 - processed/ons_penetration_monthly.parquet  monthly energy by source + wind/solar/P(t) percentages
@@ -42,6 +48,7 @@ BASELINE_FILENAME = "baseline_2020_generation.json"
 MONTHLY_FILENAME = "ons_penetration_monthly.parquet"
 ANNUAL_FILENAME = "ons_penetration_annual.parquet"
 BASELINE_YEAR = 2020
+SOLAR_RAW_COL = "solar_gen_ons_balance_raw_mwh"  # diagnostic only (D20)
 
 YEARLY_NAME_PATTERN = re.compile(r"^(?P<prefix>.+)-(?P<year>\d{4})$")
 _SEARCH_QUERIES = ("balanco energia subsistema", "geracao fonte subsistema")
@@ -187,20 +194,63 @@ def parse_generation_frame(raw: pd.DataFrame, label: str = "") -> pd.DataFrame:
     return out
 
 
-def compute_penetration(tidy: pd.DataFrame, freq: str = "monthly") -> pd.DataFrame:
-    """Energy by source and P(t) = (wind + solar) / (hydro + thermal + wind + solar), computed from the data (never hardcoded)."""
+def check_dispatched_coverage(tidy: pd.DataFrame, dispatched_monthly: pd.DataFrame, dispatched_from: str) -> None:
+    """Every month of the balance series from `dispatched_from` on must be in the dispatched series, over the same hours.
+
+    Raises GenerationDiscoveryError naming the months (missing, or with a different number of hours / different balance energy).
+    """
+    start = pd.Period(dispatched_from, freq="M")
+    solar = tidy[tidy["source_type"] == "solar"]
+    ts = pd.to_datetime(solar["timestamp"])
+    bal = solar.groupby(ts.dt.to_period("M"))["generation_mwh"].agg(["size", "sum"])
+    bal = bal[bal.index >= start]
+    if bal.empty:
+        raise GenerationDiscoveryError(f"No balance months from {dispatched_from} on - cannot apply the dispatched solar basis (D20).")
+    missing = [str(p) for p in bal.index if p not in dispatched_monthly.index]
+    if missing:
+        msg = f"Dispatched solar series (D20) is missing {len(missing)} month(s) present in val_gersolar: {missing}. Not falling back to val_gersolar."
+        logger.error(msg)
+        raise GenerationDiscoveryError(msg)
+    d = dispatched_monthly.loc[bal.index]
+    bad = [f"{p} (hours balance={int(bal.loc[p, 'size'])} dispatched={int(d.loc[p, 'hours'])})" for p in bal.index if int(bal.loc[p, "size"]) != int(d.loc[p, "hours"])]
+    drift = [str(p) for p in bal.index if abs(bal.loc[p, "sum"] - d.loc[p, "balanco_matched_mwh"]) > 1e-6 * max(1.0, abs(bal.loc[p, "sum"]))]
+    if bad or drift:
+        msg = f"Dispatched solar series (D20) does not cover the same hours as val_gersolar: hour-count mismatch {bad}; balance energy mismatch {drift}."
+        logger.error(msg)
+        raise GenerationDiscoveryError(msg)
+
+
+def compute_penetration(tidy: pd.DataFrame, freq: str = "monthly", dispatched_monthly: pd.DataFrame | None = None, dispatched_from: str | None = None) -> pd.DataFrame:
+    """Energy by source and P(t) = (wind + solar) / (hydro + thermal + wind + solar), computed from the data (never hardcoded).
+
+    With `dispatched_monthly` + `dispatched_from` (D20) the solar energy of every month >= dispatched_from is the dispatched (centralized)
+    series; `solar_basis` says which one each period uses and `solar_gen_ons_balance_raw_mwh` keeps the raw balance value (diagnostic only).
+    Annual rows are the sum of the monthly rows, so both frequencies agree.
+    """
     if freq not in ("monthly", "annual"):
         raise ValueError(f"freq must be 'monthly' or 'annual', got {freq!r}")
+    if (dispatched_monthly is None) != (dispatched_from is None):
+        raise ValueError("dispatched_monthly and dispatched_from must be given together.")
     ts = pd.to_datetime(tidy["timestamp"])
-    keys = {"year": ts.dt.year}
-    if freq == "monthly":
-        keys["month"] = ts.dt.month
-    wide = tidy.assign(**keys).pivot_table(index=list(keys), columns="source_type", values="generation_mwh", aggfunc="sum")
+    wide = tidy.assign(year=ts.dt.year, month=ts.dt.month).pivot_table(index=["year", "month"], columns="source_type", values="generation_mwh", aggfunc="sum")
     missing = [s for s in _SOURCE_COLUMNS if s not in wide.columns]
     if missing:
         raise GenerationDiscoveryError(f"compute_penetration: source types missing from tidy frame: {missing}")
     wide = wide[list(_SOURCE_COLUMNS)].add_suffix("_mwh")
-    total = wide.sum(axis=1)
+    wide[SOLAR_RAW_COL] = wide["solar_mwh"]
+    wide["solar_basis"] = "balance"
+    if dispatched_monthly is not None:
+        check_dispatched_coverage(tidy, dispatched_monthly, dispatched_from)
+        start = pd.Period(dispatched_from, freq="M")
+        periods = pd.PeriodIndex([pd.Period(year=y, month=m, freq="M") for y, m in wide.index], freq="M")
+        use = periods >= start
+        wide.loc[use, "solar_mwh"] = dispatched_monthly.loc[periods[use], "dispatched_matched_mwh"].to_numpy()
+        wide.loc[use, "solar_basis"] = "dispatched"
+    if freq == "annual":
+        basis = wide["solar_basis"].groupby(level="year").agg(lambda b: b.iloc[0] if b.nunique() == 1 else "mixed")
+        wide = wide.drop(columns="solar_basis").groupby(level="year").sum()
+        wide["solar_basis"] = basis
+    total = wide[[f"{s}_mwh" for s in _SOURCE_COLUMNS]].sum(axis=1)
     if (total <= 0).any():
         raise GenerationDiscoveryError("compute_penetration: non-positive total generation in at least one period.")
     wide["total_mwh"] = total
@@ -245,8 +295,12 @@ def write_baseline_json(baseline: Baseline2020Generation, path: Path, package_id
     logger.info("Wrote 2020 baseline to %s", path)
 
 
-def acquire_ons_generation(targets: dict | None = None, client: CkanClient | None = None, use_cache: bool = False) -> dict:
-    """Task 3 entry point: yearly SIN generation by source -> interim series, P(t) tables and the 2020 baseline."""
+def acquire_ons_generation(targets: dict | None = None, client: CkanClient | None = None, use_cache: bool = False, dispatched_monthly: pd.DataFrame | None = None) -> dict:
+    """Task 3 entry point: yearly SIN generation by source -> interim series, P(t) tables and the 2020 baseline.
+
+    D20 (Task 9): P(t) tables use the dispatched solar series from `solar_basis.dispatched_from` on (config, required). `dispatched_monthly`
+    is built from the ONS capacity-factor files (cached) unless the caller supplies it.
+    """
     targets = targets or load_acquisition_targets()
     ons_cfg = targets["ons"]
     pkg_cfg = ons_cfg["packages"]["generation_by_source"]
@@ -275,10 +329,22 @@ def acquire_ons_generation(targets: dict | None = None, client: CkanClient | Non
     if BASELINE_YEAR >= latest.year + 1:
         raise ValidationError(f"Generation series ends {latest}, before the {BASELINE_YEAR} baseline year.")
 
+    basis_cfg = pkg_cfg.get("solar_basis") or {}
+    dispatched_from = basis_cfg.get("dispatched_from")
+    if not dispatched_from:
+        raise ValidationError("config ons.packages.generation_by_source.solar_basis.dispatched_from is required (D20: val_gersolar is never the calibration basis).")
+    if dispatched_monthly is None:
+        from curtailmit.ons_solar_gap import build_dispatched_monthly
+
+        solar = tidy[tidy["source_type"] == "solar"]
+        balance_solar_mw = solar.set_index(pd.to_datetime(solar["timestamp"]))["generation_mwh"]  # hourly samples: MWh == MW
+        dispatched_monthly = build_dispatched_monthly(client, balance_solar_mw, first_year=pd.Period(dispatched_from, freq="M").year, use_cache=True)
+
     interim_path = get_interim_dir() / INTERIM_FILENAME
     tidy.to_parquet(interim_path, index=False)
     processed = get_processed_dir()
-    monthly, annual = compute_penetration(tidy, "monthly"), compute_penetration(tidy, "annual")
+    monthly = compute_penetration(tidy, "monthly", dispatched_monthly, dispatched_from)
+    annual = compute_penetration(tidy, "annual", dispatched_monthly, dispatched_from)
     monthly.to_parquet(processed / MONTHLY_FILENAME, index=False)
     annual.to_parquet(processed / ANNUAL_FILENAME, index=False)
     baseline = extract_baseline_2020(tidy)
