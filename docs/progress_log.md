@@ -147,3 +147,12 @@ into `config/scenarios.yaml`.
 - Findings (preliminary): no regional wind/solar in the PTE sources (labelled constant-share proxy); Northeast wind logistic L = 0.25, P0 = 76 (weakly identified) gives 2050 wind curtailment 79-129 TWh instead of 322-568; in the Northeast time explains 73 % of the
   variance of C_wind and P_NE adds 0.5 points; pooled plausibility band 5.6-10.2 % at P = 44-78 %; solar has no regional sample, so totals remain implausible.
 - Documentation realigned (roadmap, methodology 2.3b, claude_commands transition note and 1.11D entry, task table, discovered_sources). Task 13 blocked.
+
+---
+
+## Task 11E (2026-10) - intra-day solar, wind asymptote envelope, transmission-capacity test
+
+- Investigation / prototype only; no `src/` change; D13-D22 untouched; D23, D24, D25 `pending`; D26 not registered (criterion not met).
+- Added `analysis/task11e_*.py`, `docs/task11e_findings.md`, `docs/ons_transmission_data_sources.md`; new ONS data under `raw/ons/interchange/` (lines, transformers, pairwise interchange).
+- Findings (preliminary): midday VRE share of load explains monthly solar curtailment (R2 0.78 vs 0.40); the hourly SIN-wide VRE share of load is a stable dose-response driver for wind and solar and reproduces most of the monthly time effect; wind L not identifiable (envelope); capacity stocks collinear with time, NE export not saturated in most curtailed hours.
+- Documentation realigned (roadmap, methodology 2.3c, claude_commands 1.11E and task table, discovered_sources). Production migration renumbered 11F. Task 13 blocked.

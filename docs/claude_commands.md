@@ -144,6 +144,14 @@ Outcome (preliminary): PTE sources have no regional wind/solar (labelled proxy u
 73 % of the variance of C_wind and P_NE adds 0.5 points (D25 candidate); the pooled panel gives a 5.6-10.2 % plausibility band at P = 44-78 %; solar has no regional natural experiment, so the total is not yet plausible. Candidate decisions D23 (note
 added), D24 (rewritten as adopt/reject of the regional / pooled formulation) and D25 (new) are `pending` in `config/discovered_sources.yaml`. **Task 13 remains blocked.**
 
+### 1.11E Task 11E - intra-day solar, wind asymptote envelope, transmission-capacity confound test - RUN, findings pending user review
+
+Investigation / prototype only (Brazil-only data): no `src/` file changed, no decision adopted. Code: `analysis/task11e_solar_intraday.py`, `task11e_wind_envelope.py`, `task11e_transmission_confound.py` (+ `task11e_common.py`). Memo: `docs/task11e_findings.md`.
+New data (ONS operational, cc-by): `Linha_Transmissao`, `Capacidade_Transformacao`, `Intercambio_Nacional` -> `docs/ons_transmission_data_sources.md`.
+Outcome (preliminary): (a) the midday potential VRE share of load explains monthly solar curtailment (R2 0.78 vs 0.40 for national P); hourly SIN-wide dose-response is stable and also explains most of the wind "time effect"; (b) the wind asymptote L is not identifiable, so the regional wind
+projection is an envelope (2050: 79-245 TWh, TA 162-245 with the capacity floor); (c) transmission-capacity stocks are collinear with time and NE export is saturated in only 1-8 % of curtailed energy, so D26 (interchange-capacity driver) was NOT registered. Numeric 2040/2050 totals (wind + solar) for D24 options A / C / E and the bracket for D
+are in the memo; D24 now carries option E (hourly dose-response). D23, D24, D25 remain `pending`. **Task 13 remains blocked; the production migration formerly called Task 11E is now Task 11F, not started.**
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
@@ -248,7 +256,8 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 two-curve low/central/high wired (Task 11B); OM/CM split still folded into Task 13 |
 | 11C | Pre-Task 13 investigation (PTE basis, international benchmarks, regional diagnostic) | `analysis/task11c_diagnostics.py` | ✅ DONE (`docs/task11c_investigation_report.md`; D23, D24 pending) |
 | 11D | Regional recalibration + time-confound + pooled panel + documentation realignment (calibration stage branch) | `analysis/task11d_*.py` | ✅ RUN, findings pending review (`docs/task11d_findings.md`; D23-D25 pending) |
-| 11E | Production migration of the regional / pooled driver | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D24/D25 and on a solar treatment |
+| 11E | Intra-day solar, wind asymptote envelope, transmission-capacity confound test (Brazil-only) | `analysis/task11e_*.py` | ✅ RUN, findings pending review (`docs/task11e_findings.md`; D26 not triggered) |
+| 11F | Production migration of the chosen driver (formerly numbered 11E) | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D23, D24 (incl. option E), D25 |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
 | 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⛔ BLOCKED pending Task 11D / 11E outcome (rewritten below) |
 | 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ⬜ |

@@ -552,6 +552,7 @@ decisions:
       redefine_rate: "calibrate the rate on realized generation (curtailed / realized) so that a delivered-type PTE generation is the right base without a division (a calibration change)"
     sensitivity: "net / gross ratio 1.9x (TB 2040 solar) to 43.3x (TA 2050 wind) at the Task 11B central C"
     working_reading: "low confidence: closer to a delivered (net-like) quantity, because a model without curtailment reports what it dispatches; not a finding"
+    task11e_note: "Task 11E: still no new evidence on gross vs net; the options table in docs/task11e_findings.md uses the gross formula throughout. D23 does not block D24 or D25."
     task11d_note: "Task 11D keeps the Task 11B gross formula (wind curtailed = generation x C) in all its prototype numbers; they would all shift if this is decided otherwise. No new evidence on gross vs net was found (PTE has no regional or capacity data)."
     decided: "nothing; to be decided by the user (candidate action: ask the PTE/CEBRI authors what Grafico 13 represents)"
 
@@ -580,6 +581,19 @@ decisions:
       C: "Reject: keep the national P curves (D21/D22) with the existing caveats"
       D: "Defer until a solar treatment and transmission-expansion / mechanism-aware data (a possible future acquisition, NOT started) are available"
     working_reading: "Task 11D author's reading, not a decision: B or D; A is not supported for solar, and the total does not become plausible until solar is addressed"
+    options_added_in_task11e:
+      E: "Hourly dose-response driver: wind and solar curtailment as stationary functions of the hourly system-wide potential VRE share of load r, applied to the PTE-scaled hourly profile of 2025 (no regional proxy). Not part of options A-D drafted in Task 11D."
+    task11e_update:
+      numeric_ranges_twh_wind_plus_solar_central_low_high: >
+        C national curves (Task 11B): TB 2040 175 (87-221), TB 2050 513 (138-566), TA 2040 356 (117-423), TA 2050 775 (188-810), TG 2040 256 (105-321), TG 2050 482 (140-550).
+        A regional wind envelope (L 0.25/0.5/1.0, capacity-grounded low) + hourly solar: TB 2040 117 (112-123), TB 2050 237 (195-282), TA 2040 193 (172-218), TA 2050 344 (301-427), TG 2040 155 (144-168), TG 2050 234 (200-273).
+        E hourly dose-response, wind and solar: TB 2040 128 (127-135), TB 2050 355 (344-432), TA 2040 242 (238-275), TA 2050 536 (516-680), TG 2040 181 (179-197), TG 2050 334 (326-396).
+        D defer: bracket across all computed approaches TB 2040 87-221, TB 2050 138-566, TA 2040 117-423, TA 2050 188-810, TG 2040 105-321, TG 2050 140-550. B = A and C reported as two labelled lines.
+      evidence_added: >
+        Solar: midday potential VRE share of load explains monthly C_solar with R2 0.78 (national P 0.40), so solar need not stay on the national annual curve. Wind L is not identifiable (same RMSE for L 0.25/0.5/1.0): regional 2050 wind 79-245 TWh over L.
+        The hourly relation curtailment rate vs system-wide VRE share of load is stable across years and reproduces the monthly wind rate with R2 0.76 without time. NE export is saturated (>= 95 % of the trailing maximum) in only 1-8 % of curtailed energy;
+        capacity stocks are collinear with time (0.92-0.99). Caveats: option E holds today's flexibility fixed and 12-40 % of 2050 hours exceed the observed range of r (maximum 75.8 %); A rests on the constant NE-share proxy; sensitivity to flexibility (r/1.25, r/1.5) lowers TA 2050 E from 536 to 476 and 406 TWh.
+      working_reading: "Task 11E author's reading, not a decision: E for 2030-2040 and a flexibility-conditional envelope A-E-C for 2050; A is no longer the only way to get plausible magnitudes."
     decided: "nothing; to be decided by the user"
 
   D25:
@@ -594,6 +608,10 @@ decisions:
     candidate_text: >
       In the Northeast sample the apparent P -> C_wind relation is mostly a time trend: time explains about 73 % of the variance and P_NE adds 0.5 percentage points. P_NE is not retained as a causal driver without a time / load / hydrology control,
       and any projection that uses P (national or regional) must state this caveat. Descriptive, 57 months, one regime; no causal claim.
+    task11e_update: >
+      Mechanism of the time effect (Task 11E): the monthly "time trend" is largely the upward shift of the hourly distribution of the system-wide potential VRE share of load r (p95 of r 26, 29, 36, 46, 47 % in 2022-2026) acting on a stable hourly dose-response curve.
+      A fixed hourly curve reproduces the national monthly wind rate with R2 0.76 (time alone 0.73); adding time gives 0.86 (partial corr of t given the curve 0.65), i.e. a residual under-prediction of 2-3 pp in 2025-26 is unexplained. Capacity stocks reconstructed from ONS registries are collinear with time (0.92-0.99)
+      and do not replace it; VRE potential / boundary capacity beats P_NE net of time (partial 0.60 vs 0.14) but time stays significant. Candidate text refinement: P (national or regional, monthly) is a coarse proxy of the hourly system-wide VRE share of load; the caveat on the time confound applies to monthly P, not to the hourly driver.
     decided: "nothing; to be decided by the user"
 
 ben_cross_check:

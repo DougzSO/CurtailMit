@@ -173,3 +173,16 @@ New branch of work, now a formal part of the calibration / modeling stage (Stage
 
 Task 13 (OM/CM split, `results_writer` wiring, MCTI factor-year choice) **remains blocked** pending the outcome of Task 11D / 11E: its inputs (the curtailed-energy trajectories) are
 the quantity in question. Decisions D13-D22 are untouched; D23, D24, D25 are candidates (`status: pending`).
+
+
+---
+
+## Update (Task 11E) - hourly driver, wind-asymptote envelope, transmission-capacity test
+
+Task 11E (investigation / prototype, Brazil-only, no `src/` change; `docs/task11e_findings.md`) closes the three problems left open by Task 11D:
+
+- Solar: the signal is not hidden by geography but by temporal aggregation. The midday potential VRE share of load explains monthly solar curtailment (R2 0.78 vs 0.40 for national P); an hourly SIN-wide dose-response curve is stable across 2025-2026.
+- Wind asymptote L: not identifiable (same RMSE for L = 0.25 / 0.5 / 1.0), so the regional wind projection is reported as an envelope (79-245 TWh in 2050), with an energy-balance floor as a capacity-grounded low bound.
+- Transmission: ONS operational capacity stocks are collinear with time and do not replace it; NE export is saturated in only 1-8 % of curtailed energy. The structural driver that emerges is the hourly SIN-wide VRE share of load (system energy balance), not NE export capacity.
+
+Plan changes (the earlier table of the Task 11D update is annotated, not rewritten): the **production migration of the driver, previously called Task 11E, is renumbered Task 11F**; it remains NOT started and contingent on the user's decisions on D23, D24 (now with option E, hourly dose-response) and D25. Task 13 remains **blocked**. The deferred extension (EPE PDE / PET transmission-expansion assumptions) is unchanged and still not authorized. D26 (interchange-capacity driver) was not triggered and not registered.

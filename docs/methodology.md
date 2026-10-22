@@ -160,6 +160,27 @@ reported as a band for plausibility and not as a calibrated model.
 international experience, with explicit identification limits, rather than extrapolating a national curve. A mechanism-aware formulation (separating the systemic energy-balance component from the network components) and transmission-expansion
 assumptions are the natural extension, but are deferred and need new data. Full evidence: `docs/task11d_findings.md`.
 
+## 2.3c. Update (Task 11E) - hourly driver, envelope for the asymptote, transmission capacity (preliminary findings, not adopted decisions)
+
+**Where the signal was hidden.** Section 2.3b showed that national or regional penetration, aggregated by month, is confounded with time. The same hourly data used by ONS give a different picture. Define r as the hourly
+system-wide potential variable-renewable share of load, r = (wind + dispatched solar + curtailed wind + curtailed solar) / load, summed over the four subsystems (the potential basis keeps the regressor from falling when curtailment
+rises). The curtailment rate of wind and of solar is a steep, monotone function of r: wind curtailment is 0.5 % of potential for r < 15 %, 16 % for r = 30-35 %, 43 % for 40-45 % and 76 % above 60 %; solar curtailment concentrates in the midday hours
+(60 % of curtailed solar energy falls between 10:00 and 15:00). From 2023 (wind) and 2025 (solar) onward this hourly relation is stable across years, so a large part of the monthly "time trend" is the upward shift of the hourly distribution of r.
+A fixed hourly curve reproduces the national monthly wind rate with R2 = 0.76 without using time (time alone: 0.73) and the monthly solar rate with R2 = 0.78 for the midday metric (national P: 0.40). A residual under-prediction of 2-3 percentage points in
+2025-26 remains and is not attributed.
+
+**The asymptote as an envelope.** In the regional wind curve the upper asymptote L is not identified (fixing L at 0.25, 0.5 or 1.0 leaves the fit error unchanged), so the 2040/2050 wind projection is reported as an envelope over L rather than as a point estimate;
+an energy-balance floor (NE potential VRE minus NE load minus export capacity) acts as a capacity-grounded lower bound only where it binds (TA 2050). The hourly curve moves the unidentified part from a monthly asymptote (0.25 to 1.0) to the tail of the
+hourly distribution (r above the observed maximum of 76 %), where the curve is bounded by L between 0.73 and 1.
+
+**Transmission capacity is not the structural driver in the open data.** Stocks of NE transmission capacity reconstructed from the ONS registries (boundary line rating, km of lines, transformer MVA) are collinear with time (r = 0.92-0.99) and do not explain
+the wind curtailment rate better than time; their ratio to potential VRE is a better regressor than P_NE net of time but does not replace it. In the hourly data NE net export is within 5 % of its trailing 12-month maximum in only 0.4-3 % of hours and in 1-8 % of
+the curtailed energy; 49 % of NE wind curtailment carries the ONS energy reason (ENE). The binding constraint is therefore the system-wide energy balance, not saturation of the NE export corridor (with the caveat that the true dynamic limit may be below the maximum observed).
+
+**Consequence (proposed, pending the user's decisions).** A defensible 2030-2040 estimate can use a stationary hourly dose-response curve applied to the scenario-scaled hourly profile; for 2050 the mean hourly VRE share of load implied by the PTE (53-70 %) is
+outside the Brazilian experience and the result depends on flexibility (storage, interconnection, demand response) that is not calibrated by any Brazilian data, so it is reported as a flexibility-conditional range. Full evidence and the numbers for each decision
+option: `docs/task11e_findings.md`; data provenance: `docs/ons_transmission_data_sources.md`.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
