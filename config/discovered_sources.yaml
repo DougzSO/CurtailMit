@@ -329,6 +329,13 @@ decisions:
       and keyword stems ("energ") are written to tolerate this. The ENE -> DEB / CNF -> REB / REL -> EUB equivalence is
       the project's D5 proxy mapping, not an ONS-defined taxonomy.
     implemented_in: "curtailmit.ons_classification (Task 4)"
+    addendum: >
+      Correction to Task 4's own deliverable, recorded for traceability (no separate decision number). The original
+      leak-guard field list in validation.py (_CLASSIFIED_FIELDS, which stops classified fields from appearing on
+      records flagged classification_available=False) did not include deb_reb_eub, so the guard would not have caught
+      that column. This was identified and fixed within Task 4 by adding the field name to the existing protected-fields
+      list (the column was NOT renamed), with a corresponding test (test_guard_rejects_deb_reb_eub_field_on_unavailable_records).
+    magnitude_check: "docs/curtailment_magnitude_sanity_check.md (curtailed energy matches ONS RT DGL 0189/2025 within ~1%)"
 
 ben_cross_check:
   status: reference_only

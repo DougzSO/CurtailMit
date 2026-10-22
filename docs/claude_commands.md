@@ -80,7 +80,7 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 - Real run (2022-01..2026-10, 15.78M rows): `classification_available = true`; DEB 47.75 TWh, REB 27.81 TWh, EUB 10.35 TWh, 0.0027 % unclassified.
 - Unavailable branch (no dictionary / field not described / no D5 match in any source) -> `classification_available = false`, no classified column; undocumented codes raise `ClassificationError`.
 - `validation._CLASSIFIED_FIELDS` extended with `deb_reb_eub` so the leak guard covers the new column. Large-file loading is categorical/Arrow based (full file does not fit as object dtype).
-- Open observation (not Task 4): ~86 TWh curtailed in ~4.8 years looks large; sanity-check against another ONS total before calibration (Task 9).
+- Magnitude sanity check done: curtailed energy matches ONS RT DGL 0189/2025 within ~1 %; the rate depends on the denominator convention (decide before Task 9). See `docs/curtailment_magnitude_sanity_check.md`.
 
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
