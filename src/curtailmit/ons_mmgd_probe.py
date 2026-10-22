@@ -231,11 +231,16 @@ def acquire_mmgd_load(areas: list[str], start: str, end: str, use_cache: bool = 
 # ------------------------------------------------------------------ comparison
 
 
+def solar_mask(cf: pd.DataFrame, source: str = "solar") -> pd.Series:
+    """Rows of the capacity-factor frame that are solar (or wind with source='eolica') plants; shared by Task 6B and 6C."""
+    tipo = cf["nom_tipousina"].map(_norm)
+    return tipo.str.startswith("solar") if source == "solar" else tipo.str.startswith("eol")
+
+
 def dispatched_vs_balanco(cf: pd.DataFrame, balanco_solar_mw: pd.Series, source: str = "solar") -> pd.DataFrame:
     """Daily mean MWmed of ONS-dispatched plants (capacity-factor file) vs the balance series, and their difference."""
     verify_capacity_factor_schema(list(cf.columns))
-    tipo = cf["nom_tipousina"].map(_norm)
-    mask = tipo.str.startswith("solar") if source == "solar" else tipo.str.startswith("eol")
+    mask = solar_mask(cf, source)
     dispatched = pd.to_numeric(cf.loc[mask, "val_geracaoverificada"], errors="coerce").groupby(cf.loc[mask, "din_instante"]).sum()
     balance = balanco_solar_mw.reindex(dispatched.index)
     frame = pd.DataFrame({"dispatched_mwmed": dispatched, "balanco_mwmed": balance})

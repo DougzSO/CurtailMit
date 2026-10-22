@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
-API discovery and acquisition. Full test suite currently: **199 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **210 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -96,6 +96,8 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 2.40% / 6.61% / 15.23% for 2022-2025, partial 2026 figure unconfirmed) do not match ONS's own published rates (0.5% / 3.6% / 9.3% for 2022-2024; ~20.7% cited for 2025 via secondary source) despite the absolute MW/GWh curtailment figures matching almost exactly (see `docs/curtailment_magnitude_sanity_check.md`). The discrepancy is attributed to an undetermined difference in the "potential generation" denominator definition used by ONS vs. our computation (realized + curtailed generation). This denominator choice must be made explicitly, and recorded as a decision, before `calibration.py` (Task 9) is implemented — it changes the computed curtailment rate by up to ~25% relative. Reference `docs/curtailment_magnitude_sanity_check.md` for full detail.
 
 **Evidence update (Task 6, still PENDING — nothing decided):** `docs/ons_solar_mmgd_capacity_crosscheck.md` shows ONS solar generation implying a ~21 % capacity factor vs. ANEEL centralized capacity in 2018-2022 but 52-58 % in 2023-2025 (wind shows no break), which suggests the ONS balance solar (and the total) includes estimated MMGD from 2023 (unconfirmed). The COFF curtailment numerator covers centralized plants only, so a centralized-scope denominator would land at ~8.7 % (2024) and ~19.9 % (2025), close to ONS's 9.3 % and ~20.7 %. **Task 6B verification (`docs/ons_solar_mmgd_verification.md`):** the balance dictionary is silent on MMGD, but ONS's `carga-energia` package states MMGD inclusion in load from 29/04/2023 and the balance solar steps up by +2.5 to +3 GWmed on exactly that day while ONS-dispatched (centralized) solar has no step; no decision recorded yet (proposed D20 text in that report). If confirmed, the Task 9 calibration series also has a definitional break in 2023 (solar term and total-generation denominator); the 2020 baseline is unaffected.
+
+**Task 6C measurement (still PENDING - nothing decided):** `docs/ons_solar_mmgd_verification.md` (Task 6C section) measures the monthly gap `val_gersolar` minus ONS-dispatched solar for 2021-01..2026-10: step exactly on 2023-04-29, 2024 gap 45,789 GWh vs the RT's 45,752 GWh, small non-zero baseline (89-197 MWmed) before the step. A candidate D20 is logged in `config/discovered_sources.yaml` as "pending (not adopted)".
 
 ### 1.3f ANEEL fallback (Task 6) — DONE (D19)
 
