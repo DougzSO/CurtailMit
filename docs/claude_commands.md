@@ -126,6 +126,24 @@ Logged after Task 9. (Numbered 1.3g because 1.3f is the ANEEL fallback section.)
 
 Investigation only (no pipeline, fit or locked-decision change): `docs/task11c_investigation_report.md`, throwaway code in `analysis/task11c_diagnostics.py`. Covers (a) PTE gross vs net generation basis, (b) international curtailment benchmarks, (c) subsystem and DEB/REB/EUB diagnostic. Outcome status: **sources silent on (a); Brazilian 2040/2050 central estimates far outside the international envelope (b); (c) moderately undermines national P as a structural driver without supporting a simple transmission-bottleneck story.** Candidate decisions D23 and D24 are logged as `pending` in `config/discovered_sources.yaml`; nothing adopted. Task 13 and any Task 11D (data acquisition) are NOT started and wait for the user's decision.
 
+### Transition note (added in Task 11D) - why the project moved from a national extrapolation to a regional / pooled approach
+
+Task 11B applied the nationally calibrated C_wind(P) / C_solar(P) curves (observed P = 10.3-29.4 %) to PTE scenarios reaching P = 58 % nationally by 2050 and produced physically implausible
+results (87-98 % wind curtailment, 512-775 TWh in 2050). Task 11C investigated three fronts without changing code: the PTE gross-vs-net basis (inconclusive, D23), international benchmarks (an order
+of magnitude lower rates at comparable penetration) and a regional diagnostic (the Northeast already runs at local P = 49-84 % with 9-19 % annual curtailment; curtailment correlates more with time than with national P; D24, and the time
+confound later formalized as D25).
+
+On that evidence the project thesis was revised (approved by the user): high-penetration curtailment is primarily regional / structural (transmission-, load- and flexibility-bound), not a simple function of national aggregate
+penetration, and the contribution is methodological. Task 11D is the investigation / prototype step that builds the evidence (regional recalibration, time-confound test, pooled international panel) before any production change; that
+migration, if approved, is Task 11E. Task 13 stays blocked until then. Note: Task 11C's report used the name "Task 11D" for a possible transmission-expansion data acquisition; that work is now the deferred extension and is not started.
+
+### 1.11D Task 11D - regional recalibration, time-confound test, pooled panel, documentation realignment - RUN, findings pending user review
+
+Investigation / prototype only: no `src/` file changed, no decision adopted. Code: `analysis/task11d_regional_recalibration.py`, `task11d_time_confound.py`, `task11d_pooled_panel.py`. Report: `docs/task11d_findings.md`.
+Outcome (preliminary): PTE sources have no regional wind/solar (labelled proxy used); the Northeast wind curve (L = 0.25, P0 = 76) moves 2050 wind curtailment from 322-568 to 79-129 TWh but is weakly identified; in the Northeast time explains
+73 % of the variance of C_wind and P_NE adds 0.5 points (D25 candidate); the pooled panel gives a 5.6-10.2 % plausibility band at P = 44-78 %; solar has no regional natural experiment, so the total is not yet plausible. Candidate decisions D23 (note
+added), D24 (rewritten as adopt/reject of the regional / pooled formulation) and D25 (new) are `pending` in `config/discovered_sources.yaml`. **Task 13 remains blocked.**
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
@@ -228,8 +246,11 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 9 | Stage 2: `calibration.py` + D20 solar basis | `calibration.py`, `ons_generation.py` | ✅ DONE (D20; report `docs/task9_calibration_report.md`; logistic identifiability open, see report) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
 | 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 two-curve low/central/high wired (Task 11B); OM/CM split still folded into Task 13 |
+| 11C | Pre-Task 13 investigation (PTE basis, international benchmarks, regional diagnostic) | `analysis/task11c_diagnostics.py` | ✅ DONE (`docs/task11c_investigation_report.md`; D23, D24 pending) |
+| 11D | Regional recalibration + time-confound + pooled panel + documentation realignment (calibration stage branch) | `analysis/task11d_*.py` | ✅ RUN, findings pending review (`docs/task11d_findings.md`; D23-D25 pending) |
+| 11E | Production migration of the regional / pooled driver | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D24/D25 and on a solar treatment |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
-| 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⬜ (rewritten below) |
+| 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⛔ BLOCKED pending Task 11D / 11E outcome (rewritten below) |
 | 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ⬜ |
 | 15 | Reproducibility pass + documentation sync | `docs/`, `README.md` | ⬜ |
 
@@ -269,6 +290,8 @@ Stage 3 (PTE scenario application, `projection.py` wiring; a future task) MUST u
 Reference: D21, D22, `docs/task9_calibration_report.md`. **Curtailment side implemented in Task 11B** (`projection.project_curtailment_two_curves`, low/central/high carried through `mitigation.compute_mitigation`; results in `docs/stage3_pte_curtailment_report.md`). The OM/CM split and results_writer wiring remain Task 13.
 
 ---
+
+> **BLOCKED (added in Task 11D):** do not start Task 13 until the user has decided D23, D24 and D25 and Task 11E (if any) is finished; its inputs, the curtailed-energy trajectories, are the quantity in question. See `docs/task11d_findings.md`.
 
 ### TASK 13 — Stage 6 finalization: wire mitigation.py's OM/CM split + assemble results_writer output
 

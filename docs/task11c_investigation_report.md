@@ -190,3 +190,5 @@ National P remains usable as a descriptive, short-range driver inside the calibr
 ## Stop point
 
 No Task 13 draft, no curve fitting, no methodology change and no Task 11D data-acquisition task were started. Findings are reported for review and an explicit decision on next steps.
+
+> Update (Task 11D): the follow-up evidence for D24 and the new candidate D25 is in `docs/task11d_findings.md`. The name "Task 11D" above (a possible transmission-expansion data acquisition) was reassigned by the user to the regional / time-confound / pooled-panel investigation; the transmission-expansion acquisition is now a deferred extension and has not been started.

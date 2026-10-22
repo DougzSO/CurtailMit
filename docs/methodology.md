@@ -128,6 +128,38 @@ The calibration range is P = 10.3-29.4 %; PTE 2040/2050 lie outside it for both 
 (`bootstrap_calibration_ci`) quantifies its sampling uncertainty (not the functional-form uncertainty), and Stage 3 must carry both intervals into the reported
 mitigation-deficit figures.
 
+> Note (Task 11D): the national-P formulation described in this section (D20-D22) is the original approach. It was later found insufficient for extrapolation to the PTE 2040/2050
+> penetration levels; see section 2.3b below. This section is kept unchanged as the record of the approach.
+
+## 2.3b. Update (Task 11D) - regional and pooled driver concept (preliminary findings, not adopted decisions)
+
+**Why a purely national curve was found insufficient.** The curves of section 2.3 are calibrated on 57 complete months (2022-01 to 2026-09) in which national wind + solar penetration
+ranges over 10.3-29.4 %. The PTE scenarios place 2040 and 2050 at 36-44 % and 47-58 %, outside that range for both technologies, so the projected curtailment depends entirely on the
+functional form beyond the data. A bounded logistic (D21) with its midpoint just above the observed range gives C_wind of 0.87-0.98 and C_solar of 0.70-0.86 at those levels, i.e. 70-98 % of
+the technology's potential generation curtailed (512-775 TWh in 2050). Three independent checks (Task 11C) show that this is not credible as a prediction, whatever its in-sample fit: (i) the highest
+annual curtailment or dispatch-down rates found for any system with a comparable or higher wind + solar share (Ireland and Northern Ireland, South Australia, Denmark) are 11-30 % for wind and about 32 % for grid-scale
+solar; (ii) the Brazilian Northeast subsystem already operates at a local wind + solar generation share of 49-84 % - the range the whole country is only projected to reach in 2040-2050 - with annual
+wind curtailment of 0.5-19 %; (iii) curtailment in Brazil occurs at very low local penetration in other subsystems (South, Southeast, North), so national penetration is not what locates it. The common thread
+is that the national aggregate P mixes regions with very different constraints, and that its relation with curtailment, observed over a short and fast-changing period, is entangled with time.
+
+**Regional driver.** The same operational definition of P (wind + dispatched solar over total generation, realized basis) is applied at the subsystem level. A logistic C_wind(P_NE) fitted on the
+Northeast alone covers P_NE = 49-84 % within the sample and yields L = 0.25, k = 0.16, P0 = 76 (national: L = 1, k = 0.17, P0 = 36). Applied to the PTE scenarios through a labelled proxy (the PTE sources give no regional
+generation; the Northeast shares of national wind, solar and residual generation are held at their 2025 values) it gives 2050 wind curtailment of 79-129 TWh (21-22 % of wind) instead of 322-568 TWh. Preliminary
+caveats: the asymptote is weakly identified (bootstrap 95 % interval of L: 0.12-1.0; unstable between sub-samples), the proxy places P_NE at 85-94 % in 2040/2050 (beyond the observed maximum of 83.6 %), solar has no regional
+high-penetration sample (30 months) and stays on the national curve, so the total remains dominated by an extrapolated solar term.
+
+**Time confound.** In the Northeast, time alone explains 73 % of the variance of the monthly wind curtailment rate; adding P_NE raises R2 by only 0.5 percentage points (partial correlation 0.14, p = 0.32 after controlling
+for a linear time trend), and a last-30-month association (partial r = 0.43) vanishes when load and a hydrology proxy are added. The relation between penetration and curtailment is therefore not established as causal within the
+sample; unobserved time-varying factors (network outages and reinforcements, dispatch rules, load, hydrology, connection of new capacity to weak nodes) are absorbed by the time trend.
+
+**Pooled international panel.** A pooled annual fractional-logit over 18 system-years (Brazilian subsystems plus Ireland + Northern Ireland, South Australia and Denmark) gives a plausibility band of about 5.6-10.2 % wind curtailment at
+P = 44-78 % (95 % interval up to 13.7 %). The Northeast is in line with or below its peers in 2022-24 and above them in 2025. The panel is thin (four international points from three systems; definitions of P and of curtailment differ), so it is
+reported as a band for plausibility and not as a calibrated model.
+
+**Consequence for the method (proposed, pending the user's decision on D24/D25).** The paper's contribution is positioned as methodological: curtailment at high penetration is characterized from real within-sample regional and
+international experience, with explicit identification limits, rather than extrapolating a national curve. A mechanism-aware formulation (separating the systemic energy-balance component from the network components) and transmission-expansion
+assumptions are the natural extension, but are deferred and need new data. Full evidence: `docs/task11d_findings.md`.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
@@ -216,6 +248,8 @@ other stage (D10).
   total. No reconciliation is applied by design (the PTE is the evaluated object); applying C_hat(P) across
   the two bases assumes penetration share governs curtailment risk irrespective of accounting scope.
   Full detail: docs/pte_ons_basis_investigation.md.
+- Regional / pooled evidence (Task 11D, preliminary, not adopted): the Northeast wind curve is weakly identified (L 95 % interval 0.12-1.0), P_NE for the PTE years rests on a constant-share proxy and exceeds the observed range,
+  the P effect in the Northeast is mostly a time trend (section 2.3b), and the international panel has four points from three systems with non-identical definitions. See `docs/task11d_findings.md`.
 - The financial estimate (2.8, optional) excludes externality costs.
 - Electrolyzer SEC is a literature-range assumption (50-55 kWh/kg H2), not a measured value.
 

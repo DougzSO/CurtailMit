@@ -552,31 +552,48 @@ decisions:
       redefine_rate: "calibrate the rate on realized generation (curtailed / realized) so that a delivered-type PTE generation is the right base without a division (a calibration change)"
     sensitivity: "net / gross ratio 1.9x (TB 2040 solar) to 43.3x (TA 2050 wind) at the Task 11B central C"
     working_reading: "low confidence: closer to a delivered (net-like) quantity, because a model without curtailment reports what it dispatches; not a finding"
+    task11d_note: "Task 11D keeps the Task 11B gross formula (wind curtailed = generation x C) in all its prototype numbers; they would all shift if this is decided otherwise. No new evidence on gross vs net was found (PTE has no regional or capacity data)."
     decided: "nothing; to be decided by the user (candidate action: ask the PTE/CEBRI authors what Grafico 13 represents)"
 
   D24:
     status: pending
     date: "2026-10-23"
-    topic: "Adequacy of national P as the only driver of C for 2040/2050; regional/mechanism hypothesis"
-    source_task: "Task 11C sections (b) and (c) - docs/task11c_investigation_report.md"
+    updated: "2026-10-22 (Task 11D rewrite; the Task 11C text is preserved in docs/task11c_investigation_report.md)"
+    topic: "Adopt the regional / pooled formulation as the project's driver of the curtailment rate, replacing or augmenting national P"
+    source_task: "Task 11C (b),(c) and Task 11D - docs/task11c_investigation_report.md, docs/task11d_findings.md"
+    proposal: >
+      Replace (or augment) the national-P logistic curves of D21/D22 by a formulation in which the curtailment rate is driven by regional penetration, calibrated on the Northeast
+      (within-sample P_NE = 49-84 %) and bounded by a pooled international plausibility band, with the national curve retained at most as a sensitivity. Solar has no regional
+      high-penetration sample and would need a separate treatment.
+    evidence:
+      for: >
+        Northeast wind logistic L = 0.25, k = 0.16, P0 = 76 (57 months) reduces 2050 wind curtailment from 322-568 TWh (87-98 %) to 79-129 TWh (21-22 %), inside the international envelope
+        (N. Ireland 29.6 %, Ireland 14 %, South Australia 11 %); pooled annual fractional logit gives 5.6 / 7.2 / 10.2 % at P = 44 / 58 / 78 %; curtailment in S, SE and N occurs at very low local P
+        (so national P does not locate it); the 11D time-confound test shows P is not established as the driver of C in the Northeast.
+      against: >
+        NE asymptote not identified (L 95 % bootstrap interval 0.12-1.0; L = 0.07 vs 1.0 in the two halves of the sample); PTE has no regional generation, so P_NE for 2040/2050 rests on a constant-share proxy and
+        exceeds the observed maximum (85-94 % vs 83.6 %); the regional model underpredicts observed 2025 curtailment (16.4 vs 26.2 TWh); no regional solar sample (solar total stays dominated by the extrapolated national curve);
+        the pooled panel has four international points from three systems with non-identical definitions; time explains most of the NE relation (D25), so replacing national P by P_NE re-exports the same confound.
+    options:
+      A: "Adopt the regional (NE) curve for wind as the primary, national curve as sensitivity; solar decided separately"
+      B: "Adopt it as an alternative scenario reported alongside the national one (not a replacement)"
+      C: "Reject: keep the national P curves (D21/D22) with the existing caveats"
+      D: "Defer until a solar treatment and transmission-expansion / mechanism-aware data (a possible future acquisition, NOT started) are available"
+    working_reading: "Task 11D author's reading, not a decision: B or D; A is not supported for solar, and the total does not become plausible until solar is addressed"
+    decided: "nothing; to be decided by the user"
+
+  D25:
+    status: pending
+    date: "2026-10-22"
+    topic: "Time confound: the P -> C_wind relation in the Northeast is mostly a time trend"
+    source_task: "Task 11D, sub-task 11D-b - docs/task11d_findings.md (originally noted in Task 11C (c) as C correlating more with time than with national P)"
     found: >
-      (b) The Task 11B central estimates (C_wind 0.87-0.98, C_solar 0.70-0.86 at P 44-58 percent) are far outside every international figure retrieved
-      (Northern Ireland wind 29.6 percent, South Australia grid-scale solar offloading 32 percent and wind 11 percent, Ireland all-island wind 14.0 percent,
-      Denmark near 0-5 percent), although Denmark (64 percent of consumption) and South Australia (~77 percent of generation) reach the PTE penetration
-      range; those systems are strongly interconnected with different dispatch rules, so this is a plausibility check only.
-      (c) Wind curtailment is 94.7-98.6 percent in the Northeast (which holds 90-93 percent of wind generation); solar curtailment splits NE/SE in
-      proportion to generation. Curtailment occurs at very low local penetration (SE solar rate 24-26 percent at local P 4-7 percent; S wind up to 55 percent
-      at local P 3-13 percent), while the NE at local P 49-84 percent shows annual rates of 9-19 percent. The fastest-growing class is DEB (energy reason,
-      100 percent systemic; share 8.5 -> 69 percent, 2022 -> 2026); EUB (external unavailability) is flat against P (slope 0.05) and its share fell 59 -> 11
-      percent; local-origin restrictions fell from 42 to 16-18 percent. C correlates more with calendar time (Spearman 0.91) than with P (0.73); partial
-      Spearman of C on P given time is 0.45 (57 months) and 0.63 (last 30 months).
-    reading: >
-      Moderately undermines national P as a structural driver for extrapolation without supporting a simple transmission-bottleneck explanation: the growing
-      component is a systemic energy-balance restriction that depends on demand, hydro and flexibility, which PTE scenarios change and P does not capture.
-      Descriptive, in-sample, one regime; no causality shown.
-    open_questions:
-      a: "Keep national P as the only driver (with the D21/D22 uncertainty and the caveat), or move to a mechanism-aware formulation separating the energy-balance (DEB) component from the network components (REB/EUB)?"
-      b: "If the latter: which data (for example transmission-expansion assumptions) would be needed - a possible future acquisition task, NOT started."
+      Northeast, 57 months, C_wind on P_NE and month index t, OLS with Newey-West errors. corr(C,P) 0.61 (Spearman 0.70); corr(C,t) 0.85 (0.90); corr(P,t) 0.65. Partial correlation of C with P given t: 0.14 (p = 0.32); partial Spearman 0.38 (p = 0.004).
+      R2: P only 0.373, t only 0.728, P + t 0.733 (incremental R2 of P = 0.005). Slope of P: 0.0066 alone, 0.0010 with t (-85 %, p = 0.36), -0.0006 with load and hydrology proxies, -0.0011 with month dummies. Last 30 months (P and t uncorrelated, -0.11):
+      partial r = 0.43 (p = 0.02), but b_P = -0.0001 (p = 0.97) once load and hydrology are added and 0.0042 (p = 0.087) with month dummies. Within-year (year fixed effects) b_P = 0.0032 (p = 0.002), read as seasonality. National wind frame, same months: partial corr(C, P_nat | t) = 0.42 (p = 0.0015).
+    candidate_text: >
+      In the Northeast sample the apparent P -> C_wind relation is mostly a time trend: time explains about 73 % of the variance and P_NE adds 0.5 percentage points. P_NE is not retained as a causal driver without a time / load / hydrology control,
+      and any projection that uses P (national or regional) must state this caveat. Descriptive, 57 months, one regime; no causal claim.
     decided: "nothing; to be decided by the user"
 
 ben_cross_check:

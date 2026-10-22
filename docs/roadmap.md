@@ -72,6 +72,9 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 | 5 | hydrogen.py | Green-H2 valorization potential from curtailed energy |
 | 6 | results_writer.py | Persist tables/figures/reports, propagate all data-quality flags |
 
+> Note (Task 11D): Stages 2-3 are no longer a single national-P calibration followed by a projection. They now include a regional / time-controlled / pooled branch
+> (see "Update (Task 11D)" at the end of this file). Stage 6 / Task 13 is blocked until that branch is decided.
+
 ## 6. Stage 1 (data_ingestion.py) - final spec
 
 1. Load config/scenarios.yaml, validate against schemas.py (Pydantic v2):
@@ -115,6 +118,8 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 2. Implement Stage 1 (data_ingestion.py + ons_client.py + schemas.py) - first Claude Code task.
 3. Iterate stage by stage, always gated by the acceptance criteria in section 7.
 
+> Note (Task 11D): steps 1-3 above are historical. The current next step is the user's decision on D23, D24 and D25 (`config/discovered_sources.yaml`), then Task 11E (if approved), then Task 13.
+
 
 ---
 
@@ -144,3 +149,27 @@ Additionally, per the same discovery round:
   computed, not published, in output metadata.
 - BM is published directly as a single annual value — no derivation
   needed.
+
+
+---
+
+## Update (Task 11D) - calibration / modeling stage branched into regional, time-controlled and pooled work
+
+Context. Task 11B applied the nationally calibrated C_wind(P) / C_solar(P) curves (fitted on observed national penetration P = 10.3-29.4 %) to PTE scenarios reaching P = 58 %
+nationally by 2050 and produced physically implausible values (87-98 % wind curtailment, 512-775 TWh in 2050). Task 11C (investigation, no code change) found that (a) the PTE
+generation basis (gross vs net) is not stated, (b) international systems at similar penetration show curtailment an order of magnitude lower, and (c) the Northeast already operates
+at local penetration of 49-84 % with annual curtailment of 9-19 %, and curtailment correlates more with time than with national P. The project thesis was revised (approved by the user):
+high-penetration curtailment is primarily a regional / structural phenomenon (transmission-, load- and flexibility-bound), not a simple function of national aggregate penetration; the
+contribution is methodological (using real within-sample regional and international experience instead of blind extrapolation of a national curve).
+
+New branch of work, now a formal part of the calibration / modeling stage (Stages 2-3), not a lateral detour:
+
+| Item | Content | Status |
+|---|---|---|
+| Task 11C | Investigation: PTE basis, international benchmarks, regional / DEB-REB-EUB diagnostic | DONE (`docs/task11c_investigation_report.md`) |
+| Task 11D | Prototype / investigation: regional recalibration of C_wind (Northeast), time-confound test (D25), pooled international panel, documentation realignment. No `src/` change | DONE, findings pending user review (`docs/task11d_findings.md`) |
+| Task 11E | Production migration of the driver (regional and/or pooled formulation) into `calibration.py` / `projection.py`, if the user adopts D24 | NOT started; contingent on D23, D24, D25 and on a solar treatment |
+| Deferred extension | Transmission-capacity / expansion assumptions as an explicit regional driver (mechanism-aware formulation); needs a data-acquisition task | NOT started, not authorized |
+
+Task 13 (OM/CM split, `results_writer` wiring, MCTI factor-year choice) **remains blocked** pending the outcome of Task 11D / 11E: its inputs (the curtailed-energy trajectories) are
+the quantity in question. Decisions D13-D22 are untouched; D23, D24, D25 are candidates (`status: pending`).

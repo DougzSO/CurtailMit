@@ -137,3 +137,13 @@ into `config/scenarios.yaml`.
 7. Content gaps in `config/scenarios.yaml` (not structural, just data
    entry): `validation_data` block (2026-2029 ONS/EPE prospection table),
    `primary_energy_crosscheck` 6-point grid, LICENSE copyright name/year.
+
+---
+
+## Task 11D (2026-10) - regional recalibration, time confound, pooled panel, documentation realignment
+
+- Investigation / prototype only; no `src/` change; D13-D22 untouched; D23, D24, D25 recorded as `pending`.
+- Added `analysis/task11d_regional_recalibration.py`, `task11d_time_confound.py`, `task11d_pooled_panel.py` and `docs/task11d_findings.md`.
+- Findings (preliminary): no regional wind/solar in the PTE sources (labelled constant-share proxy); Northeast wind logistic L = 0.25, P0 = 76 (weakly identified) gives 2050 wind curtailment 79-129 TWh instead of 322-568; in the Northeast time explains 73 % of the
+  variance of C_wind and P_NE adds 0.5 points; pooled plausibility band 5.6-10.2 % at P = 44-78 %; solar has no regional sample, so totals remain implausible.
+- Documentation realigned (roadmap, methodology 2.3b, claude_commands transition note and 1.11D entry, task table, discovered_sources). Task 13 blocked.
