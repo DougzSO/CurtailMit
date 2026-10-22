@@ -91,6 +91,10 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 - Required years are in config (`mcti.required_years: [2020, 2025]`); manual-ingestion fallback implemented and tested (declared in the result via `manual_ingestion_used`; Task 8 must surface it in the data-quality report).
 - Open for Task 13: factors exist only for completed years, so the 2025+ grid points need an explicit, logged choice of which year's factor applies.
 
+### 1.3e PENDING DECISION FOR TASK 9 — curtailment-rate denominator
+
+PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 2.40% / 6.61% / 15.23% for 2022-2025, partial 2026 figure unconfirmed) do not match ONS's own published rates (0.5% / 3.6% / 9.3% for 2022-2024; ~20.7% cited for 2025 via secondary source) despite the absolute MW/GWh curtailment figures matching almost exactly (see `docs/curtailment_magnitude_sanity_check.md`). The discrepancy is attributed to an undetermined difference in the "potential generation" denominator definition used by ONS vs. our computation (realized + curtailed generation). This denominator choice must be made explicitly, and recorded as a decision, before `calibration.py` (Task 9) is implemented — it changes the computed curtailment rate by up to ~25% relative. Reference `docs/curtailment_magnitude_sanity_check.md` for full detail.
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —

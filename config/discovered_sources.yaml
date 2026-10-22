@@ -370,6 +370,13 @@ decisions:
       Task 13 must choose and log how the latest available year is applied. Annual OM is a simple mean because MCTI publishes no
       generation weights. The simple-adjusted OM file (FE_simplesajustado) is not wired in (secondary fallback only, not needed).
     implemented_in: "curtailmit.mcti_client (Task 5)"
+    addendum: >
+      Correction to Task 5's own deliverable, recorded for traceability (no separate decision number). During testing a
+      parsing fragility was found: if the current Build Margin (BM) value was missing but the same row also held a
+      "previously published with error" value, the parser would pick up that erroneous value instead of failing explicitly
+      or skipping the year. It was identified and fixed within Task 5 (the BM is now the first non-empty cell after the year;
+      a text cell there means no BM yet), with a corresponding test added
+      (test_parse_margin_grid_incomplete_year_is_flagged_not_silently_filled). Fix shipped in the Task 5 commit (dfe1cb5).
 
 ben_cross_check:
   status: reference_only
