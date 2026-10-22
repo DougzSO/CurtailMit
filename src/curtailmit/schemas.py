@@ -185,6 +185,19 @@ class CurtailmentPackageDiscovery(BaseModel):
     latest_date: str | None = None
 
 
+class DictionaryCheck(BaseModel):
+    """Outcome of reading an ONS data dictionary for scope statements (Task 6B). Verbatim texts, never paraphrased."""
+
+    package_id: str
+    dictionary_url: str | None = None
+    package_notes: str = ""
+    field_definitions: dict[str, str] = Field(default_factory=dict)
+    keyword_hits: list[dict[str, str]] = Field(default_factory=list)
+    resource_last_modified: dict[str, str] = Field(default_factory=dict)
+    states_mmgd_included: bool = False
+    states_centralized_only: bool = False
+
+
 class AneelFallbackChoice(BaseModel):
     """Outcome of the ANEEL fallback package discovery (Task 6): what was chosen and why the alternatives lost."""
 

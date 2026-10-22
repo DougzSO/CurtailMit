@@ -82,20 +82,33 @@ def derive_code_crosswalk(codes: dict[str, str], classification_cfg: dict) -> di
     return crosswalk
 
 
+def fetch_data_dictionary(client: CkanClient, package_id: str, raw_subdir: str, label: str = "") -> tuple[list[dict], str] | None:
+    """Download a package's JSON data dictionary (via fetch_and_cache, so a retrieval manifest is written) and return
+    (entries, source_url), where entries are the `dicionario_simplificado` items {codigo, descricao}.
+
+    Returns None if the package has no JSON dictionary resource. Network/HTTP errors propagate.
+    """
+    resources = CkanClient.resources_from_package(client.package_show(package_id))
+    candidates = [r for r in resources if r.format.upper() == "JSON" and "dicion" in _normalize(r.name)]
+    if not candidates:
+        logger.warning("[%s] package '%s' has no JSON data-dictionary resource (resources: %s)", label or package_id, package_id, [r.name for r in resources])
+        return None
+    dest = fetch_and_cache(candidates[0].url, get_raw_dir(raw_subdir) / "data_dictionary.json")
+    payload = json.loads(Path(dest).read_text(encoding="utf-8-sig", errors="replace"))
+    return list(payload.get("dicionario_simplificado", [])), candidates[0].url
+
+
 def fetch_reason_code_dictionary(client: CkanClient, package_id: str, source: str) -> dict[str, str] | None:
     """Download the package's JSON data dictionary and return its parsed {code: text} for cod_razaorestricao.
 
     Returns None (classification unavailable, D6) if the package has no JSON dictionary or it does not describe the field.
     Network/HTTP errors propagate - they are not evidence that classification is unavailable.
     """
-    resources = CkanClient.resources_from_package(client.package_show(package_id))
-    candidates = [r for r in resources if r.format.upper() == "JSON" and "dicion" in _normalize(r.name)]
-    if not candidates:
-        logger.warning("[%s] package '%s' has no JSON data-dictionary resource (resources: %s)", source, package_id, [r.name for r in resources])
+    fetched = fetch_data_dictionary(client, package_id, f"ons/curtailment_{source}", label=source)
+    if fetched is None:
         return None
-    dest = fetch_and_cache(candidates[0].url, get_raw_dir(f"ons/curtailment_{source}") / "data_dictionary.json")
-    payload = json.loads(Path(dest).read_text(encoding="utf-8-sig", errors="replace"))
-    entry = next((e for e in payload.get("dicionario_simplificado", []) if str(e.get("codigo", "")).lower() == REASON_FIELD), None)
+    entries, _url = fetched
+    entry = next((e for e in entries if str(e.get("codigo", "")).lower() == REASON_FIELD), None)
     if entry is None:
         logger.warning("[%s] data dictionary does not describe %s", source, REASON_FIELD)
         return None
