@@ -88,6 +88,8 @@ if the dictionary or code field were missing the pipeline would fall back to the
 
 ### Emission factor data - RESOLVED, same empirical discovery pattern (new in v3.1)
 
+Implementation note (Task 5, D18): factors are scraped from the MCTI landing page and read from the workbooks by their labels. Years 2020-2025 are required; the average factor is the MCTI-published annual (and monthly) value, BM is MCTI-published, annual OM is the simple mean of the 12 published monthly values (derived) and CM = 0.5 OM + 0.5 BM (computed, D12). Factors exist only for completed years, so how they are applied to later projection years is a Task 13 choice.
+
 - Average SIN factor (D8): MCTI's official monthly Fator Medio de Emissao de CO2 do SIN
   (gov.br/mcti). Stage 1 discovers the current publication format/endpoint, verifies coverage
   against the calibration window, fails explicitly if not met.

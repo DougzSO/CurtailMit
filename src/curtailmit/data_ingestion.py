@@ -333,9 +333,10 @@ def check_classification_availability(raw_config: dict, discovered: dict) -> boo
 
 
 def discover_mcti_factors(raw_config: dict) -> dict:
-    """TODO: implement discovery of MCTI average + margin emission factor publications."""
-    logger.warning("MCTI factor discovery not yet implemented.")
-    return {}
+    """Task 5: acquire MCTI average + margin (OM/BM/CM) emission factors (see mcti_client.py)."""
+    from curtailmit.mcti_client import acquire_mcti_factors
+
+    return acquire_mcti_factors()
 
 
 def load_validation_data(raw_config: dict) -> dict:

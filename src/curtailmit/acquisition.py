@@ -38,6 +38,7 @@ def fetch_and_cache(
     method: str = "GET",
     use_cache: bool = False,
     timeout: int = 60,
+    headers: dict[str, str] | None = None,
 ) -> Path:
     """Download `url` to `dest_path`, writing a sidecar retrieval manifest.
 
@@ -57,7 +58,7 @@ def fetch_and_cache(
         return dest_path
 
     logger.info("Fetching %s -> %s", url, dest_path)
-    resp = requests.request(method, url, params=params, timeout=timeout)
+    resp = requests.request(method, url, params=params, timeout=timeout, headers=headers)
     resp.raise_for_status()
     content = resp.content
 

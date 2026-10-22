@@ -25,8 +25,8 @@
 
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
-token usage, plus three real Claude Code sessions (Task 2, Task 2B, Task 3) that did live
-API discovery and acquisition. Full test suite currently: **161 passed, 0 failed**
+token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5) that did live
+API discovery and acquisition. Full test suite currently: **177 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -81,6 +81,15 @@ CCEE (`dadosabertos.ccee.org.br`) returns HTTP 403 (WAF-level block) on every pr
 - Unavailable branch (no dictionary / field not described / no D5 match in any source) -> `classification_available = false`, no classified column; undocumented codes raise `ClassificationError`.
 - `validation._CLASSIFIED_FIELDS` extended with `deb_reb_eub` so the leak guard covers the new column. Large-file loading is categorical/Arrow based (full file does not fit as object dtype).
 - Magnitude sanity check done: curtailed energy matches ONS RT DGL 0189/2025 within ~1 %; the rate depends on the denominator convention (decide before Task 9). See `docs/curtailment_magnitude_sanity_check.md`.
+
+### 1.3d MCTI emission factors (Task 5) — DONE (D18)
+
+- Module `src/curtailmit/mcti_client.py`; `data_ingestion.discover_mcti_factors` now delegates to it (stub replaced); `fetch_and_cache` gained an optional `headers` argument and `manual_ingestion.load_manually_placed_file` an optional `read_kwargs`.
+- Scrapes the landing page (BeautifulSoup), selects files by name pattern + year token (current domain beats legacy, ambiguity fails), parses margin workbooks by label (sheet names vary), verifies each download is a real spreadsheet.
+- Outputs (`DATABASE_ROOT/processed`): `mcti_average_factor.parquet` (year, month, factor), `mcti_average_factor_annual.parquet` (MCTI-published annual), `mcti_margin_factors.parquet` (year, om, bm, cm + `om_is_derived`/`cm_is_derived`/`bm_is_published` flags, source URL, manual flag).
+- Real run: average factor 2006-2025 complete (2026 partial, excluded); margins 2020-2025 (2026 skipped: BM not yet published, 9/12 months). Example: 2025 OM 0.4125, BM 0.0711, CM 0.2418 tCO2/MWh; average 0.0461.
+- Required years are in config (`mcti.required_years: [2020, 2025]`); manual-ingestion fallback implemented and tested (declared in the result via `manual_ingestion_used`; Task 8 must surface it in the data-quality report).
+- Open for Task 13: factors exist only for completed years, so the 2025+ grid points need an explicit, logged choice of which year's factor applies.
 
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
@@ -177,8 +186,8 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 2B | ANEEL solar gap probe + per-package coverage floors | `validation.py`, config | ✅ DONE |
 | 3 | ONS generation-by-source discovery & acquisition | `ons_generation.py` | ✅ DONE (D15; PTE/ONS basis RESOLVED as D16) |
 | 4 | Curtailment classification (DEB/REB/EUB mapping) | `ons_classification.py` | ✅ DONE (D17) |
-| 5 | MCTI emission factor discovery & acquisition | `mcti_client.py`, `data_ingestion.py` | ⬜ NEXT |
-| 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ⬜ |
+| 5 | MCTI emission factor discovery & acquisition | `mcti_client.py` | ✅ DONE (D18) |
+| 6 | ANEEL fallback discovery (generation-by-source) | `aneel_client.py` | ⬜ NEXT |
 | 7 | CCEE PLD discovery & acquisition (optional) | `ccee_client.py`, `pld.py` | ✅ DONE (closed) |
 | 8 | Stage 1 finalization: full data-quality report | `data_ingestion.py` | ⬜ |
 | 9 | Stage 2: `calibration.py` | `calibration.py` | 🔶 logic done, needs real-data wiring (Task 3 done; PTE/ONS basis settled by D16) |
@@ -201,84 +210,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 
 ---
 
-### TASK 5 — MCTI emission factor discovery & acquisition
-
-```
-TASK 5 — Implement MCTI average and marginal emission factor acquisition.
-
-Read docs/roadmap.md (D8, D9, D12) and docs/methodology.md §2.2 first.
-Discovery for this task is ALREADY CLOSED — do not search for new URLs. Use
-these confirmed facts directly (full detail in config/acquisition_targets.yaml,
-mcti section):
-
-- Landing page:
-  https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao
-
-| Concept | File pattern | Granularity | Sheet |
-|---|---|---|---|
-| Average SIN factor (D8) | `Inventario_{year_range}.xlsx` — ONE consolidated file, 2006->present | Monthly + annual | `inventário-todos` |
-| Build Margin (BM) | `Despacho_{YYYY}_*.xlsx` OR `Margemdeconstruo_{YYYY}*.xlsx` — ONE FILE PER YEAR, inconsistent naming, legacy domain antigo.mctic.gov.br for pre-2021 | Annual (direct) | `MDL` |
-| Operating Margin (OM), DEB proxy (D9) | Same per-year file as BM | Monthly only (12 values; no official annual figure) | `MDL` |
-| Combined Margin (CM), REB proxy (D9) | NOT PUBLISHED | — | — |
-| Simple Adjusted OM (secondary/fallback only) | `FE_simplesajustado_{year}_web.xlsx` — ONE consolidated file, 2006->present | Annual | `Publicar` |
-
-CRITICAL: per-year BM/OM file naming is inconsistent across years and CANNOT
-be guessed from a fixed URL pattern. Your acquisition code must:
-1. Fetch the landing page above.
-2. Parse all <a href> tags ending in .xlsx/.xls (BeautifulSoup).
-3. Match the target year as a substring in the href or link text to select
-   the correct file for that year.
-4. Log every discovered URL via acquisition.fetch_and_cache's manifest
-   sidecar (already built — reuse it, do not write new HTTP logic).
-5. If no file matches a required year, FAIL EXPLICITLY — do not guess a URL.
-
-Create src/curtailmit/mcti_client.py:
-
-1. `discover_average_factor_file(landing_url) -> dict`: find and download the
-   single consolidated Inventario_*.xlsx file into
-   get_raw_dir("mcti/average_emission_factor"), parse sheet
-   "inventário-todos" into [year, month, factor_tco2_per_mwh].
-
-2. `discover_margin_factor_file(landing_url, year) -> dict`: find the correct
-   per-year Despacho_*/Margemdeconstruo_* file for the given year via the
-   substring-match rule above, download into
-   get_raw_dir("mcti/margin_factors"), parse sheet "MDL" into BM (single
-   annual value) and OM (12 monthly values).
-
-3. Use emission_factors.derive_annual_om_from_monthly() (already built,
-   tested — do not reimplement) to get annual OM.
-
-4. Use emission_factors.compute_combined_margin() (already built, tested) to
-   compute CM = 0.5*OM + 0.5*BM. Flag CM and derived-annual-OM explicitly as
-   computed/derived in all output metadata — never presented as an
-   MCTI-published figure.
-
-5. Validate coverage: average factor series must cover the full calibration
-   window from Tasks 2/3 (2021-present at minimum) — raise a specific
-   exception if not.
-
-6. If the MCTI page/file structure cannot be parsed at all (layout changed,
-   access blocked), this IS a legitimate manual-ingestion case: implement
-   manual_ingestion.py with load_manually_placed_file(expected_path) ->
-   pd.DataFrame, raising a clear instructional error naming exactly which
-   file to place where. Log this fallback prominently as a declared
-   limitation in Task 8's data-quality report — never silently.
-
-7. Persist to DATABASE_ROOT/processed/mcti_average_factor.parquet and
-   DATABASE_ROOT/processed/mcti_margin_factors.parquet (columns: year, om,
-   bm, cm — all three, with a note that om/cm are derived).
-
-8. Tests: mock the HTML landing page + file downloads; one test for correct
-   parsing, one for the explicit coverage-exception path, one confirming
-   manual_ingestion.py raises a clear actionable error when invoked without
-   a pre-placed file.
-
-Acceptance:
-- pytest -v -m "not integration" passes without live network access.
-- If the confirmed landing page structure has changed since discovery (i.e.
-  it no longer matches what's documented in acquisition_targets.yaml), STOP
-  and report back exactly what changed instead of guessing a fix.
-```
+### TASK 5 — DONE (see section 1.3d; prompt removed)
 
 ---
 

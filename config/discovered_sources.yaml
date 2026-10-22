@@ -337,6 +337,40 @@ decisions:
       list (the column was NOT renamed), with a corresponding test (test_guard_rejects_deb_reb_eub_field_on_unavailable_records).
     magnitude_check: "docs/curtailment_magnitude_sanity_check.md (curtailed energy matches ONS RT DGL 0189/2025 within ~1%)"
 
+  D18:
+    status: adopted
+    date: "2026-10-21"
+    topic: "MCTI emission factors: scraping rules, required years, derived OM/CM"
+    checked: >
+      Live MCTI landing page (fatores-de-emissao) and every workbook used: Inventario_2026_janset.xlsx, the per-year
+      OM/BM files for 2020-2026 (current gov.br domain and legacy antigo.mctic.gov.br).
+    found: >
+      Page structure matches the documented one (one consolidated Inventario_*, per-year Despacho_/Margemdeconstruo_ files,
+      FE_simplesajustado_2025_web). Three undocumented behaviours: (1) gov.br returns a stripped page (no spreadsheet links)
+      and an HTML page in place of each .xlsx, both with HTTP 200, to python-requests' default User-Agent, but the real content to
+      any explicit User-Agent; (2) the margin sheet name is not stable (MDL, "MDL 2022", Planilha1 for 2020/2021) while its
+      label layout is identical in every year; (3) 2020 and 2021 exist on both domains, and 2026 is an in-progress year (9 monthly
+      OM values, BM not yet available). Published annual average factors read back match known MCTI values
+      (2020 0.0617, 2021 0.1263, 2022 0.0426, 2023 0.0385, 2024 0.0545, 2025 0.0461 tCO2/MWh).
+    decided: >
+      Requests use an honest project User-Agent (not a browser impersonation) and every download is verified to be a real
+      spreadsheet (zip/OLE magic bytes) before parsing. Margin workbooks are parsed by their labels, not by sheet name
+      (WARNING when the sheet differs). The per-year file is chosen by margin file-name patterns plus the year as a whole token in
+      href or link text; the current domain beats the legacy one; more than one remaining candidate fails (no guessing). Required
+      years are explicit in config (mcti.required_years: 2020-2025: 2020 = D1 baseline, 2021+ = calibration window; bump the end
+      when MCTI publishes the next complete year). Later years are used only if complete (BM + 12 monthly OM); an in-progress year is
+      skipped with a WARNING. The current BM is the first non-empty cell after the year; a text cell there means no BM yet, never
+      the "previously published (with errors)" numbers to its right. Annual OM (simple mean of 12 months) and CM (0.5 OM + 0.5 BM,
+      D12) are flagged om_is_derived / cm_is_derived in every output; only BM and the average factor are MCTI-published.
+    why: >
+      Fail-explicit rule with no guessed URLs; the stripped-page/HTML-instead-of-xlsx behaviour would otherwise surface as a confusing
+      parse error or, worse, a silent empty result.
+    caveat: >
+      Margin factors exist only for completed years, so projection years (2025+ grid points) have no factor of their own;
+      Task 13 must choose and log how the latest available year is applied. Annual OM is a simple mean because MCTI publishes no
+      generation weights. The simple-adjusted OM file (FE_simplesajustado) is not wired in (secondary fallback only, not needed).
+    implemented_in: "curtailmit.mcti_client (Task 5)"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

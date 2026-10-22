@@ -108,12 +108,17 @@ aneel:
 mcti:
   landing_page: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao"
   methodology_note_pdf: "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/NT_FE_jun25.pdf"
+  # Years that MUST be covered (inclusive): 2020 = D1 baseline year, 2021+ = calibration window, end = last
+  # complete year published on 2026-10-21. Bump `end` when MCTI publishes the next complete year. Later years found on
+  # the page are used only if complete (BM + 12 monthly OM); an in-progress year is skipped with a WARNING.
+  required_years: [2020, 2025]
 
   average_sin_factor:
     concept: "D8_average_emission_factor"
     acquisition_method: "single_consolidated_download"
     file_pattern: "Inventario_{year_range}.xlsx"
     sheet_name: "inventário-todos"
+    file_prefix: "Inventario_"
     granularity: "monthly_and_annual"
     notes: >
       Single download covers the full historical series (2006-present).
@@ -127,6 +132,11 @@ mcti:
       - "Margemdeconstruo_{YYYY}*.xlsx"
     legacy_domain_pre_2021: "antigo.mctic.gov.br"
     sheet_name: "MDL"
+    # Probed 2026-10-21: the sheet name is NOT stable ("MDL", "MDL 2022", "Planilha1" for 2020/2021), so the parser
+    # prefers a sheet starting with this name, else the first sheet (WARNING), and verifies the layout by its labels
+    # ("MARGEM DE CONSTRUCAO" -> BM on the year row, "MARGEM DE OPERACAO" -> 12 monthly OM values under the month header).
+    # 2020 and 2021 exist on both the current gov.br domain and the legacy domain; the current domain is preferred.
+    file_name_patterns: ["despacho", "margemdeconstru", "analise-de-despacho"]
     om_granularity: "monthly_only_derive_annual_via_simple_mean"
     bm_granularity: "annual_direct"
     notes: >

@@ -21,11 +21,13 @@ def load_manually_placed_file(
     expected_path: Path,
     instructions: str,
     reader: str = "excel",
+    read_kwargs: dict | None = None,
 ) -> pd.DataFrame:
     """Attempt to load a manually placed file; raise an actionable error if absent.
 
     `instructions` should tell the human exactly what to download, from where,
-    and where to place it (expected_path).
+    and where to place it (expected_path). `read_kwargs` is forwarded to the pandas reader
+    (e.g. {"sheet_name": 0, "header": None} to get the raw cell grid).
     """
     if not expected_path.exists():
         raise ManualIngestionRequired(
@@ -33,8 +35,8 @@ def load_manually_placed_file(
         )
 
     if reader == "excel":
-        return pd.read_excel(expected_path)
+        return pd.read_excel(expected_path, **(read_kwargs or {}))
     elif reader == "csv":
-        return pd.read_csv(expected_path)
+        return pd.read_csv(expected_path, **(read_kwargs or {}))
     else:
         raise ValueError(f"Unsupported reader: {reader}")
