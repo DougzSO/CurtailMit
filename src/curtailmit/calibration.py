@@ -33,6 +33,9 @@ from curtailmit.schemas import CalibrationParams
 logger = logging.getLogger(__name__)
 
 
+L_MIN, L_MAX, K_MIN = 1e-9, 1.0, 1e-9  # D21: 0 < L <= 1
+
+
 def logistic(P: np.ndarray, L: float, k: float, P0: float) -> np.ndarray:
     return L / (1 + np.exp(-k * (P - P0)))
 
@@ -41,12 +44,15 @@ def fit_calibration(
     df: pd.DataFrame,
     p_col: str = "P",
     c_col: str = "C",
-    initial_guess: tuple[float, float, float] = (1.0, 0.3, 50.0),
+    initial_guess: tuple[float, float, float] = (0.9, 0.3, 50.0),
 ) -> CalibrationParams:
     """Fit the logistic C(P) function to a calibration dataframe.
 
     df must contain columns p_col (penetration %, 0-100) and c_col
     (observed curtailment fraction, 0-1).
+
+    D21: the upper asymptote is BOUNDED to 0 < L <= 1 (it is a curtailment fraction; the earlier unconstrained fit gave L = 1.25, i.e.
+    more than 100 % curtailment). L is bounded, not fixed: it can settle below 1. k is bounded to be positive; P0 is free.
     """
     if df.empty:
         raise ValueError("Calibration dataframe is empty - cannot fit C(P).")
@@ -54,7 +60,9 @@ def fit_calibration(
     P = df[p_col].to_numpy(dtype=float)
     C = df[c_col].to_numpy(dtype=float)
 
-    popt, _ = curve_fit(logistic, P, C, p0=initial_guess, maxfev=10_000)
+    L0, k0, P00 = initial_guess
+    p0 = (min(max(L0, L_MIN * 10), L_MAX - 1e-3), k0, P00)  # the start must lie strictly inside the bounds
+    popt, _ = curve_fit(logistic, P, C, p0=p0, bounds=([L_MIN, K_MIN, -np.inf], [L_MAX, np.inf, np.inf]), maxfev=10_000)
     L, k, P0 = popt
 
     residuals = C - logistic(P, L, k, P0)
@@ -201,7 +209,7 @@ def annual_rates(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
-def run_calibration(interim_dir: Path | None = None, processed_dir: Path | None = None, initial_guess: tuple[float, float, float] = (1.0, 0.3, 50.0)) -> dict:
+def run_calibration(interim_dir: Path | None = None, processed_dir: Path | None = None, initial_guess: tuple[float, float, float] = (0.9, 0.3, 50.0)) -> dict:
     """Task 9: penetration table (D20 basis) + COFF curtailment -> monthly calibration frame -> logistic fit.
 
     Reads processed/ons_penetration_monthly.parquet and interim/ons_curtailment_raw.parquet; writes processed/calibration_frame.parquet and
@@ -223,3 +231,47 @@ def run_calibration(interim_dir: Path | None = None, processed_dir: Path | None 
     if len(solar_frame) >= 4:
         sensitivity = fit_calibration(solar_frame, initial_guess=initial_guess)
     return {"frame": frame, "calibration": calib, "sensitivity_wind_solar_only": sensitivity, "annual_rates": annual_rates(frame)}
+
+
+def bootstrap_calibration_ci(
+    df: pd.DataFrame,
+    p_values: list[float],
+    n_boot: int = 1000,
+    seed: int = 0,
+    p_col: str = "P",
+    c_col: str = "C",
+    initial_guess: tuple[float, float, float] = (0.9, 0.3, 50.0),
+    alpha: float = 0.05,
+) -> pd.DataFrame:
+    """Percentile bootstrap CI of C(P) at `p_values` (D21): resample the rows with replacement, refit the bounded logistic each time.
+
+    Returns one row per P: point (fit on the full frame), lo/hi (alpha/2 and 1-alpha/2 percentiles), width, and the number of
+    successful refits (`n_ok`; failed refits are skipped and counted, never silently replaced).
+
+    DIAGNOSTIC / REPORTING ONLY. Stage 3 (PTE scenario application, a future task) MUST propagate this uncertainty into the reported
+    mitigation-deficit figures for 2040/2050 instead of using point estimates alone; this function is deliberately not wired into
+    projection.py or mitigation.py.
+    """
+    if df.empty:
+        raise ValueError("Calibration dataframe is empty - cannot bootstrap.")
+    p_grid = np.asarray(p_values, dtype=float)
+    point = fit_calibration(df, p_col, c_col, initial_guess).params
+    point_c = logistic(p_grid, point["L"], point["k"], point["P0"])
+    rng = np.random.default_rng(seed)
+    P, C = df[p_col].to_numpy(dtype=float), df[c_col].to_numpy(dtype=float)
+    curves, failures = [], 0
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(df), len(df))
+        try:
+            popt, _ = curve_fit(logistic, P[idx], C[idx], p0=(point["L"], point["k"], point["P0"]), bounds=([L_MIN, K_MIN, -np.inf], [L_MAX, np.inf, np.inf]), maxfev=10_000)
+        except (RuntimeError, ValueError):
+            failures += 1
+            continue
+        curves.append(logistic(p_grid, *popt))
+    if not curves:
+        raise RuntimeError(f"All {n_boot} bootstrap refits failed.")
+    if failures:
+        logger.warning("Bootstrap: %d of %d refits failed and were skipped", failures, n_boot)
+    curves = np.vstack(curves)
+    lo, hi = np.percentile(curves, [100 * alpha / 2, 100 * (1 - alpha / 2)], axis=0)
+    return pd.DataFrame({"P": p_grid, "point": point_c, "lo": lo, "hi": hi, "width": hi - lo, "n_ok": len(curves), "n_failed": failures})

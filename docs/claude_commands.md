@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
-API discovery and acquisition. Full test suite currently: **231 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **236 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -110,9 +110,11 @@ PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 
 - Limitation (D19): ANEEL has no SIN generation-energy series, so the fallback returns installed capacity (MW) and shares by source, flagged `is_generation_energy = False`; it cannot replace the ONS P(t) without a capacity-factor decision.
 - Side finding: ONS solar vs ANEEL capacity suggests MMGD is included in the ONS solar series from 2023 (see 1.3e evidence update).
 
-### 1.3g PENDING ITEM — calibration curve identifiability (candidate D21)
+### 1.3g RESOLVED (D21) — calibration curve identifiability
 
-Logged after Task 9; **nothing decided and `fit_calibration` unchanged.** (Numbered 1.3g because 1.3f is the ANEEL fallback section.)
+**RESOLVED by D21 (adopted 2026-10-23, Task 7C):** `fit_calibration` bounds 0 < L <= 1 (the full-sample fit lands on L = 1.000, k = 0.1688, P0 = 34.8, RMSE 0.0612, unchanged); the 27 wind-only months are kept; `calibration.bootstrap_calibration_ci` quantifies the extrapolation uncertainty (see `docs/task9_calibration_report.md`). **Stage 3 must propagate that uncertainty (requirement below).** Historical record of the question follows.
+
+Logged after Task 9. (Numbered 1.3g because 1.3f is the ANEEL fallback section.)
 
 - The saved logistic fit on the D20 basis (57 monthly points 2022-01..2026-09, P 10.3-29.4 %) has L = 1.254, k = 0.164, P0 = 36.8: L > 1 means curtailment above 100 % at high P, which is physically impossible (C(60 %) = 1.23).
 - Constraining L <= 1 does not worsen the in-sample RMSE (0.0612 in both cases): the data do not discriminate between the two, they only constrain the curve below P ~ 30 %.
@@ -295,6 +297,12 @@ Acceptance:
   produces a valid DataQualityReport JSON.
 - Commit message should reference "Stage 1 complete".
 ```
+
+---
+
+### STAGE 3 REQUIREMENT (from D21) — propagate calibration uncertainty
+
+When Stage 3 (PTE scenario application, `projection.py` wiring; a future task) computes C_hat(s,t) and the curtailed energy, it MUST NOT report point estimates alone for 2040 and 2050 (P = 36-58 %, outside the calibration range 10.3-29.4 %). Required: (1) carry the bootstrap interval of C(P) (`calibration.bootstrap_calibration_ci`, 95 % percentile, 1000 resamples) through E_curt and the mitigation deficit, so every 2040/2050 figure has a lower/upper bound; (2) show the solar-only-months fit as a structural sensitivity (C(50) 0.60 vs 0.93 for the all-months fit); (3) state that the interval covers sampling uncertainty only, not the logistic form. Reference: D21, `docs/task9_calibration_report.md`. Not implemented yet by design.
 
 ---
 

@@ -53,20 +53,46 @@ Reading:
 
 The scope-consistent rates remain 0.01 / 0.15 / 0.27 / 0.54 pp below ONS's published values for 2022-2025 (about 3-4 % relative in 2023-2025). The numerators agree with ONS, so the difference sits in the potential-generation denominator, whose ONS definition was not reconstructed. The 2025 ONS figure (~20.7 %) is a secondary-source citation (Ensaio Energetico), not an ONS primary publication, so the 2025 residual cannot be fully attributed. Also recorded in `docs/methodology.md` section 3.7.
 
-## Fit (`processed/calibration_params.json`, `processed/calibration_frame.parquet`)
+## Fit (`processed/calibration_params.json`, `processed/calibration_frame.parquet`) - final, D21 (Task 7C)
 
-Input: 57 complete months 2022-01..2026-09 (27 wind-only, 30 wind+solar), P(s,t) from 10.3 % to 29.4 %, C from 0 to 29.7 %.
+Input: 57 complete months 2022-01..2026-09 (27 wind-only, 30 wind+solar), P(s,t) 10.3-29.4 %, C 0-29.7 %. `fit_calibration` now bounds 0 < L <= 1 and k > 0 (P0 free).
 
 | Fit | L | k | P0 | in-sample RMSE |
 |---|---:|---:|---:|---:|
-| Primary (saved), unconstrained, all 57 months | 1.254 | 0.1635 | 36.77 | 0.0612 |
-| Sensitivity, 30 wind+solar months only (not saved) | 2,235.6 | 0.0652 | 169.3 | 0.0601 |
-| Diagnostic only, `L <= 1` bound, all 57 months | 1.000 | 0.1688 | 34.82 | 0.0612 |
-| Diagnostic only, `L <= 1` bound, 30 wind+solar months | 1.000 | 0.0765 | 44.45 | 0.0603 |
+| **Final (saved): bounded L, all 57 months** | **1.000 (on the bound)** | 0.1688 | 34.82 | 0.06123 |
+| Superseded: unconstrained, all 57 months | 1.254 | 0.1635 | 36.77 | 0.0612 |
+| Sensitivity: bounded L, 30 wind+solar months | 1.000 (on the bound) | 0.0765 | 44.45 | 0.06026 |
+| Superseded: unconstrained, 30 wind+solar months | 2,235.6 | 0.0652 | 169.3 | 0.0601 |
 
-**The logistic is not well identified by the observed range.** All the data sit below P = 29.4 %, but P0 is 35-44 % (and 169 % in the unbounded sensitivity). The saved primary fit has L = 1.25, i.e. a curtailment fraction above 100 % at high P (C(60 %) = 1.226), which is unphysical; with `L <= 1` the in-sample fit is the same (RMSE 0.0612) but C(30 %) = 0.31, C(40 %) = 0.71, C(60 %) = 0.99, while the wind+solar-only bounded fit gives 0.25 / 0.42 / 0.77: the extrapolation to PTE penetrations is very sensitive to this choice. I did not change `fit_calibration` (no bounds, as before); whether to bound L at 1 (and how to treat the mixed wind-only / wind+solar scope) is a methodological decision for you, since it drives Stage 3.
+RMSE with the bound is materially the same as without it (0.06123 vs 0.0612). L is bounded, not fixed, and it ends exactly at 1: the data do not support a plateau below 100 %; they simply do not reach it. In-sample RMSE (6 pp) is large because monthly C is noisy (hydrology, transmission, demand) while the fit uses P only.
 
-In-sample RMSE (6 pp) is large because monthly C is noisy (it depends on hydrology, transmission and demand as well as P); the fit uses P only, as designed.
+### C(P) at the PTE exposure points (bounded fits)
+
+| P (%) | 29.4 (last observed) | 36 | 40 | 44 | 47 | 50 | 58 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| All 57 months (final) | 0.286 | 0.550 | 0.706 | 0.825 | 0.887 | 0.928 | 0.980 |
+| 30 solar months only | 0.240 | 0.344 | 0.416 | 0.491 | 0.549 | 0.604 | 0.738 |
+
+### Check on the wind-only months (Task 7C, part B)
+
+- With L bounded, the 30 solar-coverage months **do not degenerate**: L = 1, k = 0.0765, P0 = 44.5, RMSE 0.0603. The earlier degenerate result (L = 2,236, P0 = 169) was caused by the missing bound. The expected finding "still degenerates" did **not** occur.
+- P span of the 30 solar months: **15.1-29.4 %** (14.3 pp). The 27 wind-only months span 10.3-23.5 %; the full frame spans 10.3-29.4 % (19.1 pp). The solar window therefore lacks the low-P tail (C near 0) and has the same upper end.
+- Both fits put P0 beyond the observed maximum, so neither identifies the upper curve. They disagree outside the data: C(50) = 0.93 (all months) vs 0.60 (solar only), and the all-months point estimate lies outside the solar-only 95 % interval for P >= 40 (table below).
+- Conclusion: excluding the wind-only months is **not shown to be statistically unsupportable** by degeneracy; it is a materially different model choice that discards 27 of 57 points and the low-P anchor. The all-months fit is kept (D21) with the solar-only fit reported as a sensitivity. Residual limitation: the wind-only months are left-censored for solar curtailment (small, uncorrected, not measured).
+
+### Bootstrap 95 % interval of C(P) (1000 resamples of the frame, bounded refit each time, seed 0; 0 failed refits)
+
+| P (%) | All 57 months: point | lo | hi | width | 30 solar months: point | lo | hi | width |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 29.4 | 0.286 | 0.211 | 0.341 | 0.130 | 0.240 | 0.176 | 0.283 | 0.107 |
+| 36 | 0.550 | 0.236 | 0.682 | 0.445 | 0.344 | 0.182 | 0.470 | 0.288 |
+| 40 | 0.706 | 0.240 | 0.841 | 0.601 | 0.416 | 0.182 | 0.597 | 0.414 |
+| 44 | 0.825 | 0.241 | 0.929 | 0.688 | 0.491 | 0.182 | 0.714 | 0.532 |
+| 47 | 0.887 | 0.241 | 0.963 | 0.722 | 0.549 | 0.182 | 0.787 | 0.605 |
+| 50 | 0.928 | 0.241 | 0.981 | 0.740 | 0.604 | 0.182 | 0.844 | 0.662 |
+| 58 | 0.980 | 0.241 | 0.997 | 0.756 | 0.738 | 0.182 | 0.936 | 0.754 |
+
+Width grows from 0.13 at the last observed P (29.4 %) to 0.45 at 36 % and 0.74-0.76 at 50-58 % (TA 2050 exposure), i.e. about 6x. It saturates beyond ~50 % because C is confined to [0, 1] (the lower bound sits at ~0.24 because some resamples give a flat low curve), not because the extrapolation becomes safe. The interval covers sampling uncertainty only, not the logistic functional form. Stored in `processed/calibration_ci_bootstrap.parquet` (all-months). **Stage 3 must propagate this interval** (section "STAGE 3 REQUIREMENT" of `claude_commands.md`); it is not wired into `projection.py` or `mitigation.py`.
 
 ## Extrapolation exposure (read-only diagnostic, PTE table values from config/scenarios.yaml; no fit decision taken)
 
@@ -82,7 +108,7 @@ P = solar_pct + wind_pct (%). Observed calibration range: 10.3-29.4 %.
 
 ## Tests
 
-`pytest -v -m "not integration"`: 210 before, **231 passed** after (9 deselected integration tests, including the new live ones for the baseline values and for the real-data calibration). New or updated: `tests/test_ons_generation.py` (D20 basis, hour/month mismatch failures, missing config, baseline independence), `tests/test_calibration_d20.py` (frame, rates in closed form, balance-basis refusal, end-to-end fit), `tests/test_ons_solar_gap.py` (matched energy, loader, builder).
+`pytest -v -m "not integration"`: 210 before, **231 passed** after Task 9 and **236 passed** after Task 7C (bounded fit and bootstrap tests) (9 deselected integration tests, including the new live ones for the baseline values and for the real-data calibration). New or updated: `tests/test_ons_generation.py` (D20 basis, hour/month mismatch failures, missing config, baseline independence), `tests/test_calibration_d20.py` (frame, rates in closed form, balance-basis refusal, end-to-end fit), `tests/test_ons_solar_gap.py` (matched energy, loader, builder).
 
 ## Notes
 

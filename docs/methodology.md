@@ -117,6 +117,12 @@ denominator) and (b) the potential-generation denominator (realized + curtailed)
 plants; it is documented and not material because ONS curtailment data (wind from 2022-01, solar from 2024-04) leaves this window
 with no curtailment to be mis-scaled in the solar term, and the dispatched series is used there too.
 
+**Bounds and uncertainty (D21).** The logistic upper asymptote is bounded to 0 < L <= 1 in `fit_calibration` (a curtailment fraction cannot exceed 100 %).
+The calibration range is P = 10.3-29.4 %; PTE 2040/2050 lie outside it, so C(P) there is an extrapolation. A percentile bootstrap of the fit
+(`bootstrap_calibration_ci`) quantifies its sampling uncertainty (not the functional-form uncertainty), and Stage 3 must carry it into the reported
+mitigation-deficit figures. The wind-only months (no solar curtailment published before 2024-04) stay in the calibration; their small left-censoring bias is a
+documented, uncorrected limitation.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}

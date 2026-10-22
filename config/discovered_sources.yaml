@@ -469,24 +469,38 @@ decisions:
     implemented_in: "commit 224ad96 (Task 9: ons_generation.py P(t) tables, ons_solar_gap.py, calibration.py wiring); report docs/task9_calibration_report.md"
 
   D21:
-    status: "pending (not adopted)"
+    status: adopted
     date: "2026-10-23"
-    topic: "Calibration curve identifiability: unbounded L and the treatment of wind-only months"
-    source_task: "Task 9 (docs/task9_calibration_report.md)"
+    topic: "Calibration curve: L bounded to (0, 1]; wind-only months kept; bootstrap uncertainty mandatory for Stage 3"
+    source_task: "Task 9 (docs/task9_calibration_report.md), resolved in Task 7C"
     found: >
-      The logistic C(P) fitted on the D20 basis (57 monthly points 2022-01..2026-09, P 10.3-29.4 percent) gives L=1.254, k=0.164, P0=36.8,
-      i.e. curtailment above 100 percent at high P (C(60)=1.23), which is physically impossible. Constraining L<=1 leaves the in-sample
-      RMSE unchanged (0.0612), so the data do not discriminate. Including vs excluding the 27 wind-only months (2022-01..2024-03) changes
-      the extrapolated C(40) from 0.71 to 0.42 (L<=1 bounded fits); the wind+solar-only unbounded fit degenerates (L=2236, P0=169).
-    extrapolation_exposure: >
-      PTE scenario penetration (solar_pct + wind_pct at the table years, read from config/scenarios.yaml; observed calibration maximum is
-      29.4 percent): TB 26 / 29 / 36 / 50 percent, TA 26 / 29 / 44 / 58 percent, TG 26 / 28 / 39 / 47 percent for 2025 / 2030 / 2040 / 2050.
-      2025-2030 lie inside the observed range; 2040 and 2050 lie outside it in every scenario, so the unresolved choice drives the Stage 3 results.
-    open_subquestions:
-      a: "Constrain L<=1 in fit_calibration?"
-      b: "Treat wind-only months in the calibration frame: include as-is, downweight, or fit separately from solar months?"
-    decided: "nothing; to be decided before Stage 3 (not before Task 8)"
-    fit_calibration_changed: false
+      The unconstrained logistic on the D20 basis (57 monthly points 2022-01..2026-09, P 10.3-29.4 percent) gave L=1.254, i.e. curtailment above
+      100 percent at high P (C(60)=1.23). The constrained fit has the same RMSE, so the data do not discriminate. Including vs excluding the
+      27 wind-only months moves the extrapolated C(50) from 0.93 to 0.60. PTE scenario penetration is 26-29 percent in 2025-2030 (inside the
+      observed range) and 36-58 percent in 2040-2050 (outside it in every scenario).
+    decided_L: >
+      fit_calibration bounds 0 < L <= 1 (bounded, not fixed) and k > 0. Rationale: L is a curtailment fraction, so L > 1 is physically impossible;
+      the in-sample RMSE is unchanged (0.06123 vs 0.0612), so the bound removes the impossibility at no cost in fit. The bounded full-sample fit
+      lands ON the bound (L = 1.000, k = 0.1688, P0 = 34.82): the data do not support a plateau below 100 percent, they just do not reach it.
+    decided_wind_only_months: >
+      The 27 wind-only months stay in the calibration frame as they are (scope flag kept). The Task 7C check did NOT show that excluding them is
+      statistically unsupportable in the sense of a degenerate fit: with L bounded, the 30 solar-coverage months (P 15.1-29.4) give a
+      well-behaved fit (L=1, k=0.0765, P0=44.5, RMSE 0.0603), no longer the degenerate L=2236 / P0=169 of the unconstrained run. What does hold is
+      that the two choices disagree materially outside the data (C(50) 0.93 vs 0.60; the all-months point estimate lies outside the solar-only 95
+      percent interval for P >= 40) and that both place P0 beyond the observed range, so neither identifies the upper part of the curve. The
+      all-months fit is kept because it uses every measured month (57 vs 30) and anchors the low-P tail (P 10-15 percent, C near 0), which the
+      solar-only window (15.1-29.4) lacks. The solar-only fit is reported next to it as a structural sensitivity (docs/task9_calibration_report.md).
+    unresolved_residual_limitation: >
+      The wind-only months have left-censored curtailment (solar curtailment unpublished before 2024-04, D14), which biases their C slightly low at a
+      given P. The absolute size of this bias is small because solar capacity was lower in 2022-2024 (D14 corroboration: 3.3 GW in 2020, 7.5 GW in 2022,
+      17.2 GW in 2024). Documented, not corrected. The size of the bias was not measured.
+    stage3_requirement: >
+      Stage 3 (PTE scenario application, a future task) MUST propagate the calibration uncertainty into the reported mitigation-deficit figures,
+      most of all for 2040 and 2050, instead of using point estimates alone: use bootstrap_calibration_ci (calibration.py) and also show the
+      solar-only sensitivity. Bootstrap (1000 resamples of the 57-month frame, 95 percent percentile interval) is reported in
+      docs/task9_calibration_report.md and stored in processed/calibration_ci_bootstrap.parquet. Width of the C interval: 0.13 at P=29.4, 0.45 at 36,
+      0.74 at 50, 0.76 at 58 (it saturates because C is confined to [0, 1]). The interval covers sampling uncertainty only, not the logistic form.
+    implemented_in: "Task 7C: calibration.fit_calibration (bounds), calibration.bootstrap_calibration_ci"
 
 ben_cross_check:
   status: reference_only
