@@ -26,7 +26,7 @@
 A significant portion of this project was pre-built locally (pure math/config/
 validation logic, zero open methodological questions) to reduce Claude Code's
 token usage, plus real Claude Code sessions (Tasks 2, 2B, 3, 4, 5, 6) that did live
-API discovery and acquisition. Full test suite currently: **236 passed, 0 failed**
+API discovery and acquisition. Full test suite currently: **240 passed, 0 failed**
 (`pytest -v -m "not integration"`).
 
 ### 1.1 Shared infrastructure (pre-built, tested)
@@ -112,7 +112,7 @@ PENDING DECISION FOR TASK 9: our computed curtailment-rate percentages (0.43% / 
 
 ### 1.3g RESOLVED (D21) — calibration curve identifiability
 
-**RESOLVED by D21 (adopted 2026-10-23, Task 7C):** `fit_calibration` bounds 0 < L <= 1 (the full-sample fit lands on L = 1.000, k = 0.1688, P0 = 34.8, RMSE 0.0612, unchanged); the 27 wind-only months are kept; `calibration.bootstrap_calibration_ci` quantifies the extrapolation uncertainty (see `docs/task9_calibration_report.md`). **Stage 3 must propagate that uncertainty (requirement below).** Historical record of the question follows.
+**RESOLVED by D21 (adopted 2026-10-23, Task 7C), structural part superseded by D22 (Task 7D: two curves, C_wind and C_solar):** `fit_calibration` bounds 0 < L <= 1 (the full-sample fit lands on L = 1.000, k = 0.1688, P0 = 34.8, RMSE 0.0612, unchanged); the 27 wind-only months are kept; `calibration.bootstrap_calibration_ci` quantifies the extrapolation uncertainty (see `docs/task9_calibration_report.md`). **Stage 3 must propagate that uncertainty (requirement below).** Historical record of the question follows.
 
 Logged after Task 9. (Numbered 1.3g because 1.3f is the ANEEL fallback section.)
 
@@ -300,9 +300,14 @@ Acceptance:
 
 ---
 
-### STAGE 3 REQUIREMENT (from D21) — propagate calibration uncertainty
+### STAGE 3 REQUIREMENT (from D21, updated by D22) - two curves, propagated uncertainty
 
-When Stage 3 (PTE scenario application, `projection.py` wiring; a future task) computes C_hat(s,t) and the curtailed energy, it MUST NOT report point estimates alone for 2040 and 2050 (P = 36-58 %, outside the calibration range 10.3-29.4 %). Required: (1) carry the bootstrap interval of C(P) (`calibration.bootstrap_calibration_ci`, 95 % percentile, 1000 resamples) through E_curt and the mitigation deficit, so every 2040/2050 figure has a lower/upper bound; (2) show the solar-only-months fit as a structural sensitivity (C(50) 0.60 vs 0.93 for the all-months fit); (3) state that the interval covers sampling uncertainty only, not the logistic form. Reference: D21, `docs/task9_calibration_report.md`. Not implemented yet by design.
+Stage 3 (PTE scenario application, `projection.py` wiring; a future task) MUST use the two technology-specific curves of D22 separately, never a single combined curve:
+(1) for each scenario/year, curtailed wind = `wind_gen` x `C_wind(P)` and curtailed solar = `solar_gen` x `C_solar(P)`, with each technology's own projected generation (PTE shares) and the scenario's combined P = solar_pct + wind_pct; the total is the sum, and the mitigation deficit is computed from it;
+(2) each curve carries its own bootstrap 95 % interval (`calibration.bootstrap_calibration_ci`, 1000 resamples; stored in `processed/calibration_ci_wind.parquet` and `calibration_ci_solar.parquet`), and every 2040/2050 figure (P = 36-58 %, outside the calibration range 10.3-29.4 % for both curves) must be reported with lower/upper bounds instead of a point estimate alone;
+(3) state that the intervals cover sampling uncertainty only, not the logistic functional form;
+(4) the combined single curve (`calibration_params_combined_diagnostic.json`) is a non-primary diagnostic and must not feed Stage 3 deficits.
+Reference: D21, D22, `docs/task9_calibration_report.md`. Not implemented yet by design.
 
 ---
 

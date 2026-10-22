@@ -53,7 +53,40 @@ Reading:
 
 The scope-consistent rates remain 0.01 / 0.15 / 0.27 / 0.54 pp below ONS's published values for 2022-2025 (about 3-4 % relative in 2023-2025). The numerators agree with ONS, so the difference sits in the potential-generation denominator, whose ONS definition was not reconstructed. The 2025 ONS figure (~20.7 %) is a secondary-source citation (Ensaio Energetico), not an ONS primary publication, so the 2025 residual cannot be fully attributed. Also recorded in `docs/methodology.md` section 3.7.
 
-## Fit (`processed/calibration_params.json`, `processed/calibration_frame.parquet`) - final, D21 (Task 7C)
+## Two-curve calibration (D22, Task 7D) - PRIMARY
+
+D22 splits the calibration into C_wind(P) and C_solar(P), both functions of the same P = solar_pct + wind_pct. Wind frame: every complete month from 2022-01 (57 months), dependent variable = wind curtailed / (wind generation + wind curtailed). Solar frame: the 30 months with published solar curtailment (2024-04..2026-09), dependent variable = solar curtailed / (dispatched solar + solar curtailed) (D20). Same P per month in both. Bounded fit (0 < L <= 1, k > 0), 1000-resample bootstrap each (seed 0, no failed refits). Files: `processed/calibration_params_{wind,solar}.json`, `calibration_ci_{wind,solar}.parquet`, `calibration_frame.parquet`.
+
+| Curve | Months | Observed P range (%) | L | k | P0 | RMSE | C range observed |
+|---|---:|---|---:|---:|---:|---:|---|
+| **C_wind** | 57 | 10.3-29.4 | 1.000 (on bound) | 0.1669 | 35.57 | 0.0577 | 0-0.290 |
+| **C_solar** | 30 | 15.1-29.4 | 1.000 (on bound) | 0.0899 | 37.74 | 0.0671 | 0.028-0.365 |
+
+Both curves hit the L = 1 bound and place P0 beyond the observed range; P = 29.4 % is the last observed point of both, so every exposure point above it is an **extrapolation for both curves** (29.4 % itself is interpolation, at the edge). The wind and solar frames therefore differ in their lower end only (10.3 vs 15.1 %).
+
+C(P) with the bootstrap 95 % interval (point [lo, hi]):
+
+| P (%) | Regime | C_wind | C_solar |
+|---|---|---|---|
+| 29.4 | edge of range | 0.263 [0.188, 0.320] | 0.321 [0.242, 0.368] |
+| 36 | extrapolation | 0.518 [0.208, 0.672] | 0.461 [0.268, 0.570] |
+| 40 | extrapolation | 0.677 [0.210, 0.834] | 0.551 [0.270, 0.691] |
+| 44 | extrapolation | 0.803 [0.211, 0.925] | 0.637 [0.270, 0.792] |
+| 47 | extrapolation | 0.871 [0.211, 0.960] | 0.697 [0.271, 0.851] |
+| 50 | extrapolation | 0.918 [0.211, 0.980] | 0.751 [0.271, 0.894] |
+| 58 | extrapolation | 0.977 [0.211, 0.997] | 0.861 [0.271, 0.961] |
+
+Interval width: C_wind 0.131 at 29.4 % -> 0.463 at 36 % -> 0.769 at 50 % -> 0.786 at 58 %; C_solar 0.126 -> 0.302 -> 0.623 -> 0.690. As in Task 7C the width saturates because C is confined to [0, 1] (the lower limits stay near 0.21 and 0.27); this is not a sign that the extrapolation is safe. The intervals cover sampling uncertainty only, not the logistic form.
+
+Reading: the two technologies respond differently to the same P: solar curtailment is higher at the edge of the data (0.32 vs 0.26) but grows more slowly (k 0.09 vs 0.17), so beyond ~36 % C_wind exceeds C_solar. The earlier single curve sat between them. The solar curve rests on 30 monthly points from a short, fast-growing period.
+
+Combination rule for Stage 3 (documented, not implemented): curtailed wind = wind_gen x C_wind(P); curtailed solar = solar_gen x C_solar(P); each technology's own projected generation, the scenario's combined P; total = sum. Stage 3 must report 2040/2050 with the intervals above (`claude_commands.md`, STAGE 3 REQUIREMENT).
+
+Retained non-primary diagnostic: the combined single curve (all 57 months, total-VRE rate with the scope-consistent definition) reproduces the Task 7C numbers exactly (L = 1.000, k = 0.1688, P0 = 34.82, RMSE 0.0612; `calibration_params_combined_diagnostic.json`, `calibration_ci_combined_diagnostic.parquet`). Its mixed dependent variable (wind-only rate in 27 months, wind+solar in 30) is the reason it is not used for deficits; it is kept to compare with ONS's combined published rates.
+
+*The sections below record the Task 7C single-curve analysis that D22 supersedes as the primary calibration; they now describe the diagnostic curve.*
+
+## Fit (single combined curve, diagnostic after D22) - D21 (Task 7C)
 
 Input: 57 complete months 2022-01..2026-09 (27 wind-only, 30 wind+solar), P(s,t) 10.3-29.4 %, C 0-29.7 %. `fit_calibration` now bounds 0 < L <= 1 and k > 0 (P0 free).
 
@@ -108,7 +141,7 @@ P = solar_pct + wind_pct (%). Observed calibration range: 10.3-29.4 %.
 
 ## Tests
 
-`pytest -v -m "not integration"`: 210 before, **231 passed** after Task 9 and **236 passed** after Task 7C (bounded fit and bootstrap tests) (9 deselected integration tests, including the new live ones for the baseline values and for the real-data calibration). New or updated: `tests/test_ons_generation.py` (D20 basis, hour/month mismatch failures, missing config, baseline independence), `tests/test_calibration_d20.py` (frame, rates in closed form, balance-basis refusal, end-to-end fit), `tests/test_ons_solar_gap.py` (matched energy, loader, builder).
+`pytest -v -m "not integration"`: 210 before, **231 passed** after Task 9 and **236 passed** after Task 7C (bounded fit and bootstrap tests) and **240 passed** after Task 7D (two-curve frames and fits) (9 deselected integration tests, including the new live ones for the baseline values and for the real-data calibration). New or updated: `tests/test_ons_generation.py` (D20 basis, hour/month mismatch failures, missing config, baseline independence), `tests/test_calibration_d20.py` (frame, rates in closed form, balance-basis refusal, end-to-end fit), `tests/test_ons_solar_gap.py` (matched energy, loader, builder).
 
 ## Notes
 

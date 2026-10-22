@@ -86,7 +86,7 @@ def test_annual_rates_closed_form_and_scope_handling():
     assert r.rate_scope_consistent > r.rate_combined_all_months  # Jan-Mar solar kept out of the denominator
 
 
-def write_inputs(tmp_path, months, solar_basis="dispatched"):
+def write_inputs(tmp_path, months, solar_basis="dispatched", solar_from=None):
     interim, processed = tmp_path / "interim", tmp_path / "processed"
     interim.mkdir()
     processed.mkdir()
@@ -102,18 +102,60 @@ def write_inputs(tmp_path, months, solar_basis="dispatched"):
         curtailed = wind_gen * true_c / (1 - true_c)
         ts += [{"timestamp": pd.Timestamp(year=year, month=month, day=1), "curtailed_energy_mwh": 0.0, "source": "wind"},
                {"timestamp": last, "curtailed_energy_mwh": curtailed, "source": "wind"}]
+        if solar_from is not None and (year, month) >= solar_from:
+            solar_gen = float(pen.set_index(["year", "month"]).loc[(year, month), "solar_mwh"])
+            c_s = 0.6 / (1 + np.exp(-0.2 * (p - 28)))
+            ts += [{"timestamp": pd.Timestamp(year=year, month=month, day=1), "curtailed_energy_mwh": 0.0, "source": "solar"},
+                   {"timestamp": last, "curtailed_energy_mwh": solar_gen * c_s / (1 - c_s), "source": "solar"}]
     pd.DataFrame(ts).to_parquet(interim / cal.CURTAILMENT_RAW_FILENAME, index=False)
     return interim, processed
 
 
-def test_run_calibration_end_to_end_on_synthetic_data(tmp_path):
+def test_technology_frames_share_P_and_differ_in_dependent_variable_and_window():
+    pen = pen_rows(MONTHS)
+    frame = cal.build_calibration_frame(pen, curt_rows(MONTHS, 100_000.0, 50_000.0, solar_from=(2024, 4)))
+    wind, solar = cal.build_technology_frames(frame)
+    assert len(wind) == 4 and len(solar) == 2  # wind: every month; solar: only the months with published solar curtailment
+    assert list(solar.month) == [4, 5]
+    merged = wind.merge(solar, on=["year", "month"], suffixes=("_w", "_s"))
+    assert (merged.P_w == merged.P_s).all()  # the same combined P drives both curves
+    feb = wind[wind.month == 2].iloc[0]  # a former "wind-only" month: pure wind rate, no solar anywhere in it
+    assert feb.C == pytest.approx(100_000 / (6000 * 696 + 100_000))
+    apr_w, apr_s = wind[wind.month == 4].iloc[0], solar[solar.month == 4].iloc[0]
+    assert apr_w.C == pytest.approx(100_000 / (6000 * 720 + 100_000))  # wind rate excludes solar even when solar curtailment exists
+    assert apr_s.C == pytest.approx(50_000 / (1500 * 720 + 50_000))  # dispatched solar (D20) in the solar denominator
+
+
+def test_technology_frames_fail_without_solar_curtailment():
+    frame = cal.build_calibration_frame(pen_rows(MONTHS), curt_rows(MONTHS, 100_000.0))
+    with pytest.raises(cal.CalibrationDataError, match="solar calibration frame is empty"):
+        cal.build_technology_frames(frame)
+
+
+def test_curve_regime_labels_interpolation_vs_extrapolation():
+    curve = cal.TechnologyCurve("x", None, 0.0, 10, 15.1, 29.4)
+    assert curve.regime(20.0) == "interpolation" and curve.regime(29.4) == "interpolation" and curve.regime(36.0) == "extrapolation" and curve.regime(10.0) == "extrapolation"
+
+
+def test_run_calibration_end_to_end_two_curves_plus_diagnostic(tmp_path):
     months = [(2022, m) for m in range(1, 13)] + [(2023, m) for m in range(1, 13)]
-    interim, processed = write_inputs(tmp_path, months)
-    out = cal.run_calibration(interim, processed)
-    assert (processed / cal.CALIBRATION_PARAMS_FILENAME).exists() and (processed / cal.CALIBRATION_FRAME_FILENAME).exists()
-    assert out["calibration"].n_calibration_points == 24 and out["sensitivity_wind_solar_only"] is None  # no solar curtailment in this fixture
-    assert cal.load_calibration(processed / cal.CALIBRATION_PARAMS_FILENAME).params.keys() == {"L", "k", "P0"}
-    assert set(out["annual_rates"].year) == {2022, 2023}
+    interim, processed = write_inputs(tmp_path, months, solar_from=(2023, 1))
+    out = cal.run_calibration(interim, processed, n_boot=10)
+    assert out.wind.n_months == 24 and out.solar.n_months == 12 and out.combined_diagnostic.n_months == 24
+    assert out.wind.primary and out.solar.primary and not out.combined_diagnostic.primary
+    for name in ("wind", "solar", "combined_diagnostic"):
+        assert cal.load_calibration(processed / cal.CALIBRATION_PARAMS_FILENAME.format(name=name)).params.keys() == {"L", "k", "P0"}
+        assert (processed / cal.CALIBRATION_CI_FILENAME.format(name=name)).exists()
+    assert not (processed / "calibration_params.json").exists()  # the single-curve file is gone: no accidental use as primary
+    for curve in (out.wind, out.solar, out.combined_diagnostic):
+        assert 0 < curve.calibration.params["L"] <= 1.0 and len(curve.ci) == len(cal.EXPOSURE_P_VALUES)
+    assert out.solar.p_min >= out.wind.p_min and set(out.annual_rates.year) == {2022, 2023}
+
+
+def test_run_calibration_without_solar_curtailment_fails_explicitly(tmp_path):
+    interim, processed = write_inputs(tmp_path, [(2022, m) for m in range(1, 13)])
+    with pytest.raises(cal.CalibrationDataError, match="solar calibration frame is empty"):
+        cal.run_calibration(interim, processed)
 
 
 def test_run_calibration_refuses_balance_basis_inputs(tmp_path):
@@ -152,6 +194,7 @@ def test_live_calibration_on_real_database_root():
     if not (get_interim_dir() / cal.CURTAILMENT_RAW_FILENAME).exists() or not (get_processed_dir() / cal.PENETRATION_MONTHLY_FILENAME).exists():
         pytest.skip("Stage 1 outputs not present")
     out = cal.run_calibration()
-    frame = out["frame"]
-    assert len(frame) > 24 and (frame.C >= 0).all() and (frame.C < 1).all()
-    assert out["calibration"].params["L"] > 0
+    assert len(out.wind_frame) >= 57 and len(out.solar_frame) >= 30
+    for curve in (out.wind, out.solar):
+        assert 0 < curve.calibration.params["L"] <= 1.0 and curve.p_max < 40
+    assert (out.wind_frame.C.between(0, 1)).all() and (out.solar_frame.C.between(0, 1)).all()

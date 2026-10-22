@@ -500,7 +500,39 @@ decisions:
       solar-only sensitivity. Bootstrap (1000 resamples of the 57-month frame, 95 percent percentile interval) is reported in
       docs/task9_calibration_report.md and stored in processed/calibration_ci_bootstrap.parquet. Width of the C interval: 0.13 at P=29.4, 0.45 at 36,
       0.74 at 50, 0.76 at 58 (it saturates because C is confined to [0, 1]). The interval covers sampling uncertainty only, not the logistic form.
+    superseded_in_part_by: >
+      D22 (Task 7D). The L <= 1 bound and the bootstrap requirement of this decision still apply, now PER CURVE (C_wind and C_solar). The
+      structural-divergence question (wind-only months) is resolved by D22's two-curve split, not by keeping the 27 wind-only months inside a
+      single combined curve as decided in 'decided_wind_only_months' above; that paragraph and the combined bootstrap numbers are kept as the
+      record of the non-primary diagnostic curve.
     implemented_in: "Task 7C: calibration.fit_calibration (bounds), calibration.bootstrap_calibration_ci"
+
+  D22:
+    status: adopted
+    date: "2026-10-23"
+    topic: "Two technology-specific curtailment curves, C_wind(P) and C_solar(P), on the shared driver P = solar_pct + wind_pct"
+    source_task: "Task 7D; supersedes the 'bracketing two alternative fits' direction drafted after Task 7C Part B (never implemented)"
+    found: >
+      Task 7C Part B showed that the combined single-curve fit diverges materially depending on whether the 27 months before solar curtailment
+      is published (2022-01..2024-03) are included (C(50) 0.93 vs 0.60). Cause (scope mismatch in the dependent variable): in those 27 months the
+      frame's C is a WIND-only rate (solar curtailment is unmeasured, D14), while in the other 30 months it is a combined wind+solar rate. One
+      logistic then mixes two different quantities. (The frame's denominators in the 27 months already excluded solar; the mismatch is in what
+      C measures, not in a solar term inside the wind denominator.)
+    decided: >
+      Two independent logistic curves (bounded 0 < L <= 1, k > 0, as in D21), both functions of the SAME combined penetration
+      P = solar_pct + wind_pct (project modeling spec unchanged; no curve is fit against its own technology share alone).
+      C_wind(P): dependent variable = wind curtailed energy / (wind generation + wind curtailed), window = all 57 complete months from 2022-01.
+      C_solar(P): dependent variable = solar curtailed energy / (dispatched solar generation + solar curtailed) (D20 basis), window = the 30
+      months with published solar curtailment (2024-04 onward, D14 floor). Combination rule for Stage 3 (documented, not yet implemented):
+      curtailed wind = wind_gen x C_wind(P), curtailed solar = solar_gen x C_solar(P), each technology's own projected generation and the
+      scenario's combined P; total = sum. The earlier single combined curve (all 57 months, total VRE rate) is retained ONLY as a non-primary
+      diagnostic for comparison with ONS's combined rate and must not be used for Stage 3 deficits.
+    does_not_alter: "D16 (PTE vs ONS basis), D20 (dispatched-solar basis), and the core P(s,t) = solar_pct + wind_pct architecture."
+    results: "docs/task9_calibration_report.md (section 'Two-curve calibration')"
+    caveat: >
+      Both curves still end at the same observed maximum P (29.4 percent) and place P0 beyond it, so every PTE point above 29.4 percent is an
+      extrapolation for both curves; the bootstrap interval (sampling uncertainty only) must be propagated by Stage 3 (D21).
+    implemented_in: "Task 7D: calibration.build_technology_frames, TechnologyCurve, CalibrationResult, run_calibration"
 
 ben_cross_check:
   status: reference_only

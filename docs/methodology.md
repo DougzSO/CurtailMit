@@ -117,11 +117,16 @@ denominator) and (b) the potential-generation denominator (realized + curtailed)
 plants; it is documented and not material because ONS curtailment data (wind from 2022-01, solar from 2024-04) leaves this window
 with no curtailment to be mis-scaled in the solar term, and the dispatched series is used there too.
 
-**Bounds and uncertainty (D21).** The logistic upper asymptote is bounded to 0 < L <= 1 in `fit_calibration` (a curtailment fraction cannot exceed 100 %).
-The calibration range is P = 10.3-29.4 %; PTE 2040/2050 lie outside it, so C(P) there is an extrapolation. A percentile bootstrap of the fit
-(`bootstrap_calibration_ci`) quantifies its sampling uncertainty (not the functional-form uncertainty), and Stage 3 must carry it into the reported
-mitigation-deficit figures. The wind-only months (no solar curtailment published before 2024-04) stay in the calibration; their small left-censoring bias is a
-documented, uncorrected limitation.
+**Two technology-specific curves (D22).** The curtailment function is split into C_wind(P) and C_solar(P). Both are logistic functions of the same
+combined penetration P = solar_pct + wind_pct; they differ in the dependent variable (the technology's own curtailment rate, curtailed / (generation
++ curtailed), solar on the D20 dispatched basis) and in the fitting window (wind: all 57 complete months from 2022-01; solar: the 30 months with published
+solar curtailment, 2024-04 onward). A single combined curve would mix a wind-only rate (27 months) with a wind+solar rate (30 months). For a scenario/year,
+curtailed wind = wind_gen x C_wind(P) and curtailed solar = solar_gen x C_solar(P), summed. The earlier combined curve is kept only as a non-primary diagnostic.
+
+**Bounds and uncertainty (D21).** Each upper asymptote is bounded to 0 < L <= 1 in `fit_calibration` (a curtailment fraction cannot exceed 100 %).
+The calibration range is P = 10.3-29.4 %; PTE 2040/2050 lie outside it for both curves, so C(P) there is an extrapolation. A percentile bootstrap of each fit
+(`bootstrap_calibration_ci`) quantifies its sampling uncertainty (not the functional-form uncertainty), and Stage 3 must carry both intervals into the reported
+mitigation-deficit figures.
 
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
@@ -198,6 +203,10 @@ other stage (D10).
   ONS-confirmed statement for that field. A smaller non-zero gap (89-197 MWmed) exists from 2021-03 to 2023-03; it is documented
   as a non-blocking limitation (the dispatched series is used throughout, and the curtailment series that calibrate C(P) begin
   in 2022 for wind and 2024-04 for solar). The 2020 baseline and wind are unaffected.
+- Two-curve structure (D22, supersedes the single combined curve of D21). C_wind(P) and C_solar(P) are fitted separately on the shared P; the wind-only months are no
+  longer blended into a combined series, so the earlier left-censoring concern for them does not arise. Remaining limitations: both curves end at the same observed
+  maximum P (29.4 %) with P0 beyond it, so every PTE point above 29.4 % is an extrapolation for both; the solar curve rests on 30 monthly points from a short,
+  fast-growing period (2024-04..2026-09); bootstrap intervals cover sampling uncertainty only.
 - Generation-basis difference between calibration and projection (D16). Calibration and the 2020 baseline use
   ONS SIN-reported generation (2020: 554.35 TWh), while PTE projection years use the PTE/BLUES model's own
   total generation (e.g. 836 TWh in 2025). BEN 2021 reports a national total of ~621.2 TWh for 2020, of which

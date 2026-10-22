@@ -13,12 +13,20 @@ D20: "solar generation" is the ONS-dispatched (centralized) series everywhere in
 "dispatched"` penetration table of ons_generation) and in the potential-generation denominator of the solar curtailment rate (dispatched
 solar + curtailed solar). The raw balance `val_gersolar` is a diagnostic column of the penetration table and is never read here.
 Wind uses the balance `val_gereolica` as before. Projection years (PTE/BLUES, D16) are not touched.
+
+D22 (Task 7D): TWO technology-specific curves, C_wind(P) and C_solar(P). Both are functions of the SAME driver P = solar_pct + wind_pct (the project's
+modeling spec); they differ in the dependent variable (the technology's own curtailment rate) and in the fitting window (wind: every complete
+month from 2022-01; solar: only the months with published solar curtailment, from 2024-04). The old single combined curve is kept ONLY as a
+non-primary diagnostic (comparison with ONS's combined rate) and must not be used for Stage 3 deficits.
+Combination rule (documented here, applied by the future Stage 3 wiring): for a scenario/year, curtailed wind = wind_gen x C_wind(P) and curtailed
+solar = solar_gen x C_solar(P), with each technology's own projected generation and the scenario's combined P; total = sum of both.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -115,7 +123,9 @@ def load_calibration(dest_path: Path) -> CalibrationParams:
 CURTAILMENT_RAW_FILENAME = "ons_curtailment_raw.parquet"
 PENETRATION_MONTHLY_FILENAME = "ons_penetration_monthly.parquet"
 CALIBRATION_FRAME_FILENAME = "calibration_frame.parquet"
-CALIBRATION_PARAMS_FILENAME = "calibration_params.json"
+CALIBRATION_PARAMS_FILENAME = "calibration_params_{name}.json"  # name: wind | solar | combined_diagnostic
+CALIBRATION_CI_FILENAME = "calibration_ci_{name}.parquet"
+EXPOSURE_P_VALUES = (29.4, 36.0, 40.0, 44.0, 47.0, 50.0, 58.0)
 _FRAME_COLUMNS = ("year", "month", "P", "wind_pct", "solar_pct", "wind_gen_mwh", "solar_gen_mwh", "curt_wind_mwh", "curt_solar_mwh", "scope", "C")
 
 
@@ -209,12 +219,72 @@ def annual_rates(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
-def run_calibration(interim_dir: Path | None = None, processed_dir: Path | None = None, initial_guess: tuple[float, float, float] = (0.9, 0.3, 50.0)) -> dict:
-    """Task 9: penetration table (D20 basis) + COFF curtailment -> monthly calibration frame -> logistic fit.
+def build_technology_frames(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """D22: split the monthly frame into the wind and solar calibration frames (same P per month, different dependent variable and window).
 
-    Reads processed/ons_penetration_monthly.parquet and interim/ons_curtailment_raw.parquet; writes processed/calibration_frame.parquet and
-    processed/calibration_params.json. The primary fit uses every complete month (scope-consistent C); a sensitivity fit on the months with
-    published solar curtailment only is returned alongside (not saved as the calibration).
+    wind_frame  - every month of `frame`: C = curt_wind / (wind_gen + curt_wind).
+    solar_frame - only the months with published solar curtailment (scope 'wind_solar'): C = curt_solar / (solar_gen + curt_solar), dispatched solar (D20).
+    Raises if either frame ends up empty or a rate falls outside [0, 1].
+    """
+    wind = frame.assign(C=frame["curt_wind_mwh"] / (frame["wind_gen_mwh"] + frame["curt_wind_mwh"]), gen_mwh=frame["wind_gen_mwh"], curt_mwh=frame["curt_wind_mwh"])
+    sol = frame[frame["scope"] == "wind_solar"]
+    solar = sol.assign(C=sol["curt_solar_mwh"] / (sol["solar_gen_mwh"] + sol["curt_solar_mwh"]), gen_mwh=sol["solar_gen_mwh"], curt_mwh=sol["curt_solar_mwh"])
+    keep = ["year", "month", "P", "C", "gen_mwh", "curt_mwh"]
+    wind, solar = wind[keep].reset_index(drop=True), solar[keep].reset_index(drop=True)
+    for name, f in (("wind", wind), ("solar", solar)):
+        if f.empty:
+            raise CalibrationDataError(f"{name} calibration frame is empty.")
+        if not ((f["C"] >= 0) & (f["C"] <= 1)).all():
+            raise CalibrationDataError(f"{name} curtailment rate outside [0, 1].")
+    logger.info("Technology frames: wind %d months (P %.1f-%.1f), solar %d months (P %.1f-%.1f)", len(wind), wind.P.min(), wind.P.max(), len(solar), solar.P.min(), solar.P.max())
+    return wind, solar
+
+
+@dataclass
+class TechnologyCurve:
+    """One fitted curve with its fit statistics, observed P range and (optionally) its bootstrap interval."""
+
+    technology: str
+    calibration: CalibrationParams
+    rmse: float
+    n_months: int
+    p_min: float
+    p_max: float
+    ci: pd.DataFrame | None = None
+    primary: bool = True
+
+    def regime(self, p: float) -> str:
+        return "interpolation" if self.p_min <= p <= self.p_max else "extrapolation"
+
+
+@dataclass
+class CalibrationResult:
+    """D22 output: the two primary curves plus the non-primary combined diagnostic."""
+
+    wind: TechnologyCurve
+    solar: TechnologyCurve
+    combined_diagnostic: TechnologyCurve
+    wind_frame: pd.DataFrame
+    solar_frame: pd.DataFrame
+    frame: pd.DataFrame
+    annual_rates: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+
+def _fit_curve(name: str, df: pd.DataFrame, initial_guess, n_boot: int, p_values, primary: bool = True) -> TechnologyCurve:
+    calib = fit_calibration(df, initial_guess=initial_guess)
+    q = calib.params
+    rmse = float(np.sqrt(np.mean((df["C"].to_numpy() - logistic(df["P"].to_numpy(), q["L"], q["k"], q["P0"])) ** 2)))
+    ci = bootstrap_calibration_ci(df, list(p_values), n_boot=n_boot, initial_guess=initial_guess) if n_boot else None
+    return TechnologyCurve(name, calib, rmse, len(df), float(df["P"].min()), float(df["P"].max()), ci, primary)
+
+
+def run_calibration(interim_dir: Path | None = None, processed_dir: Path | None = None, initial_guess: tuple[float, float, float] = (0.9, 0.3, 50.0),
+                    n_boot: int = 0, p_values: tuple[float, ...] = EXPOSURE_P_VALUES) -> CalibrationResult:
+    """Task 9 / D22: penetration table (D20 basis) + COFF curtailment -> monthly frame -> C_wind(P), C_solar(P) (+ combined diagnostic).
+
+    Reads processed/ons_penetration_monthly.parquet and interim/ons_curtailment_raw.parquet. Writes processed/calibration_frame.parquet,
+    calibration_params_{wind,solar,combined_diagnostic}.json and, if n_boot > 0, calibration_ci_{...}.parquet (bootstrap 95 % interval of
+    each curve at `p_values`). The combined curve is a non-primary diagnostic and is never to be used for Stage 3 deficits.
     """
     interim_dir = interim_dir or get_interim_dir()
     processed_dir = processed_dir or get_processed_dir()
@@ -224,13 +294,17 @@ def run_calibration(interim_dir: Path | None = None, processed_dir: Path | None 
             raise CalibrationDataError(f"{path} not found - run Stage 1 (acquire_ons_generation / acquire_ons_curtailment) first.")
     frame = build_calibration_frame(pd.read_parquet(pen_path), monthly_curtailment(curt_path))
     frame.to_parquet(processed_dir / CALIBRATION_FRAME_FILENAME, index=False)
-    calib = fit_calibration(frame, initial_guess=initial_guess)
-    save_calibration(calib, processed_dir / CALIBRATION_PARAMS_FILENAME)
-    sensitivity = None
-    solar_frame = frame[frame["scope"] == "wind_solar"]
-    if len(solar_frame) >= 4:
-        sensitivity = fit_calibration(solar_frame, initial_guess=initial_guess)
-    return {"frame": frame, "calibration": calib, "sensitivity_wind_solar_only": sensitivity, "annual_rates": annual_rates(frame)}
+    wind_frame, solar_frame = build_technology_frames(frame)
+    curves = {
+        "wind": _fit_curve("wind", wind_frame, initial_guess, n_boot, p_values),
+        "solar": _fit_curve("solar", solar_frame, initial_guess, n_boot, p_values),
+        "combined_diagnostic": _fit_curve("combined_diagnostic", frame, initial_guess, n_boot, p_values, primary=False),
+    }
+    for name, curve in curves.items():
+        save_calibration(curve.calibration, processed_dir / CALIBRATION_PARAMS_FILENAME.format(name=name))
+        if curve.ci is not None:
+            curve.ci.to_parquet(processed_dir / CALIBRATION_CI_FILENAME.format(name=name), index=False)
+    return CalibrationResult(curves["wind"], curves["solar"], curves["combined_diagnostic"], wind_frame, solar_frame, frame, annual_rates(frame))
 
 
 def bootstrap_calibration_ci(
