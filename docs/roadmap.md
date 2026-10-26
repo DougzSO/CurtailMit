@@ -198,3 +198,14 @@ Task 11E2 (investigation / prototype, Brazil-only, no `src/` change; `docs/task1
 - Wind and a unified driver: same family as solar; one curve for total VRE curtailment matches the two-curve total within 2 percent.
 - Transmission: NE wind curtailment by ONS class is increasingly energy balance (DEB 8 to 61 percent, 2022-2026); interchange-related constraints are a minority. New candidate **D26** (status pending): retire the deferred EPE PDE / PET extension, with a stated limitation.
 - Pending decisions: D24 (recommendation in the memo: E, reported by horizon, 2050 only as a conditional range), D25 and D26 are decidable; D23 is not. Task 11F (production migration) and Task 13 remain **blocked** until the user decides. The deferred extension is unchanged until D26 is decided.
+
+---
+
+## Update (Task 11E3) - extrapolation-distance calibration, decision closure
+
+Task 11E3 (investigation / prototype, Brazil-only, no `src/` change; `docs/task11e3_findings.md`) tested whether the 2050 uncertainty of option E can be calibrated from how the model's error grew with extrapolation distance in 2022-2026 (350 train/test splits (wind 180, solar 85, unified 85), quarter blocks):
+
+- Result: **no.** The error-growth relation explains 3-7 percent of the variance; the error is dominated by a level bias and a drift that grows with lead time (corr -0.34), not by covariate distance; the historical splits reach at most 8-11 pp beyond the training support while 2050 is 14-29 pp beyond; the pre-registered credibility rule fails for every technology and the method fails its own 2030 sanity check. **2050 stays a flexibility-conditional range**, not a calibrated band.
+- What is quantified instead: an empirical annual-backtest error band of option E for 2030 and 2040 (wind truth / prediction 1.09-1.31, solar 0.87-1.13; descriptive).
+- Consolidated recommendation for the next step: adopt D24 = option E reported by horizon, close D25 with the stated sentence, retire the PDE / PET extension (D26); D23 stays open and does not block. All four remain `pending`; Task 11F and Task 13 remain **blocked** until you decide.
+- Environment: `statsmodels` is now a declared dependency; the 11E2 / 11E3 scripts run in the project `.venv`.

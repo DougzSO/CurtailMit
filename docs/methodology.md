@@ -191,6 +191,14 @@ Details and numbers: `docs/task11e2_findings.md` (cross-linked; sections 2.3b an
 - **Transmission mechanism.** ONS reason classes (D5: ENE -> DEB, CNF -> REB, REL -> EUB), origin (SIS / LOC) and a keyword classification of the constraint description show that NE wind curtailment is increasingly an energy-balance phenomenon (DEB 8 percent in 2022, 61 percent in 2026); explicit interchange-related constraints are a minority; network-element limits (NE-internal, SE-side, flow controls) total 38 percent of 2026. The saturation test of Task 11E understates export limitation because dynamic limits sit below the demonstrated maximum.
 - **Gross vs net (D23).** Under the hourly driver only the gross reading is operational; the net inversion overstates observed 2025 curtailment three-fold.
 
+## 2.3e. Update (Task 11E3) - error growth with extrapolation distance (preliminary findings, not adopted decisions)
+
+Details and numbers: `docs/task11e3_findings.md` (cross-linked; sections 2.3b-2.3d are not edited).
+
+- **Method.** Hourly dose-response curves refitted on many training windows (expanding, rolling 12 / 18 / 24 months, and windows truncated to low-penetration months), tested on calendar-quarter blocks; extrapolation distance = share of the predicted curtailment from hours with r above the training support (E_out) and mean excess of r beyond it (D_pp); error = ln(predicted / observed).
+- **Finding.** The error does not grow with distance in a way that supports calibration (R2 0.03-0.07); it is mostly a level bias and a drift that grows with the lead time between training and test (wind). The 2050 conditions (E_out 0.51-0.78, D_pp 14-29 pp) are beyond what any historical split tested on the "how far" metric (8-11 pp). A credibility rule fixed before the results (significant relation; distance within 1.25 x the historical range on both metrics; at least 25 test blocks over 3 years) fails for wind, solar and the unified driver, so no calibrated 2050 band is produced.
+- **Reporting rule that follows.** 2030 / 2040: option E central with the empirical annual-backtest error band (descriptive, mostly one-sided: truth more likely above the central value). 2050: flexibility-conditional range with the in-support / beyond-support decomposition, no probability attached.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}

@@ -553,6 +553,7 @@ decisions:
     sensitivity: "net / gross ratio 1.9x (TB 2040 solar) to 43.3x (TA 2050 wind) at the Task 11B central C"
     working_reading: "low confidence: closer to a delivered (net-like) quantity, because a model without curtailment reports what it dispatches; not a finding"
     task11e_note: "Task 11E: still no new evidence on gross vs net; the options table in docs/task11e_findings.md uses the gross formula throughout. D23 does not block D24 or D25."
+    task11e3_note: "Task 11E3: no new evidence on gross vs net; D23 stays open and does not block D24, D25 or D26."
     task11e2_note: "Task 11E2: still no new evidence on gross vs net. Under option E (hourly dose-response) only the gross formula is operational: inverting delivered -> potential through f(r) overstates the observed 2025 curtailment about three-fold (113 vs 37 TWh). If the PTE were delivered energy, the gross numbers of docs/task11e2_findings.md would be a lower bound. D23 does not block D24, D25 or D26."
     task11d_note: "Task 11D keeps the Task 11B gross formula (wind curtailed = generation x C) in all its prototype numbers; they would all shift if this is decided otherwise. No new evidence on gross vs net was found (PTE has no regional or capacity data)."
     decided: "nothing; to be decided by the user (candidate action: ask the PTE/CEBRI authors what Grafico 13 represents)"
@@ -614,6 +615,15 @@ decisions:
         range (E with the in-support / beyond-support decomposition and the phi sensitivity, C as the labelled national reference, i.e. B-style reporting). A is not recommended as primary (dominated by E on time control, backtest and coverage; it can stay as a
         lower-side sensitivity). E is not validated for 2050: 51-77 percent of its energy comes from hours with r above any observed value, and it holds today's flexibility fixed.
       decidable_now: "yes"
+    task11e3_update:
+      calibration_of_2050: >
+        Task 11E3 tested whether the 2050 uncertainty of E can be calibrated from the growth of historical prediction error with extrapolation distance (E_out = share of predicted curtailment from hours beyond the training support; D_pp = mean excess of r, pp;
+        180 / 85 / 85 splits for wind / solar / unified, quarter blocks 2022-2026). Result: not supportable. R2 of the relation 0.03 / 0.04 / 0.07; error dominated by level bias and by drift with lead time (corr -0.34), not by distance (-0.04); 2050 D_pp 14-29 pp vs historical
+        maximum 8-11 pp; the credibility rule fixed beforehand fails for every technology; neighbour bands exceed the physical cap and are 5x wide in-sample at 2030. 2050 therefore stays a flexibility-conditional range (docs/task11e3_findings.md).
+      reporting_rule_for_adoption: >
+        2030 and 2040: option E central values with the empirical annual-backtest band (wind truth/prediction 1.09-1.31, solar 0.87-1.13; descriptive): 2030 64 (61-77), 63 (60-75), 58 (55-70) TWh; 2040 128 (121-152), 242 (238-295), 181 (175-219) TWh (TB / TA / TG; TA 2040 partly beyond the support, band likely too narrow).
+        2050: E central 355 / 536 / 334 TWh with the in-support / beyond-support decomposition (134+220, 128+409, 158+176) and the flexibility-conditional range 231-432 / 406-680 / 198-396 TWh (phi 1.5 to L = 1); no calibrated or probabilistic band; C (national) shown as a labelled reference.
+      consolidated_recommendation: "Task 11E3 author's reading, not a decision: adopt D24 = E by horizon together with D25 (closed with the sentence in its candidate text) and D26 (retire PDE / PET with the stated limitation). D23 stays open and does not block them."
     decided: "nothing; to be decided by the user"
 
   D25:
@@ -637,6 +647,9 @@ decisions:
       evaluated year; 0.63 for the unfitted r_p95) against 0.42 for national P and 0.14 for P_NE; incremental R2 over time 0.13 (hourly) vs 0.047 (national P) vs 0.005 (P_NE); solar 0.82. Time is not eliminated: R2 rises from 0.76 to 0.86 when t is added
       (+0.24 pp per month; binned yearly rates drift +2.3 pp per year for wind, p < 0.001; solar +0.2, n.s.), and thermal and hydro shares do not absorb it. Candidate text, ready to close: monthly P (national or regional) is a time-confounded coarse proxy of the
       hourly system-wide potential VRE share of load; the hourly driver is not just time, but an unexplained upward drift of about 2 pp per year remains in wind. Decidable now.
+    task11e3_update: >
+      Task 11E3 strengthens the caveat: in the 115 temporal wind splits the error of the hourly model grows with the lead time between training and test (corr -0.34 for wind, ln-ratio -0.066 per month of lead) and not with the covariate distance (corr -0.04). The drift is therefore a feature of the data (unexplained, upward), not an artefact of
+      extrapolating r. Ready-to-close wording: "monthly P (national or regional) is a time-confounded coarse proxy of the hourly system-wide potential VRE share of load; the hourly driver is not just time (partial correlation 0.68-0.70 vs 0.14 for P_NE and 0.42 for national P), but an unexplained upward drift of about 2 pp per year in wind remains."
     decided: "nothing; to be decided by the user"
 
   D26:
@@ -659,6 +672,7 @@ decisions:
       retire: "Close the thread; document the limitation in the paper's limitations section"
       keep_deferred: "Leave the extension deferred with the limitation noted (status quo)"
     working_reading: "Task 11E2 author's reading, not a decision: retire, with the limitation stated"
+    task11e3_update: "Task 11E3 brings no new transmission evidence; the recommendation to retire (with the limitation stated: 38 percent of 2026 NE wind curtailment attributed to network elements, covered only as the flexibility sensitivity) is confirmed unchanged. Decidable together with D24 and D25."
     decided: "nothing; to be decided by the user"
 
 ben_cross_check:

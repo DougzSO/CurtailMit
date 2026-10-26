@@ -163,3 +163,10 @@ into `config/scenarios.yaml`.
 - Added `analysis/task11e2_*.py`, `tests/test_analysis_task11e2.py`, `docs/task11e2_findings.md`.
 - Findings (preliminary): the projected hourly conditions are in-sample for 2030, mostly for 2040, not for 2050; the wind backtest beats the national-P, time-trend and Task 11D regional benchmarks out of sample (-11 to -19 percent on 2025 vs -22 to -45 percent); the curve is stable across years but not across seasons or hours of day, and wind drifts about +2 pp per year; wind follows the solar curve family and one unified curve gives the same totals; NE curtailment is increasingly an energy-balance phenomenon and interchange-related constraints are a minority (D26 candidate: retire the PDE / PET extension).
 - Documentation realigned (roadmap, methodology 2.3d, claude_commands 1.11E2 and task table, discovered_sources D23-D26). Task 11F and Task 13 blocked.
+
+## Task 11E3 (2026-10) - extrapolation-distance calibration and decision closure
+
+- Investigation / prototype only; no `src/` change; no new data; D13-D22 untouched; D23, D24, D25, D26 `pending`. Task 11E2 committed first as `a2f2ea7`.
+- Added `analysis/task11e3_*.py`, `tests/test_analysis_task11e3.py`, `docs/task11e3_findings.md`; `statsmodels` declared in `pyproject.toml` and `requirements.txt` (the 11E2 / 11E3 scripts run in `.venv`).
+- Findings (preliminary): error does not grow with extrapolation distance in a calibratable way (R2 0.03-0.07; lead-time drift dominates); credibility rule failed; 2050 stays a flexibility-conditional range; 2030 / 2040 reported with an empirical annual-backtest band. Consolidated recommendation: D24 = E by horizon, D25 closed with the stated sentence, D26 retire. Task 11F and Task 13 blocked.
+- Known unrelated issue: `tests/test_ons_solar_gap.py::test_schema_findings_reports_type_change_and_missing_columns` fails in `.venv` (pandas 3 / pyarrow `large_string`), passes with the system Python.
