@@ -199,6 +199,15 @@ Details and numbers: `docs/task11e3_findings.md` (cross-linked; sections 2.3b-2.
 - **Finding.** The error does not grow with distance in a way that supports calibration (R2 0.03-0.07); it is mostly a level bias and a drift that grows with the lead time between training and test (wind). The 2050 conditions (E_out 0.51-0.78, D_pp 14-29 pp) are beyond what any historical split tested on the "how far" metric (8-11 pp). A credibility rule fixed before the results (significant relation; distance within 1.25 x the historical range on both metrics; at least 25 test blocks over 3 years) fails for wind, solar and the unified driver, so no calibrated 2050 band is produced.
 - **Reporting rule that follows.** 2030 / 2040: option E central with the empirical annual-backtest error band (descriptive, mostly one-sided: truth more likely above the central value). 2050: flexibility-conditional range with the in-support / beyond-support decomposition, no probability attached.
 
+## 2.3f. Update (Task 11E4) - coverage figure, NE-hourly driver, sub-hourly check, conformal prediction (preliminary findings, not adopted decisions)
+
+Details and numbers: `docs/task11e4_findings.md` (cross-linked; sections 2.3b-2.3e are not edited).
+
+- **Coverage as a method diagnostic.** The share of projected hours (and of projected curtailed energy) inside the range supported by at least 15 observed hours per 2-pp class of r is reported for every horizon and scenario in one figure; it is part of the method, not a limitation disclosure.
+- **NE-hourly driver.** r_NE = NE wind + solar potential over NE load (routinely above 100 percent because NE exports) was refitted and validated like the SIN-wide driver; it gives no validation gain and, under the PTE constant-share proxy, a smaller in-sample share in 2040-2050.
+- **Sub-hourly resolution.** The 30-minute r of 2025 (COFF generation and curtailment plus verified load by area) has the same extremes as its hourly aggregation (ratio 1.006) and explains no more curtailment; hourly resolution does not hide extreme system-level conditions.
+- **Conformal prediction.** Weighted split conformal on the signed log error of forecast-type splits (quarter blocks; each quarter weight 1) gives finite 80 percent intervals for 2030-2040 (90 percent only for wind), with right empirical coverage, but its exchangeability is violated by the multi-year horizon and, at 2050, by the extrapolation distance; a correctly applied 2050 procedure returns no finite interval. The result is reported rather than suppressed.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}

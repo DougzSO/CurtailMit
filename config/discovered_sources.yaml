@@ -624,6 +624,14 @@ decisions:
         2030 and 2040: option E central values with the empirical annual-backtest band (wind truth/prediction 1.09-1.31, solar 0.87-1.13; descriptive): 2030 64 (61-77), 63 (60-75), 58 (55-70) TWh; 2040 128 (121-152), 242 (238-295), 181 (175-219) TWh (TB / TA / TG; TA 2040 partly beyond the support, band likely too narrow).
         2050: E central 355 / 536 / 334 TWh with the in-support / beyond-support decomposition (134+220, 128+409, 158+176) and the flexibility-conditional range 231-432 / 406-680 / 198-396 TWh (phi 1.5 to L = 1); no calibrated or probabilistic band; C (national) shown as a labelled reference.
       consolidated_recommendation: "Task 11E3 author's reading, not a decision: adopt D24 = E by horizon together with D25 (closed with the sentence in its candidate text) and D26 (retire PDE / PET with the stated limitation). D23 stays open and does not block them."
+    task11e4_update:
+      evidence_added: >
+        Task 11E4 (docs/task11e4_findings.md): (a) in-sample coverage figure for the paper (hours inside the observed support: 99.6-99.8 percent in 2025-2030, 86-96 percent in 2040, 43-70 percent in 2050); (b) a Northeast hourly driver (r_NE) does not extend the support (2050 hours inside 32-59 percent vs 43-70)
+        and brings no validation gain; (c) 30-minute ONS data exist (load API, COFF) but a 2025 test shows the same extremes as the hourly aggregation (maximum ratio 1.006; D27 not registered); (d) conformal prediction: finite 80 percent intervals for 2030-2040, 3-10 times wider than the Task 11E3 empirical band, empirical coverage confirmed
+        (leave-one-quarter-out 85-92 percent); no finite interval at 2050 (exchangeability violated; the correctly applied procedure is unbounded), an unguaranteed heuristic wind interval reaches the physical cap.
+      reporting_rule_for_adoption_update: >
+        2030 and 2040: E central with the Task 11E3 empirical annual band as headline (descriptive) and the conformal 80 percent interval as the conservative formal bound in the supplement (no 90 percent bound certifiable for solar or the total). 2050: E central, in-support / beyond-support decomposition, the flexibility-conditional range, the coverage figure,
+        and the explicit statement that no valid conformal interval could be produced; no probability and no "calibrated" label. International hourly data were intentionally excluded by the user (scope decision).
     decided: "nothing; to be decided by the user"
 
   D25:

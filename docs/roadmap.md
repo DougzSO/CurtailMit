@@ -209,3 +209,15 @@ Task 11E3 (investigation / prototype, Brazil-only, no `src/` change; `docs/task1
 - What is quantified instead: an empirical annual-backtest error band of option E for 2030 and 2040 (wind truth / prediction 1.09-1.31, solar 0.87-1.13; descriptive).
 - Consolidated recommendation for the next step: adopt D24 = option E reported by horizon, close D25 with the stated sentence, retire the PDE / PET extension (D26); D23 stays open and does not block. All four remain `pending`; Task 11F and Task 13 remain **blocked** until you decide.
 - Environment: `statsmodels` is now a declared dependency; the 11E2 / 11E3 scripts run in the project `.venv`.
+
+---
+
+## Update (Task 11E4) - coverage figure, NE-hourly, sub-hourly feasibility, conformal intervals
+
+Task 11E4 (investigation / prototype, Brazil-only, no `src/` change; `docs/task11e4_findings.md`) tested four extensions; none changes the Task 11E3 conclusion that 2050 is a flexibility-conditional range:
+
+- Publication-ready in-sample coverage figure produced (`fig_insample_coverage.{pdf,svg,png}`): 99.6-99.8 percent of the hours are inside the observed support in 2025-2030, 86-96 percent in 2040, 43-70 percent in 2050; the figure is to be used as the method's transparency exhibit.
+- NE-hourly driver: does not extend the support (2050 hours inside 32-59 percent against 43-70 percent for the SIN-wide hourly driver); no validation gain.
+- Sub-hourly data: ONS publishes 30-minute realized load and COFF data; a 2025 sample shows no wider range of r than the hourly aggregation (maximum ratio 1.006); candidate D27 **not registered** (negative result). Sample documented in `docs/ons_subhourly_data_sources.md`.
+- Conformal prediction: finite 80 percent intervals for 2030 / 2040 (3-10 times wider than the empirical band; coverage confirmed by leave-one-quarter-out), none for 2050 (unbounded: exchangeability violated), reported explicitly.
+- Updated recommendation for the next step: unchanged in substance (D24 = E by horizon, D25 closed, D26 retire), with the coverage figure and the "no valid conformal interval at 2050" statement added to the 2050 reporting. D23 still open. Task 11F and Task 13 remain **blocked** until you decide. International hourly data were excluded by your decision (note in the memo).

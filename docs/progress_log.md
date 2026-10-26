@@ -170,3 +170,9 @@ into `config/scenarios.yaml`.
 - Added `analysis/task11e3_*.py`, `tests/test_analysis_task11e3.py`, `docs/task11e3_findings.md`; `statsmodels` declared in `pyproject.toml` and `requirements.txt` (the 11E2 / 11E3 scripts run in `.venv`).
 - Findings (preliminary): error does not grow with extrapolation distance in a calibratable way (R2 0.03-0.07; lead-time drift dominates); credibility rule failed; 2050 stays a flexibility-conditional range; 2030 / 2040 reported with an empirical annual-backtest band. Consolidated recommendation: D24 = E by horizon, D25 closed with the stated sentence, D26 retire. Task 11F and Task 13 blocked.
 - Known unrelated issue: `tests/test_ons_solar_gap.py::test_schema_findings_reports_type_change_and_missing_columns` fails in `.venv` (pandas 3 / pyarrow `large_string`), passes with the system Python.
+
+## Task 11E4 (2026-10) - coverage figure, NE-hourly, sub-hourly feasibility, conformal prediction
+
+- Investigation / prototype only; no `src/` change; D13-D22 untouched; D23, D24, D25, D26 `pending`; D27 not registered (negative sub-hourly result). New data: 2025 verified-load sample (30-minute, 37 MB).
+- Added `analysis/task11e4_*.py`, `tests/test_analysis_task11e4.py`, `docs/task11e4_findings.md`, `docs/ons_subhourly_data_sources.md`, the figure `fig_insample_coverage.*`.
+- Findings (preliminary): NE-hourly does not extend the support; 30-minute r has the same extremes as the hourly one; conformal intervals are finite but wide for 2030-2040 and cannot be certified for 2050 (exchangeability violated). 2050 stays conditional. Recommendation unchanged in substance (D24 = E by horizon, D25 closed, D26 retire); Task 11F and Task 13 blocked.
