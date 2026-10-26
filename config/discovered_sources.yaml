@@ -535,7 +535,7 @@ decisions:
     implemented_in: "Task 7D: calibration.build_technology_frames, TechnologyCurve, CalibrationResult, run_calibration"
 
   D23:
-    status: pending
+    status: adopted
     date: "2026-10-23"
     topic: "Gross (potential) vs net (delivered) basis of the PTE/BLUES generation, and the E_curt formula"
     source_task: "Task 11C section (a) - docs/task11c_investigation_report.md"
@@ -556,10 +556,17 @@ decisions:
     task11e3_note: "Task 11E3: no new evidence on gross vs net; D23 stays open and does not block D24, D25 or D26."
     task11e2_note: "Task 11E2: still no new evidence on gross vs net. Under option E (hourly dose-response) only the gross formula is operational: inverting delivered -> potential through f(r) overstates the observed 2025 curtailment about three-fold (113 vs 37 TWh). If the PTE were delivered energy, the gross numbers of docs/task11e2_findings.md would be a lower bound. D23 does not block D24, D25 or D26."
     task11d_note: "Task 11D keeps the Task 11B gross formula (wind curtailed = generation x C) in all its prototype numbers; they would all shift if this is decided otherwise. No new evidence on gross vs net was found (PTE has no regional or capacity data)."
-    decided: "nothing; to be decided by the user (candidate action: ask the PTE/CEBRI authors what Grafico 13 represents)"
+    decided: >
+      ADOPTED on 2026-10-26 (Task 11F0) by explicit user decision: the generation figures of the PTE / BLUES scenarios are treated as GROSS (pre-curtailment potential); curtailed energy = PTE generation x curtailment rate (the Task 11B formula).
+      This is a WORKING ASSUMPTION BY USER DECISION, not a conclusion from new evidence: Task 11C found the PTE / CEBRI documentation silent (curtailment not modelled, no wind / solar capacity published) and the indicative cross-checks against ONS
+      weak and mixed (wind close to ONS realized, solar between realized and realized + curtailed); no later task (11D, 11E, 11E2, 11E3, 11E4) produced evidence on the question. Every curtailment figure of Tasks 7-11E4 was computed under this
+      assumption, so nothing is recalculated. The net-basis alternative (E_curt = generation x C / (1 - C)) stays documented as an available, recommended sensitivity (unusable with the national curves: implied potentials up to 25,142 TWh; under option E
+      the delivered -> potential inversion overstates the observed 2025 curtailment about three-fold, 113 vs 37 TWh, docs/task11e2_findings.md), but it is no longer a blocking requirement. If the PTE generation were in fact delivered energy, the gross
+      figures would be a lower bound of what the same curve implies. To be stated in the paper as an assumption with this caveat.
+    implemented_in: "working assumption in operational use since Task 7 / Task 11B (curtailed = PTE generation x rate: src mitigation / projection tables) and carried through Tasks 11C-11E4 (docs/task11e4_findings.md, section 6); adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); no code change"
 
   D24:
-    status: pending
+    status: adopted
     date: "2026-10-23"
     updated: "2026-10-22 (Task 11D rewrite; the Task 11C text is preserved in docs/task11c_investigation_report.md)"
     topic: "Adopt the regional / pooled formulation as the project's driver of the curtailment rate, replacing or augmenting national P"
@@ -632,7 +639,18 @@ decisions:
       reporting_rule_for_adoption_update: >
         2030 and 2040: E central with the Task 11E3 empirical annual band as headline (descriptive) and the conformal 80 percent interval as the conservative formal bound in the supplement (no 90 percent bound certifiable for solar or the total). 2050: E central, in-support / beyond-support decomposition, the flexibility-conditional range, the coverage figure,
         and the explicit statement that no valid conformal interval could be produced; no probability and no "calibrated" label. International hourly data were intentionally excluded by the user (scope decision).
-    decided: "nothing; to be decided by the user"
+    decided: >
+      ADOPTED on 2026-10-26 (Task 11F0) by explicit user decision: option E, the hourly dose-response model (wind and solar curtailment rate as a logistic function of the hourly system-wide potential VRE share of load r, applied to the PTE-scaled hourly profile
+      of 2025), is the project's primary curtailment model going forward, reported by horizon as recommended in docs/task11e4_findings.md (section 6):
+      - 2025 / 2030: option E central estimate; the empirical annual-backtest band of Task 11E3 as the headline uncertainty measure; the split-conformal 80 percent interval (quarter blocks, Task 11E4) as supplementary material.
+      - 2040: same treatment; the TA scenario is flagged explicitly as partially outside the observed hourly support (14.5 percent of hours, 30-45 percent of the curtailment from beyond-support hours).
+      - 2050: option E central estimate; explicit decomposition of the curtailment from in-support vs out-of-support hours; the flexibility-conditional range (phi = 1.5 as the lower scenario to L = 1 as the upper) of Task 11E3; the in-sample coverage figure
+        of Task 11E4-a (fig_insample_coverage); and an explicit statement that no valid conformal prediction interval could be produced at this horizon (exchangeability violated; the correctly applied procedure is unbounded). No probability label and no
+        "calibrated" label for 2050.
+      - The national-curve formulation (Tasks 7-11B, D21 / D22) and the regional-only formulation (Task 11D) are retained as documented reference / comparison points of the methodological journey in the paper; they are NOT the adopted production model.
+      Known limits carried with the adoption: option E holds today's flexibility fixed; the curve is stable across years 2023-2026 but not across seasons or hours of day; wind drifts upward about +2 pp per year (unexplained); solar has 30 months; the central
+      values are more likely low than high. Option E is validated for 2030-2040, not for 2050 (51-77 percent of the 2050 energy comes from hours with no historical analogue). Options A, B, C, D are not adopted.
+    implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); prototype code analysis/task11e_*.py, task11e2_*.py, task11e3_*.py, task11e4_*.py (docs/task11e_findings.md ... docs/task11e4_findings.md); production migration into src/ (calibration.py, projection.py) is Task 11F, NOT started"
 
   D25:
     status: pending
@@ -661,7 +679,7 @@ decisions:
     decided: "nothing; to be decided by the user"
 
   D26:
-    status: pending
+    status: adopted
     date: "2026-10-26"
     topic: "Retire the deferred EPE PDE / PET transmission-expansion extension on the basis of the Task 11E / 11E2 negative result"
     source_task: "Task 11E2, sub-task 11E2-d - docs/task11e2_findings.md (section 4), with docs/task11e_findings.md section 3"
@@ -681,7 +699,13 @@ decisions:
       keep_deferred: "Leave the extension deferred with the limitation noted (status quo)"
     working_reading: "Task 11E2 author's reading, not a decision: retire, with the limitation stated"
     task11e3_update: "Task 11E3 brings no new transmission evidence; the recommendation to retire (with the limitation stated: 38 percent of 2026 NE wind curtailment attributed to network elements, covered only as the flexibility sensitivity) is confirmed unchanged. Decidable together with D24 and D25."
-    decided: "nothing; to be decided by the user"
+    decided: >
+      ADOPTED on 2026-10-26 (Task 11F0) by explicit user decision: the transmission-capacity-expansion extension (EPE PDE / PET planning assumptions, originally a deferred optional refinement) is RETIRED from the roadmap, not merely deferred.
+      Basis: the Task 11E negative result (NE export at >= 95 percent of its trailing maximum in 0.4-3.1 percent of hours and 1-8 percent of NE wind curtailment; capacity stocks collinear with time and not explaining the time effect) and the Task 11E2
+      refinement (NE wind curtailment is increasingly energy balance: DEB-classified share 8 percent in 2022 and 61 percent in 2026; interchange-related constraints are a minority). DECLARED CAVEAT, retained as part of the decision: in 2026 about 38 percent
+      of NE wind curtailment is still attributable to network-element limits, 23 percent of it internal to the NE network (15 percent interchange-related), which expansion could reduce; this share is covered only as the flexibility sensitivity (phi) of option E,
+      not as a calibrated pathway, and must be stated in the paper's limitations. The statement supported is that curtailment is not primarily export-bound, not that transmission is irrelevant.
+    implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); documentation only (docs/roadmap.md); no code existed for the retired extension"
 
 ben_cross_check:
   status: reference_only

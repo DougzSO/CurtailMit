@@ -176,3 +176,9 @@ into `config/scenarios.yaml`.
 - Investigation / prototype only; no `src/` change; D13-D22 untouched; D23, D24, D25, D26 `pending`; D27 not registered (negative sub-hourly result). New data: 2025 verified-load sample (30-minute, 37 MB).
 - Added `analysis/task11e4_*.py`, `tests/test_analysis_task11e4.py`, `docs/task11e4_findings.md`, `docs/ons_subhourly_data_sources.md`, the figure `fig_insample_coverage.*`.
 - Findings (preliminary): NE-hourly does not extend the support; 30-minute r has the same extremes as the hourly one; conformal intervals are finite but wide for 2030-2040 and cannot be certified for 2050 (exchangeability violated). 2050 stays conditional. Recommendation unchanged in substance (D24 = E by horizon, D25 closed, D26 retire); Task 11F and Task 13 blocked.
+
+## Task 11F0 (2026-10) - formal adoption of D23, D24, D26
+
+- Decision locking only: `config/discovered_sources.yaml` D23, D24, D26 `adopted` (specifications recorded in full, `implemented_in` populated); D25 `pending` (Task 11E5). No new analysis, no code under `src/` or `analysis/`.
+- Documentation (append-only): roadmap update (the PDE / PET extension is retired, not deferred), methodology 2.3g, claude_commands 1.11F0 and task table.
+- Task 11F is unblocked in principle but waits for D25; Task 13 blocked.

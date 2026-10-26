@@ -208,6 +208,15 @@ Details and numbers: `docs/task11e4_findings.md` (cross-linked; sections 2.3b-2.
 - **Sub-hourly resolution.** The 30-minute r of 2025 (COFF generation and curtailment plus verified load by area) has the same extremes as its hourly aggregation (ratio 1.006) and explains no more curtailment; hourly resolution does not hide extreme system-level conditions.
 - **Conformal prediction.** Weighted split conformal on the signed log error of forecast-type splits (quarter blocks; each quarter weight 1) gives finite 80 percent intervals for 2030-2040 (90 percent only for wind), with right empirical coverage, but its exchangeability is violated by the multi-year horizon and, at 2050, by the extrapolation distance; a correctly applied 2050 procedure returns no finite interval. The result is reported rather than suppressed.
 
+## 2.3g. Update (Task 11F0) - adopted decisions D23, D24, D26
+
+The modelling choices below are now ADOPTED (`config/discovered_sources.yaml`); the preliminary sections 2.3b-2.3f above are kept as the record of how they were reached and are not edited. Evidence: `docs/task11d_findings.md` to `docs/task11e4_findings.md`.
+
+- **Basis of the PTE generation (D23):** gross, pre-curtailment potential; curtailed energy = PTE generation x curtailment rate. Adopted as a working assumption by user decision; the PTE / CEBRI documentation does not settle it and the cross-checks against ONS are weak and mixed. The net-basis sensitivity remains documented (not usable with national curves; under the hourly driver its inversion overstates observed 2025 curtailment about three-fold) and is not blocking. State it as an assumption in the paper.
+- **Curtailment driver (D24):** the hourly dose-response model (rate of each technology as a logistic function of the hourly system-wide potential VRE share of load; 2025 hourly shape scaled to the PTE annual totals) replaces the national-P curves of D21 / D22 for projections (those curves remain a documented reference). Reporting by horizon: 2025-2030 central value with the empirical annual-backtest band and the conformal 80 percent interval as supplement; 2040 the same, TA flagged as partly beyond the observed support; 2050 central value with the in-support / out-of-support decomposition, the flexibility-conditional range (phi 1.5 to L = 1), the coverage figure and the statement that no valid conformal interval exists; no probability or "calibrated" label for 2050.
+- **Transmission (D26):** no transmission-expansion refinement is part of the method (extension retired); network-element limits (38 percent of NE wind curtailment in 2026, 23 percent NE-internal) are acknowledged in the limitations and enter only through the flexibility sensitivity.
+- Open: D25 (time confound; Task 11E5). Production implementation (Task 11F) is not started.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}

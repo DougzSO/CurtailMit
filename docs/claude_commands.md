@@ -169,6 +169,11 @@ Outcome (preliminary): the error-growth-with-distance relation is too weak (R2 0
 Investigation / prototype only (Brazil-only data): no `src/` file changed, no decision adopted. New data: a 2025 sample of the ONS verified-load API (30-minute, 37 MB; `docs/ons_subhourly_data_sources.md`). Code: `analysis/task11e4_coverage_figure.py`, `task11e4_ne_hourly.py`, `task11e4_subhourly_feasibility.py`, `task11e4_conformal_prediction.py`, tests `tests/test_analysis_task11e4.py`. Memo: `docs/task11e4_findings.md`. International hourly data intentionally excluded (user decision).
 Outcome (preliminary): (a) publication-ready coverage figure and caption; (b) NE-hourly does not extend the support (2050 hours inside 32-59 percent); (c) sub-hourly data exist at 30 minutes but show no wider range (ratio 1.006), D27 not registered; (d) conformal intervals for 2030 / 2040 are finite and wide, none can be certified for 2050 (assumption violated). 2050 stays a flexibility-conditional range. D23, D24, D25, D26 remain `pending`. **Task 13 and Task 11F remain blocked.**
 
+### 1.11F0 Task 11F0 - formal adoption of D23, D24 and D26 (decision locking; no new analysis, no code)
+
+2026-10-26. `config/discovered_sources.yaml`: **D23** (PTE generation read as gross, by user decision as a working assumption; evidence still weak and mixed; net sensitivity documented, not blocking), **D24** (option E, hourly dose-response, as the primary curtailment model, reported by horizon as in `docs/task11e4_findings.md` section 6) and **D26** (the PDE / PET transmission-expansion extension is retired, with the declared caveat of 38 percent / 23 percent network-element limits) are `adopted`. **D25 stays `pending`** (Task 11E5, adopted last). Nothing under `src/` or `analysis/` changed.
+**Task 11F (production migration of option E into `calibration.py` / `projection.py`) is unblocked in principle but should wait for the resolution of D25 (Task 11E5), then start only after your explicit confirmation. Task 13 remains blocked until Task 11F is done.**
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
@@ -277,6 +282,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 11E2 | Validation and cross-technology unification of the hourly dose-response model (Brazil-only) | `analysis/task11e2_*.py` | ✅ RUN, findings pending review (`docs/task11e2_findings.md`; D26 registered as pending) |
 | 11E3 | Extrapolation-distance calibration of the 2050 uncertainty; decision closure D24 / D25 / D26 (Brazil-only) | `analysis/task11e3_*.py` | ✅ RUN, findings pending review (`docs/task11e3_findings.md`; 2050 stays conditional) |
 | 11E4 | Coverage figure, NE-hourly extension, sub-hourly feasibility, conformal prediction (Brazil-only) | `analysis/task11e4_*.py` | ✅ RUN, findings pending review (`docs/task11e4_findings.md`; D27 not registered; 2050 stays conditional) |
+| 11F0 | Formal adoption of D23, D24, D26 (decision locking only) | `config/discovered_sources.yaml`, docs | ✅ DONE (D25 pending, Task 11E5) |
 | 11F | Production migration of the chosen driver (formerly numbered 11E) | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D23, D24 (incl. option E), D25 |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
 | 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⛔ BLOCKED pending Task 11D / 11E outcome (rewritten below) |
