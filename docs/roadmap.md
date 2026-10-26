@@ -250,3 +250,11 @@ Task 11E5 (investigation / prototype, Brazil-only, no new data, no `src/` change
 ## Update (Task 11F-0) - all four decisions D23-D26 are now adopted; Task 11F proceeding
 
 D25 was adopted on 2026-10-26 by explicit user decision (accept as a documented, quantified limitation; text verbatim from `docs/task11e5_findings.md` section 5 / `config/discovered_sources.yaml`). With D23, D24 and D26 (Task 11F0) all four pending decisions are resolved. Task 11F (production migration of option E into `src/`) is proceeding; its design proposal is in `docs/task11f_design.md` and awaits approval before any `src/` change. Task 13 stays blocked until Task 11F is complete.
+
+---
+
+## Update (Task 11F) - option E migrated to production; Task 13 unblocked
+
+Task 11F (D23-D26 adopted) migrated the hourly dose-response model into `src/`: new modules `hourly_model.py` (panel, binning, fit, curve, distance metrics, PTE-scaled profile, calibration bundle), `hourly_uncertainty.py` (annual-backtest band, quarter splits, weighted split-conformal, frozen `HorizonBands`) and `limitations.py` (D25 text from the YAML into the outputs); `projection.project_curtailment_hourly` / `build_option_e_table` implement the by-horizon treatment (2025/2030/2040 band + conformal supplement; 2050 decomposition + flexibility-conditional range, no conformal, no "calibrated" label); the national and regional formulations stay as labelled references (`model`/`role` columns, `calibration.fit_regional_reference`); `mitigation.compute_mitigation` gained `require_model` and passes the labels through. Regression: the production code reproduces the validated prototypes and the committed Task 11E2-11E4 tables to 1e-9 (golden fixture `tests/fixtures/option_e/`, integration tests `pytest -m integration`). Design and implementation notes: `docs/task11f_design.md`. Consolidated methods text: `docs/methodology.md` section 2.3j.
+
+**Task 11F is complete; Task 13 (mitigation deficit and hydrogen with the option-E table `processed/pte_curtailment_option_E.parquet`) is formally unblocked and waits for the user's confirmation to start.**

@@ -120,3 +120,7 @@ def test_live_pte_curtailment_on_real_database_root():
     assert len(out) == 12 and (out.total_curtailed_twh_low <= out.total_curtailed_twh_high).all()
     assert out.loc[out.year >= 2040, ["extrapolated_wind", "extrapolated_solar"]].all().all()
     assert not out.loc[out.year == 2025, "extrapolated_wind"].any()
+
+def test_two_curve_projection_is_labelled_as_a_reference_not_the_production_model():
+    out = pj.project_curtailment_two_curves(pte_table(), result(), n_boot=10)
+    assert (out.model == "reference_national_curve").all() and (out.role == "reference").all() and (out.known_limitations == "REFERENCE_NOT_PRODUCTION").all()

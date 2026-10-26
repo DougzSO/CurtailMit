@@ -349,3 +349,19 @@ def bootstrap_calibration_ci(
     curves = np.vstack(curves)
     lo, hi = np.percentile(curves, [100 * alpha / 2, 100 * (1 - alpha / 2)], axis=0)
     return pd.DataFrame({"P": p_grid, "point": point_c, "lo": lo, "hi": hi, "width": hi - lo, "n_ok": len(curves), "n_failed": failures})
+
+
+# ----------------------------------------------------------------------------------------------- Task 11F: labelled reference formulations
+NATIONAL_REFERENCE_LABEL = "reference_national_curve"  # Tasks 7-11B: C(P) on the national monthly penetration (run_calibration / fit_calibration)
+REGIONAL_REFERENCE_LABEL = "reference_regional_NE"  # Task 11D: C_wind(P_NE) on the Northeast subsystem penetration
+
+
+def fit_regional_reference(ne_frame: pd.DataFrame, p_col: str = "P", c_col: str = "C_wind",
+                           initial_guess: tuple[float, float, float] = (0.9, 0.3, 50.0)) -> tuple[CalibrationParams, str]:
+    """Task 11D regional-only formulation: the same bounded logistic (D21) fitted on the Northeast monthly frame (P_NE, wind curtailment rate).
+
+    REFERENCE / COMPARISON ONLY (D24: the production model is the hourly option E, hourly_model.py). Returns the fit and its model label so that any table built from it is
+    marked role="reference". The monthly P_NE is a time-confounded proxy (D25 text): do not read the result as a causal dose-response.
+    """
+    frame = ne_frame[[p_col, c_col]].rename(columns={c_col: "C"}).dropna().reset_index(drop=True)
+    return fit_calibration(frame, p_col=p_col, c_col="C", initial_guess=initial_guess), REGIONAL_REFERENCE_LABEL

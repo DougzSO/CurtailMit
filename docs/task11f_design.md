@@ -88,3 +88,16 @@ Order of work after approval: 11F-2 (`hourly_model.py` + tests + golden, referen
 2. Sidecar JSON + per-row `known_limitations` id (recommended) vs. full D25 text repeated per row.
 3. Keep the old file name `pte_curtailment_two_curves.parquet` for the reference table (recommended, backward compatible) vs. rename it to `..._reference`.
 4. Confirm that the conformal 80% supplement and the empirical band are computed from **frozen calibration inputs** (the `HorizonBands` object built from the 11E3/11E4 procedures, refreshed only by re-running the calibration) rather than recomputed on every projection call.
+
+---
+
+## Implementation notes (Task 11F-2 / 11F-3, after approval of this design)
+
+All four decisions of section 6 were approved as recommended (new module; sidecar JSON with a per-row id; old file name kept for the national reference; frozen `HorizonBands`). Differences and precisions relative to the proposal:
+
+- The default suite uses synthetic data and a committed 4,344-hour sample of the real 2025 panel; the full-sample regression tests use the existing `integration` marker (`pytest -m integration`) instead of a new `e2e` marker. Both were run: the production code reproduces the committed Task 11E2-11E4 tables to a relative difference of 1e-9 or less (curves, r_cap, bands, conformal log-quantiles, projections, distance metrics, decomposition, flexibility and L = 1 scenarios).
+- `HourlyCalibration` (free-L curves, L = 1 curves, 2025 profile, `HorizonBands`) and `run_hourly_calibration` / `load_hourly_calibration` live in `hourly_model.py`; the files written to `processed/` are `hourly_curve_{wind,solar,wind_L1,solar_L1}.json`, `hourly_base_profile.parquet`, `hourly_horizon_bands.json`.
+- Support status rule (fixed here, not in the earlier memos): `mostly_out_of_support` if E_out >= 0.50; `partially_out_of_support` if E_out >= 0.30 or H_out >= 0.10; otherwise `within_support`. It reproduces the earlier statement (2040 TA partially out of support; TB and TG 2040 within support); all 2050 rows are mostly out of support.
+- The total's conformal 80 % interval uses the unified-calibration log-quantile applied to the sum of the wind and solar centrals (the prototype computed it around the unified curve's own central, which differs by under 10 %); the per-technology intervals are exactly those of Task 11E4.
+- Regional reference: only the curve fit (`fit_regional_reference`) is in `src/`; the Task 11D proxy projection stays in `analysis/task11d_regional_recalibration.py` (it needs the subsystem monthly panel of Task 11C, which is an analysis artifact).
+- `mitigation.compute_mitigation(..., require_model=False)` keeps its old behaviour by default; `require_model=True` is the guard for the option-E workflow.

@@ -650,7 +650,7 @@ decisions:
       - The national-curve formulation (Tasks 7-11B, D21 / D22) and the regional-only formulation (Task 11D) are retained as documented reference / comparison points of the methodological journey in the paper; they are NOT the adopted production model.
       Known limits carried with the adoption: option E holds today's flexibility fixed; the curve is stable across years 2023-2026 but not across seasons or hours of day; wind drifts upward about +2 pp per year (unexplained); solar has 30 months; the central
       values are more likely low than high. Option E is validated for 2030-2040, not for 2050 (51-77 percent of the 2050 energy comes from hours with no historical analogue). Options A, B, C, D are not adopted.
-    implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); prototype code analysis/task11e_*.py, task11e2_*.py, task11e3_*.py, task11e4_*.py (docs/task11e_findings.md ... docs/task11e4_findings.md); production migration into src/ (calibration.py, projection.py) is Task 11F, NOT started"
+    implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); prototype code analysis/task11e_*.py, task11e2_*.py, task11e3_*.py, task11e4_*.py (docs/task11e_findings.md ... docs/task11e4_findings.md); production migration into src/ was Task 11F (UPDATE, done: src/curtailmit/hourly_model.py, hourly_uncertainty.py, limitations.py, projection.project_curtailment_hourly; docs/task11f_design.md)"
 
   D25:
     status: adopted
@@ -698,7 +698,7 @@ decisions:
       remains, about +1.4 to +1.6 pp of the rate per year over 2022-2026 (95 percent interval 0.5 to 2.7), better described as a step of about +4.6 pp in January 2025 (coinciding with a doubling of the energy-balance share of curtailment) than as a smooth trend, concentrated at r between 20 and 40 percent and in RN and BA, not explained by fleet vintage or state
       composition, cause not identified. Compounded naively to 2050 it would add about 39 pp, but it is bounded by the asymptote of the curve (2050 wind rate headroom 7-17 pp): additional 2050 wind curtailment +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 wind + solar total, upward only; for 2030 +10-14
       percent of wind curtailment. The drift is not corrected in the adopted specification of D24 (an explicit trend term was tested and rejected); central values of option E are more likely low than high.
-    implemented_in: "adoption recorded in the Task 11F-0 commit ('Task 11F-0: formal adoption of D25; D23-D26 all adopted'); propagation into production outputs as the known_limitations field is Task 11F-3"
+    implemented_in: "adoption recorded in the Task 11F-0 commit ('Task 11F-0: formal adoption of D25; D23-D26 all adopted'); propagated into production outputs as the known_limitations / drift_direction fields and the .limitations.json sidecar (Task 11F; src/curtailmit/limitations.py, projection.project_curtailment_hourly)"
 
   D26:
     status: adopted

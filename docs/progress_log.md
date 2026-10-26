@@ -191,3 +191,7 @@ into `config/scenarios.yaml`.
 ## Task 11F-0 (2026-10) - D25 adopted
 
 - `config/discovered_sources.yaml`: D25 `adopted` (text verbatim from the Task 11E5 recommendation); D23-D26 all adopted. Documentation only; no `src/` change. Next: design proposal `docs/task11f_design.md` (11F-1), awaiting approval.
+
+## Task 11F (2026-10) - option E in production
+
+- `src/` migration complete (hourly_model, hourly_uncertainty, limitations, projection.project_curtailment_hourly, labelled references, mitigation guard); regression against the validated prototypes to 1e-9; D25 propagated as `known_limitations`; consolidated methods text in docs/methodology.md 2.3j. Task 13 unblocked, awaiting confirmation.

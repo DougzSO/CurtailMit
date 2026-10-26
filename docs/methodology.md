@@ -230,6 +230,40 @@ Details and numbers: `docs/task11e5_findings.md` (cross-linked; sections 2.3b-2.
 
 D25 (residual wind drift accepted as a documented, quantified limitation, not corrected in the model; section 2.3h and `docs/task11e5_findings.md`) was adopted on 2026-10-26. D23 (gross basis), D24 (option E by horizon) and D26 (transmission extension retired) were adopted in Task 11F0. The consolidated description of the adopted production model will be written in Task 11F-4.
 
+## 2.3j. Current adopted methodology (Task 11F) - production model: option E, the hourly dose-response model
+
+This section is the consolidated description of the curtailment model in production (`src/curtailmit/hourly_model.py`, `hourly_uncertainty.py`, `limitations.py`, `projection.project_curtailment_hourly`). It can be read on its own; sections 2.3 to 2.3i are the historical record of how it was reached (Tasks 7 to 11E5) and are not edited. Decisions D23 to D26 are adopted (`config/discovered_sources.yaml`).
+
+**Model.** The curtailment rate of a technology in a given hour is a bounded logistic function of r, the hourly potential share of variable renewable energy (VRE) in the load of the whole interconnected system (SIN):
+
+    r_h = 100 x (wind_h + curtailed wind_h + dispatched solar_h + curtailed solar_h) / load_h,      rate(r) = L / (1 + exp(-k (r - x0))),   0 < L <= 1.
+
+The curve is fitted separately for wind (57 months, 2022-01 to 2026-09) and solar (30 months, 2024-04 to 2026-09) on 2-pp bins of r, weighted by the potential energy of each bin, using only bins with at least 15 observed hours. The fitted curves are: wind L = 0.733, k = 0.1427, x0 = 40.9; solar L = 0.736, k = 0.1011, x0 = 41.9. The populated support ends at r = 63 % for both (the observed maximum is 75.8 %). Hourly data (not monthly national penetration) are used because monthly penetration is a time-confounded coarse proxy of r (D25 text below), and because the hourly relation is stable across the years 2023-2026.
+
+**Projection.** The 2025 SIN hourly profile (potential wind, potential solar, load) is scaled to each PTE scenario and year: wind by W_t/W_2025, solar by S_t/S_2025, load by T_t/T_2025, with the PTE annual totals. The hourly r of the scenario is recomputed and the curve applied to the scaled potential generation of each hour. Curtailed energy = PTE generation x energy-weighted rate (D23: the PTE generation figures are treated as gross, i.e. potential, a working assumption adopted by decision; the evidence was weak and mixed). Technology totals are summed for wind + solar.
+
+**Reporting by horizon (D24).**
+- 2025, 2030, 2040: central estimate; the empirical annual-backtest band (relative error range of annual forecasts for test years 2025-2026; descriptive, not a prediction interval) is the headline measure of uncertainty; the split-conformal 80 % interval over out-of-sample quarter forecasts is supplementary (finite-sample rule ceil((n+1)(1-alpha)) <= n; weights 1 per test quarter; symmetric score |ln(pred/obs)|; log-quantiles wind 1.136, solar 0.877, unified 1.086). No 90 % interval can be certified for solar or the total. The total's conformal interval applies the unified calibration's log-quantile to the sum of the technology centrals. The 2040 TA scenario is flagged as partially outside the observed hourly support (about 14.5 % of hours; 30-45 % of its curtailment comes from beyond-support hours).
+- 2050: central estimate only, with (i) the decomposition of curtailment into hours inside and beyond the populated support (53-76 % of the 2050 curtailed energy, 51-77 % across technologies, comes from hours with no historical analogue), (ii) the flexibility-conditional range (lower scenario: flexibility phi = 1.5, i.e. r_eff = r/1.5; upper: asymptote pinned at L = 1), and (iii) the explicit statement that no valid conformal interval exists at this horizon (calibration and projection conditions are not exchangeable; the correctly applied procedure is unbounded). No probability and no "calibrated" label (`calibrated_label = False`, `conformal_available = False`). The range is conditional on assumptions, not a confidence interval. International hourly data were intentionally excluded (scope decision).
+
+**Production results (TWh of curtailed wind + solar, central; band or conditional range):**
+
+| Scenario | 2025 | 2030 | 2040 | 2050 |
+|---|---|---|---|---|
+| TB | 43.8 (42.5-53.0) | 64.3 (60.7-76.5) | 127.6 (121.1-152.4) | 354.8 (230.9-432.1, conditional) |
+| TA | 43.7 (42.4-52.9) | 63.1 (59.6-75.1) | 242.4 (237.5-295.3; partly out of support) | 536.1 (406.3-680.4, conditional) |
+| TG | 43.8 (42.5-53.0) | 58.2 (55.2-69.5) | 181.4 (175.2-219.0) | 333.9 (197.6-395.6, conditional) |
+
+For 2025-2040 the interval shown is the empirical band; the conformal 80 % intervals are much wider (for example TB 2030: 21.7-190.3 TWh) and are reported in the supplement. For 2050 the interval is the flexibility-conditional range. These values reproduce the validated prototypes to 1e-9 (regression tests).
+
+**Known limitation carried by every wind-containing result (D25, adopted text, verbatim):**
+
+> Monthly penetration P (national or regional) is a time-confounded coarse proxy of the hourly system-wide potential VRE share of load r: the hourly driver is not just time (partial correlation 0.68-0.70 against 0.14 for P_NE and 0.42 for national P) and adding an explicit trend term does not erode it. A residual upward shift of wind curtailment at fixed r remains, about +1.4 to +1.6 pp of the rate per year over 2022-2026 (95 percent interval 0.5 to 2.7), better described as a step of about +4.6 pp in January 2025 (coinciding with a doubling of the energy-balance share of curtailment) than as a smooth trend, concentrated at r between 20 and 40 percent and in RN and BA, not explained by fleet vintage or state composition, cause not identified. Compounded naively to 2050 it would add about 39 pp, but it is bounded by the asymptote of the curve (2050 wind rate headroom 7-17 pp): additional 2050 wind curtailment +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 wind + solar total, upward only; for 2030 +10-14 percent of wind curtailment. The drift is not corrected in the adopted specification of D24 (an explicit trend term was tested and rejected); central values of option E are more likely low than high.
+
+In the output tables this appears as `known_limitations = "D25;SOLAR_SHORT_RECORD"` and `drift_direction = "upward"` on every row, with the full text and quantified bounds in the sidecar `pte_curtailment_option_E.parquet.limitations.json` and in the parquet file metadata (loaded from the YAML, so the output cannot drift from the recorded decision). Other limits: the model holds today's operational flexibility fixed (the flexibility range is the only treatment of that); the curve is stable across years but not across seasons or hours of day; solar has 30 months of data; the model is validated for 2030-2040 and not for 2050.
+
+**Reference formulations (not the production model).** The national monthly-penetration curves of Tasks 7-11B (`calibration.run_calibration`, `projection.project_curtailment_two_curves`, `model = "reference_national_curve"`) and the Northeast regional-only fit of Task 11D (`calibration.fit_regional_reference`, `model = "reference_regional_NE"`) are kept, labelled `role = "reference"`, as points of the methodological narrative. Mitigation outputs built from a reference table are prefixed `reference_` (`mitigation.output_prefix`). The transmission-expansion (PDE/PET) extension is retired (D26); the caveat that 38 % of the Northeast wind curtailment in 2026 is still attributable to network-element limits (23 % internal to the Northeast) is carried in the sidecar as a sensitivity note.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
