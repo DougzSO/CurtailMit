@@ -729,6 +729,58 @@ decisions:
       not as a calibrated pathway, and must be stated in the paper's limitations. The statement supported is that curtailment is not primarily export-bound, not that transmission is irrelevant.
     implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); documentation only (docs/roadmap.md); no code existed for the retired extension"
 
+  D27:
+    status: pending
+    date: "2026-10-26"
+    topic: "Fate of the pre-existing results_writer.ResultsRow schema (supersede, coexist or freeze) when the Option E final output layer is built"
+    source_task: "Task 13-1 - docs/task13_design.md section 0.1"
+    found: >
+      src/curtailmit/results_writer.py already exists (a mechanical schema + CSV/JSON layer: frozen ResultsRow, one scalar E_curt_twh per scenario x year, no range, no horizon
+      treatment, no known_limitations / calibrated_label / support_status). It computes nothing, has never produced an output file, is not reachable from scripts/run_pipeline.py and is
+      used only by tests/test_results_writer.py and tests/test_data_dictionary.py. It does not contradict any Option E figure; it conflicts structurally with the Task 13-1 requirements,
+      and the older Task 13 text in docs/claude_commands.md says "do not change this schema" (written before D23-D26).
+    proposal: "Option A: supersede inside the same module (keep the name results_writer.py; add the long-format FinalResultsRow writer; mark ResultsRow and its I/O deprecated but importable and tested)."
+    options:
+      supersede_in_same_module: "Recommended: one module, legacy kept importable under a deprecation note, legacy-to-new mapping in the data dictionary."
+      coexist: "Keep ResultsRow for a 2020 historical baseline row and use the new schema for projections; two output schemas in the repo."
+      freeze_and_new_module: "Leave results_writer.py untouched and put the new writer in a differently named module; same coexistence cost, misleading name."
+    decidable_now: "yes"
+    working_reading: "Task 13-1 author's recommendation, not a decision. Nothing in the legacy module was changed."
+
+  D28:
+    status: pending
+    date: "2026-10-26"
+    topic: "How the OM/CM split interacts with the horizon-dependent range of option E (2050 flexibility-conditional range, 2025-2040 empirical band and conformal supplement)"
+    source_task: "Task 13-1 - docs/task13_design.md section 0.2"
+    found: >
+      Arithmetically no ambiguity: mitigation = E x deterministic factor(year) is linear and monotone, so applying the range before or after the OM/CM split gives the same numbers. The open
+      points are conventions: (1) the 2050 range is conditional on a flexibility assumption on the energy side only, the emission factors are not conditioned on the same assumption;
+      (2) OM and CM are alternative proxies (D12), never components to be summed; (3) the conformal supplement maps through the factor unchanged but stays in its own columns;
+      (4) MCTI factor uncertainty is not in any range.
+    proposal: >
+      Apply the energy end points through each factor after the split (avg, OM, CM each with its own central and range); state in range_basis that the factor is held at one MCTI year and is not part of the
+      range; never sum OM and CM; keep the 2050 range labelled conditional (calibrated_label False) in every tCO2 row.
+    options:
+      post_split_per_factor: "Recommended."
+      energy_range_only: "Report the range for TWh only and leave tCO2 as central values plus a note; simpler, loses the range where the article needs it."
+    decidable_now: "yes"
+    working_reading: "Task 13-1 author's recommendation, not a decision."
+
+  D29:
+    status: pending
+    date: "2026-10-26"
+    topic: "MCTI emission-factor year applied to the projection years 2030, 2040 and 2050 (open duty recorded in the D18 caveat and the roadmap)"
+    source_task: "Task 13-1 - docs/task13_design.md section 0.3"
+    found: >
+      MCTI margins and average factors exist only for completed years (config mcti.required_years 2020-2025). The projection grid is 2025/2030/2040/2050. The annual average factor varied
+      between 0.0385 (2023) and 0.1263 (2021) tCO2/MWh over 2021-2025, so the choice matters to the tCO2 results.
+    options:
+      hold_latest_complete_year: "Recommended default: use 2025 for all projection years; simplest and traceable."
+      multi_year_mean_2021_2025: "Smooths hydrology-driven swings; larger methodological content."
+      report_both_as_sensitivity: "Headline with one rule, the other as a labelled sensitivity."
+    decidable_now: "yes"
+    working_reading: "Task 13-1 author's reading, not a decision; examples in the design use hold-2025 as a placeholder only. The rule chosen is logged per row in emission_factor_basis."
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

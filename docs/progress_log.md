@@ -195,3 +195,11 @@ into `config/scenarios.yaml`.
 ## Task 11F (2026-10) - option E in production
 
 - `src/` migration complete (hourly_model, hourly_uncertainty, limitations, projection.project_curtailment_hourly, labelled references, mitigation guard); regression against the validated prototypes to 1e-9; D25 propagated as `known_limitations`; consolidated methods text in docs/methodology.md 2.3j. Task 13 unblocked, awaiting confirmation.
+
+## Task 13_pre (2026-10) - pandas 3 dtype test fix
+
+- Test-only: `tests/test_ons_solar_gap.py` treats `large_string` and `string` as the same logical type. No `src/` change. Commit `6362db0`.
+
+## Task 13-1 (2026-10) - design of the final output layer
+
+- Design only: `docs/task13_design.md`. Legacy `results_writer.py` investigated (unused, never produced output, structural conflict with the new schema). Pending decisions D27, D28, D29 registered in `config/discovered_sources.yaml`. No `src/` or test change; Task 13 not started.
