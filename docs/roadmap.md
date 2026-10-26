@@ -244,3 +244,9 @@ Task 11E5 (investigation / prototype, Brazil-only, no new data, no `src/` change
 - Compounded naively to 2050 it would be about +39 pp, but the asymptote bounds it (only 7-17 pp of headroom): +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 total, upward only.
 - An explicit trend term does not pass the pre-registered safety and worth criteria; not recommended. The bounded step variant is the only safe sensitivity.
 - Recommendation for D25: accept the drift as a documented, quantified limitation (text in the memo, section 5). D25 stays `pending` for your decision; Task 11F (production migration of option E, D24 adopted) can start after it, with your confirmation. Task 13 remains blocked until Task 11F is done.
+
+---
+
+## Update (Task 11F-0) - all four decisions D23-D26 are now adopted; Task 11F proceeding
+
+D25 was adopted on 2026-10-26 by explicit user decision (accept as a documented, quantified limitation; text verbatim from `docs/task11e5_findings.md` section 5 / `config/discovered_sources.yaml`). With D23, D24 and D26 (Task 11F0) all four pending decisions are resolved. Task 11F (production migration of option E into `src/`) is proceeding; its design proposal is in `docs/task11f_design.md` and awaits approval before any `src/` change. Task 13 stays blocked until Task 11F is complete.

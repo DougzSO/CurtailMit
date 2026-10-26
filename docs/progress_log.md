@@ -187,3 +187,7 @@ into `config/scenarios.yaml`.
 
 - Investigation / prototype only; no `src/` change; no new data; D25 `pending` (recommendation only). Added `analysis/task11e5_*.py`, `tests/test_analysis_task11e5.py`, `docs/task11e5_findings.md`.
 - Findings (preliminary): drift +1.4-1.6 pp per year, better described as a step at 2025-01; vintage and state composition rejected; bounded by the asymptote at 2050; trend term not safe. Recommendation: accept as quantified limitation. Task 11F awaits the D25 decision and your confirmation; Task 13 blocked.
+
+## Task 11F-0 (2026-10) - D25 adopted
+
+- `config/discovered_sources.yaml`: D25 `adopted` (text verbatim from the Task 11E5 recommendation); D23-D26 all adopted. Documentation only; no `src/` change. Next: design proposal `docs/task11f_design.md` (11F-1), awaiting approval.

@@ -653,7 +653,8 @@ decisions:
     implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); prototype code analysis/task11e_*.py, task11e2_*.py, task11e3_*.py, task11e4_*.py (docs/task11e_findings.md ... docs/task11e4_findings.md); production migration into src/ (calibration.py, projection.py) is Task 11F, NOT started"
 
   D25:
-    status: pending
+    status: adopted
+    date_adopted: "2026-10-26"
     date: "2026-10-22"
     topic: "Time confound: the P -> C_wind relation in the Northeast is mostly a time trend"
     source_task: "Task 11D, sub-task 11D-b - docs/task11d_findings.md (originally noted in Task 11C (c) as C correlating more with time than with national P)"
@@ -691,7 +692,13 @@ decisions:
         accept_as_limitation: "Recommended: close D25 with the text above; no change to option E."
         adopt_extended_model: "Not recommended (fails the parameter-uncertainty, out-of-sample and bounded-extrapolation criteria); the bounded step variant is the only safe sensitivity (+0.7 to +4.3 percent in 2040-2050, +10 percent in 2030)."
       decidable_now: "yes"
-    decided: "nothing; to be decided by the user"
+    decided: >
+      ADOPTED on 2026-10-26 (Task 11F) by explicit user decision, accept_as_limitation; the adopted text is the recommended_final_text of Task 11E5, verbatim:
+      Monthly penetration P (national or regional) is a time-confounded coarse proxy of the hourly system-wide potential VRE share of load r: the hourly driver is not just time (partial correlation 0.68-0.70 against 0.14 for P_NE and 0.42 for national P) and adding an explicit trend term does not erode it. A residual upward shift of wind curtailment at fixed r
+      remains, about +1.4 to +1.6 pp of the rate per year over 2022-2026 (95 percent interval 0.5 to 2.7), better described as a step of about +4.6 pp in January 2025 (coinciding with a doubling of the energy-balance share of curtailment) than as a smooth trend, concentrated at r between 20 and 40 percent and in RN and BA, not explained by fleet vintage or state
+      composition, cause not identified. Compounded naively to 2050 it would add about 39 pp, but it is bounded by the asymptote of the curve (2050 wind rate headroom 7-17 pp): additional 2050 wind curtailment +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 wind + solar total, upward only; for 2030 +10-14
+      percent of wind curtailment. The drift is not corrected in the adopted specification of D24 (an explicit trend term was tested and rejected); central values of option E are more likely low than high.
+    implemented_in: "adoption recorded in the Task 11F-0 commit ('Task 11F-0: formal adoption of D25; D23-D26 all adopted'); propagation into production outputs as the known_limitations field is Task 11F-3"
 
   D26:
     status: adopted

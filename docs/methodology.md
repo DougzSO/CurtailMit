@@ -226,6 +226,10 @@ Details and numbers: `docs/task11e5_findings.md` (cross-linked; sections 2.3b-2.
 - **Bounded compounding.** The asymptote of the curve caps the drift: in 2050 the central wind rate has only 7-17 pp of headroom, so the additional wind curtailment is +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), always upward.
 - **Extended model.** Linear, saturating, step and slope-change trend terms keep the hourly driver intact (partial correlation 0.69-0.70) but inflate the parameter uncertainty (1.6-8.5 times), validate inconsistently out of sample and cannot be extrapolated (2050 wind -33 percent to +31 percent across variants); not adopted in the specification of D24.
 
+## 2.3i. Update (Task 11F-0) - decisions D23-D26 all adopted
+
+D25 (residual wind drift accepted as a documented, quantified limitation, not corrected in the model; section 2.3h and `docs/task11e5_findings.md`) was adopted on 2026-10-26. D23 (gross basis), D24 (option E by horizon) and D26 (transmission extension retired) were adopted in Task 11F0. The consolidated description of the adopted production model will be written in Task 11F-4.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
