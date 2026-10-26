@@ -233,3 +233,14 @@ On 2026-10-26 the user adopted three candidates (`config/discovered_sources.yaml
 - **D26 - the transmission-capacity-expansion extension (EPE PDE / PET planning data), listed above as a deferred optional refinement, is formally RETIRED, not merely deferred.** The "deferred extension" items of the earlier Task 11D / 11E / 11E2 updates and of the task tables are superseded by this entry (annotated, not rewritten). Declared caveat kept in the decision: in 2026 about 38 percent of NE wind curtailment is attributable to network-element limits (23 percent internal to the NE), covered only through the flexibility sensitivity of option E.
 - **D25 remains `pending`**, deferred to Task 11E5; it is adopted last.
 - **Task 11F (production migration of option E into `src/`) is unblocked in principle** but should wait for D25 (Task 11E5). **Task 13 stays blocked** until Task 11F is done.
+
+---
+
+## Update (Task 11E5) - residual wind drift of option E: quantified limitation, recommendation for D25
+
+Task 11E5 (investigation / prototype, Brazil-only, no new data, no `src/` change; `docs/task11e5_findings.md`) examined the residual upward drift of the hourly wind model, the last open item (D25):
+
+- Size: +1.4 to +1.6 pp of the wind curtailment rate per year (95 percent interval 0.5-2.7), better described as a step of about +4.6 pp in January 2025 (coinciding with the doubling of the energy-balance share of curtailment) than as a smooth trend; it sits at r between 20 and 40 percent and in RN and BA. Fleet vintage and state composition do not explain it (rejected); the cause is not identified with the data in hand.
+- Compounded naively to 2050 it would be about +39 pp, but the asymptote bounds it (only 7-17 pp of headroom): +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 total, upward only.
+- An explicit trend term does not pass the pre-registered safety and worth criteria; not recommended. The bounded step variant is the only safe sensitivity.
+- Recommendation for D25: accept the drift as a documented, quantified limitation (text in the memo, section 5). D25 stays `pending` for your decision; Task 11F (production migration of option E, D24 adopted) can start after it, with your confirmation. Task 13 remains blocked until Task 11F is done.

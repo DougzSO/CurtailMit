@@ -676,6 +676,21 @@ decisions:
     task11e3_update: >
       Task 11E3 strengthens the caveat: in the 115 temporal wind splits the error of the hourly model grows with the lead time between training and test (corr -0.34 for wind, ln-ratio -0.066 per month of lead) and not with the covariate distance (corr -0.04). The drift is therefore a feature of the data (unexplained, upward), not an artefact of
       extrapolating r. Ready-to-close wording: "monthly P (national or regional) is a time-confounded coarse proxy of the hourly system-wide potential VRE share of load; the hourly driver is not just time (partial correlation 0.68-0.70 vs 0.14 for P_NE and 0.42 for national P), but an unexplained upward drift of about 2 pp per year in wind remains."
+    task11e5_update:
+      finding: >
+        Task 11E5 (docs/task11e5_findings.md): the residual wind drift is +1.4 to +1.6 pp of the rate per year (95 percent interval 0.5-2.7; 1.4-2.3 by the binned measure), better described as a step of about +4.6 pp at 2025-01 (BIC; permutation p = 0.07), coinciding with the doubling of the energy-balance (ENE / DEB) share of curtailment
+        (29.5 percent in 2024, 50.6 in 2025); concentrated at r 20-40 and in RN / BA; NOT explained by fleet vintage or state composition (shift-share composition effect negative); cause not identified (documented rule changes untestable with the data in hand). Compounded naively to 2050 it is about +39 pp (14-64), but the asymptote bounds it
+        (2050 headroom 7-17 pp): +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped) = 3-15 percent of the 2050 total, upward only; 2030 +10-14 percent of wind curtailment. An explicit trend term (linear, saturating, step, slope change) keeps the hourly driver intact (partial correlation 0.69-0.70) but inflates parameter uncertainty 1.6-8.5 times,
+        validates inconsistently out of sample and is not identified beyond the sample (2050 wind -33 to +31 percent across variants): not recommended.
+      recommended_final_text: >
+        Monthly penetration P (national or regional) is a time-confounded coarse proxy of the hourly system-wide potential VRE share of load r: the hourly driver is not just time (partial correlation 0.68-0.70 against 0.14 for P_NE and 0.42 for national P) and adding an explicit trend term does not erode it. A residual upward shift of wind curtailment at fixed r
+        remains, about +1.4 to +1.6 pp of the rate per year over 2022-2026 (95 percent interval 0.5 to 2.7), better described as a step of about +4.6 pp in January 2025 (coinciding with a doubling of the energy-balance share of curtailment) than as a smooth trend, concentrated at r between 20 and 40 percent and in RN and BA, not explained by fleet vintage or state
+        composition, cause not identified. Compounded naively to 2050 it would add about 39 pp, but it is bounded by the asymptote of the curve (2050 wind rate headroom 7-17 pp): additional 2050 wind curtailment +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 wind + solar total, upward only; for 2030 +10-14
+        percent of wind curtailment. The drift is not corrected in the adopted specification of D24 (an explicit trend term was tested and rejected); central values of option E are more likely low than high.
+      options:
+        accept_as_limitation: "Recommended: close D25 with the text above; no change to option E."
+        adopt_extended_model: "Not recommended (fails the parameter-uncertainty, out-of-sample and bounded-extrapolation criteria); the bounded step variant is the only safe sensitivity (+0.7 to +4.3 percent in 2040-2050, +10 percent in 2030)."
+      decidable_now: "yes"
     decided: "nothing; to be decided by the user"
 
   D26:

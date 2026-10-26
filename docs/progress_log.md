@@ -182,3 +182,8 @@ into `config/scenarios.yaml`.
 - Decision locking only: `config/discovered_sources.yaml` D23, D24, D26 `adopted` (specifications recorded in full, `implemented_in` populated); D25 `pending` (Task 11E5). No new analysis, no code under `src/` or `analysis/`.
 - Documentation (append-only): roadmap update (the PDE / PET extension is retired, not deferred), methodology 2.3g, claude_commands 1.11F0 and task table.
 - Task 11F is unblocked in principle but waits for D25; Task 13 blocked.
+
+## Task 11E5 (2026-10) - residual wind drift of option E; D25 recommendation
+
+- Investigation / prototype only; no `src/` change; no new data; D25 `pending` (recommendation only). Added `analysis/task11e5_*.py`, `tests/test_analysis_task11e5.py`, `docs/task11e5_findings.md`.
+- Findings (preliminary): drift +1.4-1.6 pp per year, better described as a step at 2025-01; vintage and state composition rejected; bounded by the asymptote at 2050; trend term not safe. Recommendation: accept as quantified limitation. Task 11F awaits the D25 decision and your confirmation; Task 13 blocked.

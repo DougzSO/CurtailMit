@@ -217,6 +217,15 @@ The modelling choices below are now ADOPTED (`config/discovered_sources.yaml`); 
 - **Transmission (D26):** no transmission-expansion refinement is part of the method (extension retired); network-element limits (38 percent of NE wind curtailment in 2026, 23 percent NE-internal) are acknowledged in the limitations and enter only through the flexibility sensitivity.
 - Open: D25 (time confound; Task 11E5). Production implementation (Task 11F) is not started.
 
+## 2.3h. Update (Task 11E5) - residual drift of the hourly wind model (preliminary findings, not an adopted decision)
+
+Details and numbers: `docs/task11e5_findings.md` (cross-linked; sections 2.3b-2.3g are not edited).
+
+- **Quantification.** The monthly residual of the pooled hourly wind curve (observed minus predicted rate) trends upward by 1.4-1.6 pp per year (Newey-West and block-bootstrap 95 percent intervals 0.4-2.9); a single step of about +4.6 pp at 2025-01 fits better than a straight line (BIC), a saturating curve does not; the shift is concentrated at r between 20 and 40 percent (the curve flattens: k from 0.168 to 0.118) and is absent on the plateau.
+- **Explanations.** Rejected: fleet vintage and state composition (shift-share: composition effect negative, within-group change +5.5 to +8.9 pp; old plants drift as much as new ones; RN and BA carry it). Supported circumstantially: an operating-regime change in 2025 raising energy-balance and external-unavailability curtailment at a given r. Untestable with the data in hand: documented ONS / ANEEL rule changes, turbine technology, local grid events.
+- **Bounded compounding.** The asymptote of the curve caps the drift: in 2050 the central wind rate has only 7-17 pp of headroom, so the additional wind curtailment is +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), always upward.
+- **Extended model.** Linear, saturating, step and slope-change trend terms keep the hourly driver intact (partial correlation 0.69-0.70) but inflate the parameter uncertainty (1.6-8.5 times), validate inconsistently out of sample and cannot be extrapolated (2050 wind -33 percent to +31 percent across variants); not adopted in the specification of D24.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}

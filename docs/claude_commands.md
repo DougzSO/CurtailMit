@@ -174,6 +174,11 @@ Outcome (preliminary): (a) publication-ready coverage figure and caption; (b) NE
 2026-10-26. `config/discovered_sources.yaml`: **D23** (PTE generation read as gross, by user decision as a working assumption; evidence still weak and mixed; net sensitivity documented, not blocking), **D24** (option E, hourly dose-response, as the primary curtailment model, reported by horizon as in `docs/task11e4_findings.md` section 6) and **D26** (the PDE / PET transmission-expansion extension is retired, with the declared caveat of 38 percent / 23 percent network-element limits) are `adopted`. **D25 stays `pending`** (Task 11E5, adopted last). Nothing under `src/` or `analysis/` changed.
 **Task 11F (production migration of option E into `calibration.py` / `projection.py`) is unblocked in principle but should wait for the resolution of D25 (Task 11E5), then start only after your explicit confirmation. Task 13 remains blocked until Task 11F is done.**
 
+### 1.11E5 Task 11E5 - residual wind drift of the hourly model (D25) - RUN, recommendation pending user decision
+
+Investigation / prototype only (Brazil-only, no new data): no `src/` file changed, D25 not adopted. Code: `analysis/task11e5_drift_characterization.py`, `task11e5_drift_hypotheses.py`, `task11e5_extended_model.py`, tests `tests/test_analysis_task11e5.py`. Memo: `docs/task11e5_findings.md`.
+Outcome (preliminary): drift +1.4-1.6 pp per year (95 percent 0.5-2.7), better a step of +4.6 pp at 2025-01 coinciding with the doubling of energy-balance curtailment; not explained by fleet vintage or state composition; bounded by the asymptote when compounded to 2050 (+1-4 percent step, +15-20 TWh saturating, at most +34-52 TWh linear capped); an explicit trend term fails the safety / worth criteria. Recommendation: accept as a documented quantified limitation (text for D25 in the memo, section 5). **D25 remains `pending`; Task 11F can start after your decision and confirmation; Task 13 stays blocked until Task 11F.**
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
@@ -283,6 +288,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 11E3 | Extrapolation-distance calibration of the 2050 uncertainty; decision closure D24 / D25 / D26 (Brazil-only) | `analysis/task11e3_*.py` | ✅ RUN, findings pending review (`docs/task11e3_findings.md`; 2050 stays conditional) |
 | 11E4 | Coverage figure, NE-hourly extension, sub-hourly feasibility, conformal prediction (Brazil-only) | `analysis/task11e4_*.py` | ✅ RUN, findings pending review (`docs/task11e4_findings.md`; D27 not registered; 2050 stays conditional) |
 | 11F0 | Formal adoption of D23, D24, D26 (decision locking only) | `config/discovered_sources.yaml`, docs | ✅ DONE (D25 pending, Task 11E5) |
+| 11E5 | Residual wind drift of the hourly model: characterisation, explanations, extended model; D25 recommendation | `analysis/task11e5_*.py` | ✅ RUN, recommendation pending (`docs/task11e5_findings.md`) |
 | 11F | Production migration of the chosen driver (formerly numbered 11E) | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D23, D24 (incl. option E), D25 |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
 | 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⛔ BLOCKED pending Task 11D / 11E outcome (rewritten below) |
