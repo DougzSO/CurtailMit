@@ -181,6 +181,16 @@ the curtailed energy; 49 % of NE wind curtailment carries the ONS energy reason 
 outside the Brazilian experience and the result depends on flexibility (storage, interconnection, demand response) that is not calibrated by any Brazilian data, so it is reported as a flexibility-conditional range. Full evidence and the numbers for each decision
 option: `docs/task11e_findings.md`; data provenance: `docs/ons_transmission_data_sources.md`.
 
+## 2.3d. Update (Task 11E2) - validation of the hourly driver, wind extension, transmission mechanism (preliminary findings, not adopted decisions)
+
+Details and numbers: `docs/task11e2_findings.md` (cross-linked; sections 2.3b and 2.3c above are not edited).
+
+- **Coverage of the driver.** r is the hourly SIN potential VRE share of load. The PTE-scaled 2025 hourly profile falls inside the observed populated support (r <= 63 percent, 15 or more hours per 2-pp bin; maximum observed 75.8) for 99.6 percent of 2030 hours, 86-96 percent of 2040 hours and 43-70 percent of 2050 hours; the share of projected curtailment produced by hours beyond the support is 2-3 / 13-30 / 51-77 percent (wind, 2030 / 2040 / 2050).
+- **Validation.** Annual backtest and leave-one-year-out against two refitted benchmarks (national-P logistic, linear time trend); stability of (k, x0) across years, seasons, hours of day and subsystems with the asymptote pinned (effect size, not p-values, because hourly samples reject every equality test); month-resampling bootstrap; partial correlation with monthly C given time (national P 0.42, P_NE 0.14, hourly model 0.70). Unexplained residual: wind drifts about +2 pp per year.
+- **Wind and unified driver.** The same logistic family fits wind (L 0.73, x0 41) and solar (L 0.74, x0 42); a single curve for total VRE curtailment reproduces the two-curve totals within 2 percent, while the technology split for the OM / CM step stays technology-specific.
+- **Transmission mechanism.** ONS reason classes (D5: ENE -> DEB, CNF -> REB, REL -> EUB), origin (SIS / LOC) and a keyword classification of the constraint description show that NE wind curtailment is increasingly an energy-balance phenomenon (DEB 8 percent in 2022, 61 percent in 2026); explicit interchange-related constraints are a minority; network-element limits (NE-internal, SE-side, flow controls) total 38 percent of 2026. The saturation test of Task 11E understates export limitation because dynamic limits sit below the demonstrated maximum.
+- **Gross vs net (D23).** Under the hourly driver only the gross reading is operational; the net inversion overstates observed 2025 curtailment three-fold.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}

@@ -152,6 +152,13 @@ Outcome (preliminary): (a) the midday potential VRE share of load explains month
 projection is an envelope (2050: 79-245 TWh, TA 162-245 with the capacity floor); (c) transmission-capacity stocks are collinear with time and NE export is saturated in only 1-8 % of curtailed energy, so D26 (interchange-capacity driver) was NOT registered. Numeric 2040/2050 totals (wind + solar) for D24 options A / C / E and the bracket for D
 are in the memo; D24 now carries option E (hourly dose-response). D23, D24, D25 remain `pending`. **Task 13 remains blocked; the production migration formerly called Task 11E is now Task 11F, not started.**
 
+### 1.11E2 Task 11E2 - validation and cross-technology unification of the hourly dose-response model - RUN, findings pending user review
+
+Investigation / prototype only (Brazil-only data): no `src/` file changed, no decision adopted, no new data acquired. Code: `analysis/task11e2_insample_coverage.py`, `task11e2_backtest.py`, `task11e2_wind_hourly.py`, `task11e2_transmission_mechanism.py`, `task11e2_options_table.py` (+ `task11e2_common.py`), tests `tests/test_analysis_task11e2.py`. Memo: `docs/task11e2_findings.md`.
+Outcome (preliminary): (a) 2030 is in-sample under the hourly driver, 2040 mostly, 2050 not (51-77 percent of the wind curtailment from hours beyond the observed support); (b) wind backtest -8 percent in sample and -11 to -19 percent out of sample (benchmarks worse), stable across years 2023-2026 but not across seasons or hours of day, upward wind drift of about 2 pp per year, partial correlation with C given time 0.70 vs 0.42 (national P) and 0.14 (P_NE);
+(c) wind follows the same family as solar and a single unified curve matches the totals within 2 percent; (d) NE wind curtailment is increasingly energy balance (DEB 8 to 61 percent, 2022-2026), interchange-related constraints are a minority; D26 (retire the PDE / PET extension, with a stated limitation) registered as pending. Numeric A-E table for 2040 / 2050 and the D24 recommendation are in the memo.
+D23, D24, D25, D26 remain `pending` (D24, D25, D26 decidable; D23 not). **Task 13 and Task 11F remain blocked.**
+
 ### 1.4 Discovery already resolved for not-yet-implemented tasks
 
 These tasks still need real **implementation**, but discovery is fully closed —
@@ -257,6 +264,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 11C | Pre-Task 13 investigation (PTE basis, international benchmarks, regional diagnostic) | `analysis/task11c_diagnostics.py` | ✅ DONE (`docs/task11c_investigation_report.md`; D23, D24 pending) |
 | 11D | Regional recalibration + time-confound + pooled panel + documentation realignment (calibration stage branch) | `analysis/task11d_*.py` | ✅ RUN, findings pending review (`docs/task11d_findings.md`; D23-D25 pending) |
 | 11E | Intra-day solar, wind asymptote envelope, transmission-capacity confound test (Brazil-only) | `analysis/task11e_*.py` | ✅ RUN, findings pending review (`docs/task11e_findings.md`; D26 not triggered) |
+| 11E2 | Validation and cross-technology unification of the hourly dose-response model (Brazil-only) | `analysis/task11e2_*.py` | ✅ RUN, findings pending review (`docs/task11e2_findings.md`; D26 registered as pending) |
 | 11F | Production migration of the chosen driver (formerly numbered 11E) | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D23, D24 (incl. option E), D25 |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
 | 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⛔ BLOCKED pending Task 11D / 11E outcome (rewritten below) |

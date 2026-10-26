@@ -553,6 +553,7 @@ decisions:
     sensitivity: "net / gross ratio 1.9x (TB 2040 solar) to 43.3x (TA 2050 wind) at the Task 11B central C"
     working_reading: "low confidence: closer to a delivered (net-like) quantity, because a model without curtailment reports what it dispatches; not a finding"
     task11e_note: "Task 11E: still no new evidence on gross vs net; the options table in docs/task11e_findings.md uses the gross formula throughout. D23 does not block D24 or D25."
+    task11e2_note: "Task 11E2: still no new evidence on gross vs net. Under option E (hourly dose-response) only the gross formula is operational: inverting delivered -> potential through f(r) overstates the observed 2025 curtailment about three-fold (113 vs 37 TWh). If the PTE were delivered energy, the gross numbers of docs/task11e2_findings.md would be a lower bound. D23 does not block D24, D25 or D26."
     task11d_note: "Task 11D keeps the Task 11B gross formula (wind curtailed = generation x C) in all its prototype numbers; they would all shift if this is decided otherwise. No new evidence on gross vs net was found (PTE has no regional or capacity data)."
     decided: "nothing; to be decided by the user (candidate action: ask the PTE/CEBRI authors what Grafico 13 represents)"
 
@@ -594,6 +595,25 @@ decisions:
         The hourly relation curtailment rate vs system-wide VRE share of load is stable across years and reproduces the monthly wind rate with R2 0.76 without time. NE export is saturated (>= 95 % of the trailing maximum) in only 1-8 % of curtailed energy;
         capacity stocks are collinear with time (0.92-0.99). Caveats: option E holds today's flexibility fixed and 12-40 % of 2050 hours exceed the observed range of r (maximum 75.8 %); A rests on the constant NE-share proxy; sensitivity to flexibility (r/1.25, r/1.5) lowers TA 2050 E from 536 to 476 and 406 TWh.
       working_reading: "Task 11E author's reading, not a decision: E for 2030-2040 and a flexibility-conditional envelope A-E-C for 2050; A is no longer the only way to get plausible magnitudes."
+    task11e2_update:
+      validation: >
+        In-sample coverage (11E2-a): 2030 hours are 99.6-99.7 percent inside the populated support of the hourly driver (r <= 63 percent; observed maximum 75.8); 2040 96 / 86 / 93 percent (TB / TA / TG) with 13 / 30 / 21 percent
+        of the wind curtailment produced by hours beyond the support; 2050 60 / 43 / 70 percent of hours inside and 62 / 77 / 51 percent of the wind curtailment beyond. Backtest (11E2-b): wind 2025 -8 percent in sample, -11 leave-one-year-out,
+        -19 trained on 2022-24 (national P -45, time trend -43, Task 11D regional prototype -37); solar +1 to +15 percent out of sample. Stability: years 2023-2026 within 2-4 pp, 2022 an outlier (17.6 pp); wet season / Q1 and night-time
+        wind curves differ by 14-23 pp; wind drifts upward about +2 pp per year (solar +0.2, n.s.). Time control: partial corr of monthly wind C with the hourly-model rate given t = 0.70 (0.68 leave-year-out) vs national P 0.42 and P_NE 0.14;
+        time stays significant (+0.24 pp per month). Wind (11E2-c): same family as solar (L 0.73 vs 0.74, x0 41 vs 42), steeper above r = 50; unified one-curve driver equals the two-curve total within 2 percent.
+      numeric_ranges_twh_wind_plus_solar_central_range: >
+        A: 2040 TB 117 (112-123), TA 193 (172-218), TG 155 (144-168); 2050 TB 237 (195-282), TA 344 (301-427), TG 234 (200-273).
+        B: no number of its own (reports the A and C lines side by side).
+        C: 2040 TB 175 (87-221), TA 356 (117-423), TG 256 (105-321); 2050 TB 513 (138-566), TA 775 (188-810), TG 482 (140-550).
+        D: no number by nature; bracket across A, C, E for reference 2040 87-221 / 117-423 / 105-321, 2050 138-566 / 188-810 / 140-550.
+        E (no curve extrapolation to L = 1; bootstrap 5-95 percent in brackets): 2040 TB 128 (127-135; 124-131), TA 242 (238-275; 232-252), TG 181 (179-197; 175-187); 2050 TB 355 (344-432; 332-371), TA 536 (516-680; 498-565), TG 334 (326-396; 315-348).
+        E flexibility sensitivity phi 1.25 / 1.5: 2040 84 / 56, 179 / 127, 125 / 85; 2050 294 / 231, 476 / 406, 264 / 198. E curtailment from hours beyond the support: 2040 19 / 91 / 46, 2050 220 / 409 / 176 TWh.
+      recommendation: >
+        Task 11E2 author's reading, not a decision: adopt E as the primary driver, reported by horizon: 2030 and 2040 as validated central values with the known downward bias and the seasonal heterogeneity stated; 2050 only as a conditional
+        range (E with the in-support / beyond-support decomposition and the phi sensitivity, C as the labelled national reference, i.e. B-style reporting). A is not recommended as primary (dominated by E on time control, backtest and coverage; it can stay as a
+        lower-side sensitivity). E is not validated for 2050: 51-77 percent of its energy comes from hours with r above any observed value, and it holds today's flexibility fixed.
+      decidable_now: "yes"
     decided: "nothing; to be decided by the user"
 
   D25:
@@ -612,6 +632,33 @@ decisions:
       Mechanism of the time effect (Task 11E): the monthly "time trend" is largely the upward shift of the hourly distribution of the system-wide potential VRE share of load r (p95 of r 26, 29, 36, 46, 47 % in 2022-2026) acting on a stable hourly dose-response curve.
       A fixed hourly curve reproduces the national monthly wind rate with R2 0.76 (time alone 0.73); adding time gives 0.86 (partial corr of t given the curve 0.65), i.e. a residual under-prediction of 2-3 pp in 2025-26 is unexplained. Capacity stocks reconstructed from ONS registries are collinear with time (0.92-0.99)
       and do not replace it; VRE potential / boundary capacity beats P_NE net of time (partial 0.60 vs 0.14) but time stays significant. Candidate text refinement: P (national or regional, monthly) is a coarse proxy of the hourly system-wide VRE share of load; the caveat on the time confound applies to monthly P, not to the hourly driver.
+    task11e2_update: >
+      Task 11E2 (docs/task11e2_findings.md, 2.4): the hourly driver survives the time control far better than monthly P. Partial correlation of national monthly wind C with the hourly-model rate given t = 0.70 (0.68 when the curve is trained without the
+      evaluated year; 0.63 for the unfitted r_p95) against 0.42 for national P and 0.14 for P_NE; incremental R2 over time 0.13 (hourly) vs 0.047 (national P) vs 0.005 (P_NE); solar 0.82. Time is not eliminated: R2 rises from 0.76 to 0.86 when t is added
+      (+0.24 pp per month; binned yearly rates drift +2.3 pp per year for wind, p < 0.001; solar +0.2, n.s.), and thermal and hydro shares do not absorb it. Candidate text, ready to close: monthly P (national or regional) is a time-confounded coarse proxy of the
+      hourly system-wide potential VRE share of load; the hourly driver is not just time, but an unexplained upward drift of about 2 pp per year remains in wind. Decidable now.
+    decided: "nothing; to be decided by the user"
+
+  D26:
+    status: pending
+    date: "2026-10-26"
+    topic: "Retire the deferred EPE PDE / PET transmission-expansion extension on the basis of the Task 11E / 11E2 negative result"
+    source_task: "Task 11E2, sub-task 11E2-d - docs/task11e2_findings.md (section 4), with docs/task11e_findings.md section 3"
+    found: >
+      Reconstructed ONS capacity stocks of the NE boundary lines, transformers and line length are collinear with time (0.92-0.99) and do not beat it; NE net export is at >= 95 percent of its trailing 12-month maximum in 0.4-3.1 percent of hours and only
+      1-8 percent of NE wind curtailment occurs there. ONS reason classes for NE wind curtailment (D5 mapping ENE -> DEB, CNF -> REB, REL -> EUB): DEB 8 percent (2022) rising to 61 percent (2026), REB 33 -> 28 percent. Constrained elements in 2026 (descriptions
+      complete): system frequency control 61.5 percent, NE-internal network limits 23.1, interchange-related 15.1 (flow controls 9.8, SE-side network 5.3). Flow controls bind at a median 64 percent of the demonstrated export maximum (dynamic limits sit below it).
+    proposal: "Remove the EPE PDE / PET transmission-expansion assumptions from the roadmap as a deferred extension (stop carrying it as an open item), and treat transmission relief as the flexibility sensitivity phi already reported for option E."
+    for: >
+      The project driver is the system-wide hourly VRE share of load; interchange-related constraints are a minority (4-5 percent flow controls alone over 2025-2026, 12-15 percent with SE-side elements); capacity stocks cannot be mapped to curtailment without an unsupported
+      hypothesis (no published coincident transfer limits); the phi sensitivity already brackets the effect (TA 2050 E 536 -> 476 -> 406 TWh).
+    against: >
+      The statement supported is that curtailment is not primarily export-bound, not that transmission is irrelevant: network-element limits total 38 percent of the 2026 NE wind curtailment (23 percent NE-internal), which expansion could reduce, and the demonstrated
+      export maximum is only a lower bound of the dynamic limit. Retiring leaves that share covered only as a flexibility sensitivity, not as a calibrated pathway. Description data exist only for 2025-26.
+    options:
+      retire: "Close the thread; document the limitation in the paper's limitations section"
+      keep_deferred: "Leave the extension deferred with the limitation noted (status quo)"
+    working_reading: "Task 11E2 author's reading, not a decision: retire, with the limitation stated"
     decided: "nothing; to be decided by the user"
 
 ben_cross_check:

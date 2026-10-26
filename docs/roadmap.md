@@ -186,3 +186,15 @@ Task 11E (investigation / prototype, Brazil-only, no `src/` change; `docs/task11
 - Transmission: ONS operational capacity stocks are collinear with time and do not replace it; NE export is saturated in only 1-8 % of curtailed energy. The structural driver that emerges is the hourly SIN-wide VRE share of load (system energy balance), not NE export capacity.
 
 Plan changes (the earlier table of the Task 11D update is annotated, not rewritten): the **production migration of the driver, previously called Task 11E, is renumbered Task 11F**; it remains NOT started and contingent on the user's decisions on D23, D24 (now with option E, hourly dose-response) and D25. Task 13 remains **blocked**. The deferred extension (EPE PDE / PET transmission-expansion assumptions) is unchanged and still not authorized. D26 (interchange-capacity driver) was not triggered and not registered.
+
+---
+
+## Update (Task 11E2) - validation of the hourly driver, wind extension, transmission mechanism
+
+Task 11E2 (investigation / prototype, Brazil-only, no `src/` change; `docs/task11e2_findings.md`) validates the hourly dose-response driver (D24 option E) and extends it to wind:
+
+- Coverage: the projected hourly conditions are inside the observed range for 2030 (99.6 percent of hours) and mostly for 2040 (86-96 percent of hours; 13-30 percent of the wind curtailment from hours beyond the support), but not for 2050 (43-70 percent of hours inside; 51-77 percent of the curtailment from beyond the support). The extrapolation problem is solved at its root only up to 2040.
+- Validation: wind 2025 backtest -8 percent in sample and -11 to -19 percent out of sample (benchmarks -22 to -45 percent); stable across years 2023-2026 and between wind and solar near r = 40, not across seasons or hours of day; wind drifts about +2 pp per year; partial correlation with monthly C given time 0.70 (national P 0.42, P_NE 0.14).
+- Wind and a unified driver: same family as solar; one curve for total VRE curtailment matches the two-curve total within 2 percent.
+- Transmission: NE wind curtailment by ONS class is increasingly energy balance (DEB 8 to 61 percent, 2022-2026); interchange-related constraints are a minority. New candidate **D26** (status pending): retire the deferred EPE PDE / PET extension, with a stated limitation.
+- Pending decisions: D24 (recommendation in the memo: E, reported by horizon, 2050 only as a conditional range), D25 and D26 are decidable; D23 is not. Task 11F (production migration) and Task 13 remain **blocked** until the user decides. The deferred extension is unchanged until D26 is decided.

@@ -156,3 +156,10 @@ into `config/scenarios.yaml`.
 - Added `analysis/task11e_*.py`, `docs/task11e_findings.md`, `docs/ons_transmission_data_sources.md`; new ONS data under `raw/ons/interchange/` (lines, transformers, pairwise interchange).
 - Findings (preliminary): midday VRE share of load explains monthly solar curtailment (R2 0.78 vs 0.40); the hourly SIN-wide VRE share of load is a stable dose-response driver for wind and solar and reproduces most of the monthly time effect; wind L not identifiable (envelope); capacity stocks collinear with time, NE export not saturated in most curtailed hours.
 - Documentation realigned (roadmap, methodology 2.3c, claude_commands 1.11E and task table, discovered_sources). Production migration renumbered 11F. Task 13 blocked.
+
+## Task 11E2 (2026-10) - validation and unification of the hourly dose-response model
+
+- Investigation / prototype only; no `src/` change; no new data; D13-D22 untouched; D23, D24, D25 and the new D26 `pending`.
+- Added `analysis/task11e2_*.py`, `tests/test_analysis_task11e2.py`, `docs/task11e2_findings.md`.
+- Findings (preliminary): the projected hourly conditions are in-sample for 2030, mostly for 2040, not for 2050; the wind backtest beats the national-P, time-trend and Task 11D regional benchmarks out of sample (-11 to -19 percent on 2025 vs -22 to -45 percent); the curve is stable across years but not across seasons or hours of day, and wind drifts about +2 pp per year; wind follows the solar curve family and one unified curve gives the same totals; NE curtailment is increasingly an energy-balance phenomenon and interchange-related constraints are a minority (D26 candidate: retire the PDE / PET extension).
+- Documentation realigned (roadmap, methodology 2.3d, claude_commands 1.11E2 and task table, discovered_sources D23-D26). Task 11F and Task 13 blocked.
