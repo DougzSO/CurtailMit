@@ -56,7 +56,9 @@ def test_schema_findings_reports_type_change_and_missing_columns(tmp_path):
     assert same.identical and same.usable
     changed = sg.schema_findings("y", sg.read_schema(cf_file(tmp_path / "c.parquet", "2026-01-01", 2, fc_type="double")), ref)
     assert not changed.identical and changed.usable
-    assert changed.type_changes == {"val_fatorcapacidade": "string -> double"}
+    # pandas 3 / pyarrow writes strings as large_string; both labels denote the same logical type
+    normalized = {col: change.replace("large_string", "string") for col, change in changed.type_changes.items()}
+    assert normalized == {"val_fatorcapacidade": "string -> double"}
     broken = {k: v for k, v in ref.items() if k != "val_geracaoverificada"}
     f = sg.schema_findings("z", broken, ref)
     assert f.missing_required == ["val_geracaoverificada"] and not f.usable
