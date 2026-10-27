@@ -901,7 +901,7 @@ decisions:
       No 2020 row is added to the production final_results table. The evidence is cited as it stands, including its limits: the backtest shows a downward bias in the latest years (wind 2025: -8 percent in sample,
       -11 percent leave-one-year-out, -19 percent trained on 2022-24), recorded as the D25 limitation. This is a pipeline / production-data decision only; whether the article's figures include historical context
       (for example an observed 2020 reference) is a separate editorial choice deferred to the figure design of Task 13B and is not a production requirement.
-    implemented_in: "docs/acceptance_criteria_status.md (criterion 5 restated as superseded by D35); no change to src/ or to final_results; Task 15-3 commit COMMIT_PLACEHOLDER"
+    implemented_in: "docs/acceptance_criteria_status.md (criterion 5 restated as superseded by D35); no change to src/ or to final_results; Task 15-3 commit 0bd4a31"
 
 ben_cross_check:
   status: reference_only
