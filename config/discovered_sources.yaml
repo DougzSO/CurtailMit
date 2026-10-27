@@ -787,6 +787,26 @@ decisions:
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision. Central/production tCO2 values for all projected years use the MCTI factor of the last complete year (2025), per the D18 deferral. The 2021-2025 mean factor is computed and reported as a non-blocking, clearly labelled sensitivity (companion table plus a central-value column in the main table), following the pattern of the D23 net-PTE sensitivity; it is not part of the central value. The spread of the annual average factor over 2021-2025 (0.0385 to 0.1263 tCO2/MWh, about 3x) is documented in docs/methodology.md so the choice is auditable.
     implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
 
+  D30:
+    status: adopted
+    date: "2026-10-27"
+    date_adopted: "2026-10-27"
+    topic: "Hydrogen SEC treatment: scoped extension of the D28 principle (energy-side range kept separate from a fixed point-value conversion factor)"
+    source_task: "Task 13-2 (retroactive registration of a choice made and implemented in Task 13; docs/task13_design.md section 2, results_writer.build_final_results)"
+    found: >
+      D28 was written for the MCTI emission factors. The Task 13 implementation applied the same principle to hydrogen without a registered decision: the electrolyzer specific energy
+      consumption (SEC) is a conversion factor that is not conditioned on the flexibility assumption generating the 2050 energy range.
+    options:
+      sec_fixed_central_interval_separate: "Adopted: SEC central 52.5 kWh/kg in the central value and in the energy range; the SEC interval 50-55 kWh/kg in separate columns."
+      sec_folded_into_range: "Rejected: would mix an engineering parameter range into the energy-side conditional range and blur what the range means."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 13-2) as a scoped extension of D28, not an independent decision (retroactive registration of a choice already implemented in Task 13). The D28 principle - the
+      energy-side conditional range is kept separate from a fixed point-value conversion factor that is not conditioned on the same flexibility assumption - also applies to hydrogen output: the SEC
+      central value is fixed at 52.5 kWh/kg for central_value and for conditional_range_low/high; the SEC sensitivity interval (50 to 55 kWh/kg, i.e. kg H2 per TWh from 55 to 50) is kept in the separate
+      columns sec_sensitivity_low / sec_sensitivity_high and is not incorporated into the conditional range. The range_basis of every h2_potential row states that the range is energy-side only and that
+      the SEC is fixed (consistent with D28). Hydrogen rows carry the same per-row caveats as every other row.
+    implemented_in: "commits 57d9488 and cb58ba4 (Task 13): results_writer.build_final_results (h2_potential quantity, sec_sensitivity_* columns, range_basis); documented in docs/methodology.md 2.3k and docs/data_dictionary.md (Task 13-2)"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

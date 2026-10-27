@@ -270,3 +270,9 @@ Design only (`docs/task13_design.md`, no `src/` change). A legacy `results_write
 ## Update (Task 13) - final results layer implemented; D27, D28, D29 adopted
 
 Task 13 (Parts A and B) done: `results_writer.py` superseded in place (D27 A), long-format writer with per-row caveats, OM/CM split with the energy range applied after the split and fixed emission factors (D28), MCTI factor 2025 central with the 2021-2025 mean as a labelled sensitivity (D29), `mitigation.ModelProvenanceError`. Outputs in DATABASE_ROOT/outputs/tables. Part C (figures and the auto-generated limitations report) is out of scope and deferred to a later task (13B). The 2050 range stays a flexibility-conditional range, never a confidence interval. See `docs/methodology.md` section 2.3k.
+
+---
+
+## Update (Task 13-2) - closeout of Task 13
+
+D30 registered (hydrogen SEC treatment, extension of D28). The `central_inside_range = False` pattern for wind 2025-2040 is documented as an expected D25 effect. Task 13_pre was already complete. Task 13B (figures) and Task 14 await the user's sign-off.
