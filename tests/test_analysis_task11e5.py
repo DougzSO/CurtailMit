@@ -58,7 +58,14 @@ def test_model_functions_are_bounded_and_nest_the_base_curve():
     assert (shifted >= base - 1e-12).all() and shifted.max() <= 0.7 + 1e-12  # left shift: never lower, never above L
 
 
-def test_compounding_never_exceeds_the_asymptote():
+def _synthetic_pte() -> pd.DataFrame:
+    """Small PTE-like table (scenario, year, generation in TWh) so the test never reads the local database (D32)."""
+    rows = [{"scenario": sc, "year": y, "wind_gen_twh": 60.0 * g, "solar_gen_twh": 30.0 * g, "total_generation_twh": 700.0 * g} for sc in ("TB", "TA", "TG") for y, g in ((2025, 1.0), (2030, 1.4), (2040, 2.0), (2050, 3.0))]
+    return pd.DataFrame(rows)
+
+
+def test_compounding_never_exceeds_the_asymptote(monkeypatch):
+    monkeypatch.setattr(ch.c2, "load_pte", _synthetic_pte)  # the invariant is mathematical: it must not depend on curtailmit_database contents (D32)
     idx = pd.date_range("2025-01-01", periods=24 * 30, freq="h")
     h = pd.DataFrame({"wind": 50.0, "curt_wind": 10.0, "solar_disp": 20.0, "curt_solar": 0.0, "load": 100.0, "r": np.linspace(20, 70, len(idx))}, index=idx)
     out = ch.compounding(h, (0.7, 0.14, 41.0), slope=5.0)
