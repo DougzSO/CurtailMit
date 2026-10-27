@@ -747,7 +747,7 @@ decisions:
       freeze_and_new_module: "Leave results_writer.py untouched and put the new writer in a differently named module; same coexistence cost, misleading name."
     decided: >
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision: option A, supersede in the same module. The legacy results_writer.ResultsRow (schema-only, never wired, never produced an output) stays importable and its tests keep passing, with a deprecation note pointing to the new long-format writer (FinalResultsRow / build_final_results / write_final_results) as the production path. The older Task 13 instruction 'do not alter this schema' (docs/claude_commands.md) is superseded by this decision; it is annotated, not deleted.
-    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; Task 13 commit (see git log, subject 'Task 13: ...')"
+    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
 
   D28:
     status: adopted
@@ -768,7 +768,7 @@ decisions:
       energy_range_only: "Report the range for TWh only and leave tCO2 as central values plus a note; simpler, loses the range where the article needs it."
     decided: >
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision, as recommended in docs/task13_design.md 0.2. The energy-side range (2025-2040 empirical band, 2050 flexibility-conditional range phi 1.5 to L=1) is applied after the OM/CM split (arithmetically equal to applying it before; the documented and tested order). Emission factors are fixed point values, not conditioned on the same flexibility assumption, and range_basis says so explicitly (energy range only; emission factor fixed at the stated year, not included in range). OM and CM are alternative proxies and are never summed. The final 2050 figures therefore carry a partial uncertainty composition (energy-side conditional range + point-value emission factor), which must be stated in any article-facing text derived from the table.
-    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; Task 13 commit (see git log, subject 'Task 13: ...')"
+    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
 
   D29:
     status: adopted
@@ -785,7 +785,7 @@ decisions:
       report_both_as_sensitivity: "Headline with one rule, the other as a labelled sensitivity."
     decided: >
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision. Central/production tCO2 values for all projected years use the MCTI factor of the last complete year (2025), per the D18 deferral. The 2021-2025 mean factor is computed and reported as a non-blocking, clearly labelled sensitivity (companion table plus a central-value column in the main table), following the pattern of the D23 net-PTE sensitivity; it is not part of the central value. The spread of the annual average factor over 2021-2025 (0.0385 to 0.1263 tCO2/MWh, about 3x) is documented in docs/methodology.md so the choice is auditable.
-    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; Task 13 commit (see git log, subject 'Task 13: ...')"
+    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
 
 ben_cross_check:
   status: reference_only
