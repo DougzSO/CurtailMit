@@ -10,6 +10,8 @@ This is not an hourly dispatch pipeline. Curtailment is an externally calibrated
 applied on top of PTE shares - a modeling choice reinforced, not weakened, by the PTE's own
 silence on quantitative curtailment.
 
+> **Update (Task 15 sync):** the production model (D24, section 2.3j) is an hourly dose-response model fitted on the ONS hourly record of the whole interconnected system and applied to the 2025 hourly profile scaled to each PTE scenario. It is still **not a dispatch model** (PTE does not model curtailment and neither does this pipeline), but the sentence above that curtailment is "an externally calibrated function applied on top of PTE shares" no longer describes a monthly national function C(P); read it as the hourly function of section 2.3j. The original wording is kept for the record.
+
 ## 2.2. Data sources
 
 ### PTE/EPE - Table 2 (solar+wind penetration and generation): RESOLVED
@@ -96,6 +98,8 @@ Implementation note (Task 5, D18): factors are scraped from the MCTI landing pag
 - Marginal factor, DEB/REB (D9): MCTI annual Operating Margin / Build Margin / Combined Margin
   (ACM0002-aligned methodology) used as DEB/REB proxies respectively. Explicit proxy, stated
   plainly in Results/Limitations, never presented as a precise marginal calculation.
+
+> **Superseded for production (Task 15 sync).** The "Step 1" text below (the calibrated logistic C(P) of monthly national penetration, "produced by Stage 2") is the original design. The production model is the hourly dose-response model, **Option E**, described in section 2.3j (decision D24, adopted; D25 limitation); sections 2.3b to 2.3i record how it was reached. `calibration.py` and `projection.project_curtailment_two_curves` survive only as labelled reference formulations. The text below is kept unchanged.
 
 ## 2.3. Step 1 - Curtailment projection function
 
@@ -280,6 +284,8 @@ Implemented in `src/curtailmit/results_writer.py` (`build_final_results_with_sen
 
 **Task 13-2 addenda (append-only).** (1) *`central_inside_range` on wind 2025-2040.* For the wind component in 2025, 2030 and 2040 the central value falls BELOW the lower bound of the empirical band (`central_inside_range` is False on those rows of `final_results`). This is expected and documented under D25, not a model error: the band is derived from the annual backtest of the wind curve, whose errors are one-sided (the curve under-predicts realized wind curtailment), so the band skews above the central estimate; this is the same upward drift that D25 records (central values more likely low than high). The total (wind + solar) band does contain the central value in every scenario and year, even where the wind-only band does not (the solar band brackets its central value). Anyone using wind-only rows in an article table or figure must carry this caveat. (2) *Hydrogen, D30.* The D28 principle (energy-side conditional range kept separate from a fixed point-value conversion factor that is not conditioned on the same flexibility assumption) is applied identically to hydrogen (decision D30, scoped extension of D28): the SEC is fixed at 52.5 kWh/kg in `central_value` and in `conditional_range_*`, the SEC interval 50-55 kWh/kg is kept in `sec_sensitivity_low` / `sec_sensitivity_high` and is not folded into the range, and `range_basis` of the `h2_potential` rows says "energy range only; electrolyzer SEC fixed". The same principle therefore covers both the MCTI emission factors (D28, D29) and the hydrogen SEC (D30).
 
+> **Superseded for production (Task 15 sync).** Step 2 below (applying C(P) = C_hat(s,t) to the PTE penetration P(s,t) and the 2020 historical anchor) is the original design. The production application is the hourly projection of section 2.3j (`projection.project_curtailment_hourly`) and the final results layer of section 2.3k (`results_writer`, 12 scenario-years 2025-2050, no 2020 row; see `docs/acceptance_criteria_status.md`). The text below is kept unchanged.
+
 ## 2.4. Step 2 - Applying the function to PTE scenarios
 
 For each scenario s in {TB, TA, TG} and year t in {2020, 2025, 2030, 2040, 2050}
@@ -299,6 +305,8 @@ dataset to be reconciled with ONS accounting, so no rescaling is performed. The 
 C_hat(P), fit on real ONS SIN data, is applied to the PTE's own-scope P(s,t) under the assumption that
 curtailment risk scales with wind+solar penetration share regardless of the exact accounting scope of
 total generation. This is an assumption, not a proven equivalence.
+
+> **Update (Task 15 sync):** the OM/CM split, the horizon-dependent ranges and the emission-factor year of the production deficit are specified in section 2.3k (D28, D29); the hydrogen potential in D30. The formula below is the original statement; "marginal DEB/REB proxy" is realised as OM (DEB proxy) and CM (REB proxy), never summed.
 
 ## 2.5. Step 3 - Mitigation deficit (Stage 4)
 
@@ -325,6 +333,8 @@ into a financial proxy. Explicitly excluded from the core modules; absence does 
 other stage (D10).
 
 ## 3. Results
+
+> **Update (Task 15 sync):** this list predates the production model. The current limitations are: D25 (time-confounded wind drift, upward, carried on every wind-containing row), the short solar record, the D28 partial uncertainty composition for emission factors, the 2050 conditional range, the October 2026 cutoff (`END_EXCLUSIVE`) and the data-availability scope (D33). They live in section 2.3j/2.3k, `config/discovered_sources.yaml`, the `.limitations.json` sidecars and `docs/reproducibility.md`; the first bullet below ("5 anchor points per scenario", 2020 historical) is superseded by `docs/acceptance_criteria_status.md` (production table: 2025/2030/2040/2050).
 
 ### 3.7 Limitations (final)
 

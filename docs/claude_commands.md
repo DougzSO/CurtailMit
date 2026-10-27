@@ -167,7 +167,7 @@ Outcome (preliminary): the error-growth-with-distance relation is too weak (R2 0
 ### 1.11E4 Task 11E4 - coverage figure, NE-hourly extension, sub-hourly feasibility, conformal prediction - RUN, findings pending user review
 
 Investigation / prototype only (Brazil-only data): no `src/` file changed, no decision adopted. New data: a 2025 sample of the ONS verified-load API (30-minute, 37 MB; `docs/ons_subhourly_data_sources.md`). Code: `analysis/task11e4_coverage_figure.py`, `task11e4_ne_hourly.py`, `task11e4_subhourly_feasibility.py`, `task11e4_conformal_prediction.py`, tests `tests/test_analysis_task11e4.py`. Memo: `docs/task11e4_findings.md`. International hourly data intentionally excluded (user decision).
-Outcome (preliminary): (a) publication-ready coverage figure and caption; (b) NE-hourly does not extend the support (2050 hours inside 32-59 percent); (c) sub-hourly data exist at 30 minutes but show no wider range (ratio 1.006), D27 not registered; (d) conformal intervals for 2030 / 2040 are finite and wide, none can be certified for 2050 (assumption violated). 2050 stays a flexibility-conditional range. D23, D24, D25, D26 remain `pending`. **Task 13 and Task 11F remain blocked.**
+Outcome (preliminary): (a) publication-ready coverage figure and caption; (b) NE-hourly does not extend the support (2050 hours inside 32-59 percent); (c) sub-hourly data exist at 30 minutes but show no wider range (ratio 1.006), D27-candidate (an unregistered Task 11E4 candidate, never adopted; not the adopted D27 of Task 13) not registered; (d) conformal intervals for 2030 / 2040 are finite and wide, none can be certified for 2050 (assumption violated). 2050 stays a flexibility-conditional range. D23, D24, D25, D26 remain `pending`. **Task 13 and Task 11F remain blocked.**
 
 ### 1.11F0 Task 11F0 - formal adoption of D23, D24 and D26 (decision locking; no new analysis, no code)
 
@@ -285,21 +285,20 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 8 | Stage 1 finalization: `run_stage1` end to end + data-quality report | `data_ingestion.py`, `stage1_report.py` | ✅ DONE (`docs/stage1_data_quality_report.md`) |
 | 9 | Stage 2: `calibration.py` + D20 solar basis | `calibration.py`, `ons_generation.py` | ✅ DONE (D20; report `docs/task9_calibration_report.md`; logistic identifiability open, see report) |
 | 10 | Stage 3: `projection.py` | `projection.py` | ✅ DONE |
-| 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 two-curve low/central/high wired (Task 11B); OM/CM split still folded into Task 13 |
-| 11C | Pre-Task 13 investigation (PTE basis, international benchmarks, regional diagnostic) | `analysis/task11c_diagnostics.py` | ✅ DONE (`docs/task11c_investigation_report.md`; D23, D24 pending) |
-| 11D | Regional recalibration + time-confound + pooled panel + documentation realignment (calibration stage branch) | `analysis/task11d_*.py` | ✅ RUN, findings pending review (`docs/task11d_findings.md`; D23-D25 pending) |
-| 11E | Intra-day solar, wind asymptote envelope, transmission-capacity confound test (Brazil-only) | `analysis/task11e_*.py` | ✅ RUN, findings pending review (`docs/task11e_findings.md`; D26 not triggered) |
-| 11E2 | Validation and cross-technology unification of the hourly dose-response model (Brazil-only) | `analysis/task11e2_*.py` | ✅ RUN, findings pending review (`docs/task11e2_findings.md`; D26 registered as pending) |
-| 11E3 | Extrapolation-distance calibration of the 2050 uncertainty; decision closure D24 / D25 / D26 (Brazil-only) | `analysis/task11e3_*.py` | ✅ RUN, findings pending review (`docs/task11e3_findings.md`; 2050 stays conditional) |
-| 11E4 | Coverage figure, NE-hourly extension, sub-hourly feasibility, conformal prediction (Brazil-only) | `analysis/task11e4_*.py` | ✅ RUN, findings pending review (`docs/task11e4_findings.md`; D27 not registered; 2050 stays conditional) |
-| 11F0 | Formal adoption of D23, D24, D26 (decision locking only) | `config/discovered_sources.yaml`, docs | ✅ DONE (D25 pending, Task 11E5) |
-| 11E5 | Residual wind drift of the hourly model: characterisation, explanations, extended model; D25 recommendation | `analysis/task11e5_*.py` | ✅ RUN, recommendation pending (`docs/task11e5_findings.md`) |
-| 11F | Production migration of option E (D23-D26 adopted): hourly model, by-horizon projection, D25 limitation propagation, labelled references | `src/curtailmit/hourly_model.py`, `hourly_uncertainty.py`, `limitations.py`, `projection.py` | ✅ DONE (Task 13 unblocked, awaiting confirmation) |
-| 11F | Production migration of the chosen driver (formerly numbered 11E) | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D23, D24 (incl. option E), D25 |
+| 11 | Stage 4: `mitigation.py` | `mitigation.py` | 🔶 two-curve low/central/high wired (Task 11B); ~~OM/CM split still folded into Task 13~~ Update (Task 15 sync): done in Task 13 (D28) |
+| 11C | Pre-Task 13 investigation (PTE basis, international benchmarks, regional diagnostic) | `analysis/task11c_diagnostics.py` | ✅ DONE (`docs/task11c_investigation_report.md`; ~~D23, D24 pending~~ Update (Task 15 sync): adopted in Task 11F0) |
+| 11D | Regional recalibration + time-confound + pooled panel + documentation realignment (calibration stage branch) | `analysis/task11d_*.py` | ✅ RUN, ~~findings pending review~~ Update (Task 15 sync): reviewed; D23-D25 adopted (`docs/task11d_findings.md`) |
+| 11E | Intra-day solar, wind asymptote envelope, transmission-capacity confound test (Brazil-only) | `analysis/task11e_*.py` | ✅ RUN, ~~findings pending review~~ Update (Task 15 sync): reviewed (`docs/task11e_findings.md`; D26 not triggered) |
+| 11E2 | Validation and cross-technology unification of the hourly dose-response model (Brazil-only) | `analysis/task11e2_*.py` | ✅ RUN, ~~findings pending review~~ Update (Task 15 sync): reviewed; D26 adopted (retired) in Task 11F0 (`docs/task11e2_findings.md`) |
+| 11E3 | Extrapolation-distance calibration of the 2050 uncertainty; decision closure D24 / D25 / D26 (Brazil-only) | `analysis/task11e3_*.py` | ✅ RUN, ~~findings pending review~~ Update (Task 15 sync): reviewed; D24/D25/D26 closed (`docs/task11e3_findings.md`; 2050 stays conditional) |
+| 11E4 | Coverage figure, NE-hourly extension, sub-hourly feasibility, conformal prediction (Brazil-only) | `analysis/task11e4_*.py` | ✅ RUN, ~~findings pending review~~ Update (Task 15 sync): reviewed (`docs/task11e4_findings.md`; D27-candidate not registered; 2050 stays conditional) |
+| 11F0 | Formal adoption of D23, D24, D26 (decision locking only) | `config/discovered_sources.yaml`, docs | ✅ DONE (~~D25 pending, Task 11E5~~ Update (Task 15 sync): D25 adopted in Task 11F-0) |
+| 11E5 | Residual wind drift of the hourly model: characterisation, explanations, extended model; D25 recommendation | `analysis/task11e5_*.py` | ✅ RUN, ~~recommendation pending~~ Update (Task 15 sync): D25 adopted (Task 11F-0) (`docs/task11e5_findings.md`) |
+| 11F | Production migration of option E (D23-D26 adopted): hourly model, by-horizon projection, D25 limitation propagation, labelled references | `src/curtailmit/hourly_model.py`, `hourly_uncertainty.py`, `limitations.py`, `projection.py` | ✅ DONE (Task 13 unblocked; ~~awaiting confirmation~~ Update (Task 15 sync): Task 13 implemented) |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
 | 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ✅ Parts A-B DONE (Task 13, D27-D29; see the 'SUPERSEDED INSTRUCTION' note); Part C (figures) deferred |
-| 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ⬜ |
-| 15 | Reproducibility pass + documentation sync | `docs/`, `README.md` | ⬜ |
+| 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ~~⬜~~ ✅ DONE (Task 14, D31/D32; `docs/orchestration.md`) |
+| 15 | Reproducibility pass + documentation sync | `docs/`, `README.md` | ~~⬜~~ ✅ DONE (Task 15, D33/D34; `docs/reproducibility.md`, `docs/acceptance_criteria_status.md`) |
 
 ---
 
@@ -339,6 +338,8 @@ Reference: D21, D22, `docs/task9_calibration_report.md`. **Curtailment side impl
 ---
 
 > **BLOCKED (added in Task 11D):** do not start Task 13 until the user has decided D23, D24 and D25 and Task 11E (if any) is finished; its inputs, the curtailed-energy trajectories, are the quantity in question. See `docs/task11d_findings.md`.
+
+> **Update (Task 15 sync): this block was lifted in Task 11F** (D23-D26 adopted, option E in production; Task 13 was then implemented). Kept for the record; it no longer applies.
 
 ### TASK 13 — Stage 6 finalization: wire mitigation.py's OM/CM split + assemble results_writer output
 
@@ -457,6 +458,8 @@ Acceptance:
 
 ### Task 14 - DESIGN NOTE (2026-10-27, Task 14-1; not yet approved)
 
+> **Update (Task 15 sync): approved and implemented** (Task 14, commits `a6093c8` and following; deviations in the implementation note below and in `docs/orchestration.md`). The heading's "not yet approved" is historical.
+
 > The Task 14 text above predates Tasks 11F and 13. `docs/task14_design.md` proposes the update: stage sequence Stage 1 -> hourly calibration -> Option E projection -> final results (not Stages 2-6 as numbered above), console script `curtailmit-run` with `scripts/run_pipeline.py` as shim, no `--integration` flag, and a CI that runs lint and unit tests only (integration tests need the local `curtailmit_database`). The original text is kept unchanged. Pending decisions: D31, D32.
 
 ---
@@ -511,3 +514,7 @@ docs/claude_commands.md (sections 1 and 3) in full. Tell me which task number
 we left off at (check the latest git log and which modules/tests already
 exist) before writing any new code.
 ```
+
+### Task 15 - IMPLEMENTATION NOTE (2026-10-27, closes the Task 15 text above)
+
+> Task 15 was implemented as designed in `docs/task15_design.md` (Task 15-1, commit `248ddcb`) with the user's confirmations (D33 option 1, D34 all three scopes). Deviations from the instruction text above: D1-D12 were **not** normalised into the YAML (a generated decision register, `docs/reproducibility.md` section 7, is built from the roadmap table and the YAML, with a consistency test); `limitations_summary.md` is deferred to Task 13B; the run manifest is written only for `SUCCESS`/`SUCCESS_PARTIAL` runs; the lock is an exact `pip freeze` (`requirements.lock.txt`) with an extra CI job, not pip-tools; item 4 (`acceptance_criteria_status.md`) and item 5 (README) are done as described. The instruction text above is kept unchanged for the record.

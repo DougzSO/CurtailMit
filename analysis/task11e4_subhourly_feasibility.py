@@ -8,8 +8,8 @@ What exists (probed 2026-10-26, see docs/task11e4_findings.md):
   - COFF intra-half-hour packages (coff_*_intrasemihora): restriction periods inside the half-hour (finer than 30 min); listed, not used.
 Test: build the 30-minute potential VRE share of load r30 = (wind + solar generation + curtailment of the COFF plants) / verified load, compare its distribution with the same quantity aggregated to the hour (r1h), and
 compare how well the dose-response curve explains 30-minute curtailment when driven by r30 versus r1h.
-D27 trigger rule (fixed before the results): D27 is registered only if (i) the 30-minute p99.9 or maximum of r exceeds the hourly one by >= 10 percent (relative) AND (ii) driving the curve with r30 lowers the 30-minute
-unexplained curtailment variance by >= 15 percent (relative) with respect to r1h. Otherwise the result is negative / inconclusive and D27 is not registered.
+D27-candidate trigger rule (fixed before the results): D27-candidate is registered only if (i) the 30-minute p99.9 or maximum of r exceeds the hourly one by >= 10 percent (relative) AND (ii) driving the curve with r30 lowers the 30-minute
+unexplained curtailment variance by >= 15 percent (relative) with respect to r1h. Otherwise the result is negative / inconclusive and D27-candidate is not registered.
 Run:  python analysis/task11e4_subhourly_feasibility.py
 """
 
@@ -164,8 +164,8 @@ def main() -> None:
     print(f"\nWithin-hour spread of r30 (max - min of the two half-hours, SIN): median {spread.median():.2f} pp, p99 {spread.quantile(0.99):.2f} pp, max {spread.max():.2f} pp")
     rule_i = bool(max(dist.max_ratio.iloc[0], dist.p999_ratio.iloc[0]) >= 1.10)
     rule_ii = bool(gains.relative_reduction.max() >= 0.15)
-    print(f"\nD27 rule: (i) 30-min p99.9 or max >= 1.10 x hourly: {rule_i} (SIN max ratio {dist.max_ratio.iloc[0]:.3f}, p99.9 ratio {dist.p999_ratio.iloc[0]:.3f}); (ii) unexplained variance reduced >= 15 %: {rule_ii} "
-          f"(wind {gains.relative_reduction.iloc[0]:.3f}, solar {gains.relative_reduction.iloc[1]:.3f}). D27 triggered: {rule_i and rule_ii}")
+    print(f"\nD27-candidate rule: (i) 30-min p99.9 or max >= 1.10 x hourly: {rule_i} (SIN max ratio {dist.max_ratio.iloc[0]:.3f}, p99.9 ratio {dist.p999_ratio.iloc[0]:.3f}); (ii) unexplained variance reduced >= 15 %: {rule_ii} "
+          f"(wind {gains.relative_reduction.iloc[0]:.3f}, solar {gains.relative_reduction.iloc[1]:.3f}). D27-candidate triggered: {rule_i and rule_ii}")
     sizes = {p.name: p.stat().st_size for p in (get_raw_dir("ons/mmgd")).glob("cargaverificada_*_2025-*.json")}
     print(f"\nAcquired sample: {len(sizes)} JSON files, {sum(sizes.values()) / 1e6:.1f} MB (2025, 4 areas, 12 months)")
 

@@ -634,7 +634,7 @@ decisions:
     task11e4_update:
       evidence_added: >
         Task 11E4 (docs/task11e4_findings.md): (a) in-sample coverage figure for the paper (hours inside the observed support: 99.6-99.8 percent in 2025-2030, 86-96 percent in 2040, 43-70 percent in 2050); (b) a Northeast hourly driver (r_NE) does not extend the support (2050 hours inside 32-59 percent vs 43-70)
-        and brings no validation gain; (c) 30-minute ONS data exist (load API, COFF) but a 2025 test shows the same extremes as the hourly aggregation (maximum ratio 1.006; D27 not registered); (d) conformal prediction: finite 80 percent intervals for 2030-2040, 3-10 times wider than the Task 11E3 empirical band, empirical coverage confirmed
+        and brings no validation gain; (c) 30-minute ONS data exist (load API, COFF) but a 2025 test shows the same extremes as the hourly aggregation (maximum ratio 1.006; D27-candidate (an unregistered Task 11E4 candidate, never adopted; not the adopted D27 of Task 13) not registered); (d) conformal prediction: finite 80 percent intervals for 2030-2040, 3-10 times wider than the Task 11E3 empirical band, empirical coverage confirmed
         (leave-one-quarter-out 85-92 percent); no finite interval at 2050 (exchangeability violated; the correctly applied procedure is unbounded), an unguaranteed heuristic wind interval reaches the physical cap.
       reporting_rule_for_adoption_update: >
         2030 and 2040: E central with the Task 11E3 empirical annual band as headline (descriptive) and the conformal 80 percent interval as the conservative formal bound in the supplement (no 90 percent bound certifiable for solar or the total). 2050: E central, in-support / beyond-support decomposition, the flexibility-conditional range, the coverage figure,
@@ -842,8 +842,9 @@ decisions:
     implemented_in: "tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote (synthetic PTE table, no database dependency); CI workflow .github/workflows/ci.yml; Task 14 commit(s) 18f1e54 (D32 test), a6093c8 (orchestrator, CI)"
 
   D33:
-    status: pending
+    status: adopted
     date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "Data-availability promise of the project (curtailmit_database is local-only)"
     source_task: "Task 15-1 (docs/task15_design.md section 0)"
     found: >
@@ -854,9 +855,17 @@ decisions:
       archive_snapshot: "As above plus archive the raw snapshot in a DOI repository; needs a licence check and an upload outside the repository."
       code_only: "Statement only; weakest, nothing to verify data against."
     working_reading: "snapshot_manifest_plus_statement; the article needs a data-availability statement in any case."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 15) by explicit user decision: option 1, snapshot manifest plus statement. A repository-committed data_snapshot_manifest.json lists SHA-256, byte size, source URL and retrieval
+      time (UTC) of every raw data file used by the production pipeline (250 files, 508,946,664 bytes at the time of adoption; the 507 files counted in Task 15-1 included the 250 retrieval-manifest sidecars and 7 .gitkeep
+      placeholders). External readers (for example DeCarbon reviewers) re-download from the sources with Stage 1 and verify hash-by-hash. No archival mirror with a DOI and no copy of the raw data is hosted:
+      the redistribution terms of the ONS and MCTI datasets were not verified (a web search in Task 15 found no explicit terms and no prohibition; the manifest lists identities, not content). Code-only was
+      rejected. The article must carry an explicit data-availability statement that cites the manifest and the re-download/verification procedure (flagged for the article-writing step; no article text was drafted).
+    implemented_in: "data_snapshot_manifest.json; curtailmit.run_manifest (build_snapshot, verify_snapshot, `python -m curtailmit.run_manifest snapshot|verify`); run manifest raw_inputs cross-check; docs/reproducibility.md section 1 and 3; Task 15 commit COMMIT_PLACEHOLDER"
   D34:
-    status: pending
+    status: adopted
     date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "Task 15 scope split, environment lock mechanism, handling of D1-D12 in the YAML"
     source_task: "Task 15-1 (docs/task15_design.md sections 1-4)"
     found: >
@@ -867,6 +876,14 @@ decisions:
       split_15_15b: "Task 15 = A + C, Task 15B = B and archive/Docker."
       d1_d12_in_yaml: "Not recommended: rewriting the YAML; use a generated decision register in docs/reproducibility.md instead (stamps hash the D14+ entries, adopted texts are the audit trail)."
     working_reading: "all_scopes_in_task15; D1-D12 not rewritten; limitations_summary.md waits for Task 13B."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 15) by explicit user decision: all three reproducibility scopes in one task. Scope A: no non-determinism found (seeded bootstrap default_rng(seed=0), byte-identical MD5 across 13
+      output files under varying PYTHONHASHSEED and thread count), locked in as a standing guarantee by a synthetic unit test (CI) and an integration test. Scope B: exact pip-freeze lock file requirements.lock.txt
+      (no pip-tools, no Docker) plus an additional CI job installing it next to the floors-based install. Scope C: docs/reproducibility.md for a reader who already has curtailmit_database populated, run manifest
+      logs/run_manifest_<UTC>.json written only for SUCCESS and SUCCESS_PARTIAL runs, and a generated D1-D34 decision register with a consistency test. D1-D12 are NOT rewritten into this YAML (the register is built
+      on the existing adopted texts, which remain the audit trail). limitations_summary.md is deferred to Task 13B. Documentation sync applied by kind: narrative history append-only with superseding notes, pure
+      bookkeeping errors fixed directly, stale status markers corrected with a visible strike-through plus update note, README rewritten.
+    implemented_in: "tests/test_determinism.py; requirements.lock.txt; .github/workflows/ci.yml (unit-tests-locked); curtailmit.run_manifest; curtailmit.decision_registry; docs/reproducibility.md; docs/acceptance_criteria_status.md; README.md; Task 15 commit COMMIT_PLACEHOLDER"
 
 ben_cross_check:
   status: reference_only

@@ -314,3 +314,12 @@ def test_real_option_e_table_end_to_end(tmp_path):
     assert sa.loc[("TB", 2050), "central_value"] == pytest.approx(tbl.loc[("TB", 2050), "E_curt_twh"] * 1e6 * mean_f, rel=1e-12)
     side = json.loads(paths["limitations"].read_text(encoding="utf-8"))
     assert side["known_limitations"][0]["text"] == d25_limitation()["text"]
+
+
+# ------------------------------------------------------------------------------------------------------------- 8. acceptance criteria of roadmap section 7 (Task 15)
+def test_production_table_has_no_interpolated_years_and_no_2020_row_and_carries_the_classification_flag(tables):
+    """Criteria 2, 4 and 5 as they apply to the production table (see docs/acceptance_criteria_status.md): anchor years 2025-2050 only, none interpolated, no historical 2020 row."""
+    _, central, _ = tables
+    assert sorted(central.year.unique()) == [2025, 2030, 2040, 2050]
+    assert not central.is_interpolated.any() and set(central.source) == {"pte_projection"}
+    assert central.classification_available.all()

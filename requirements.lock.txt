@@ -1,0 +1,56 @@
+# requirements.lock.txt - exact environment in which the published results were produced and verified (Task 15, decision D34 Scope B).
+#
+# Generated with `pip freeze` from the project virtual environment (.venv: Python 3.11.9, Windows 10, pip 26.2.1) on 2026-10-27, after the full test suite and
+# the reference-value check (curtailmit-run) passed in it. Every direct and transitive dependency of `pip install -e ".[dev]"` is pinned with `==`;
+# the editable install of curtailmit itself is not listed and colorama is restricted to Windows (a pytest dependency there only).
+#
+# Install for reproduction:   pip install -r requirements.lock.txt && pip install -e . --no-deps
+# requirements.txt and pyproject.toml remain the human-readable FLOORS (CI keeps testing the floors-resolution too); this file is the pinned environment.
+# Tested interpreter: Python 3.11 (local 3.11.9, CI 3.11.x). The declared floor `requires-python >= 3.10` has never been tested.
+# Bitwise-identical outputs are guaranteed only for the same environment on the same machine; across platforms the reference check (rtol 1e-9) applies. See docs/reproducibility.md.
+annotated-types==0.8.0
+beautifulsoup4==4.15.0
+certifi==2026.10.18
+charset-normalizer==3.5.2
+colorama==0.4.6 ; sys_platform == "win32"
+contourpy==1.3.3
+cycler==0.12.1
+et_xmlfile==2.0.0
+fonttools==4.67.0
+formulaic==1.2.2
+idna==3.20
+iniconfig==2.3.1
+interface_meta==2.0.1
+kiwisolver==1.5.1
+lxml==6.1.3
+matplotlib==3.11.2
+narwhals==2.27.1
+numpy==2.4.6
+openpyxl==3.1.5
+packaging==26.3
+pandas==3.0.6
+patsy==1.0.3
+pillow==13.0.0
+pluggy==1.7.0
+pyarrow==26.0.0
+pydantic==2.14.1
+pydantic_core==2.50.1
+Pygments==2.21.0
+pyparsing==3.3.3
+pypdf==6.21.1
+pytest==9.1.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.4
+PyYAML==6.0.3
+requests==2.34.2
+responses==0.26.3
+ruff==0.17.1
+scipy==1.17.1
+six==1.17.0
+soupsieve==3.0.3
+statsmodels==0.15.0
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+tzdata==2026.5
+urllib3==2.8.0
+wrapt==2.5.1

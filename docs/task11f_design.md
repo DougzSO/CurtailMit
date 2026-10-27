@@ -1,6 +1,6 @@
 # Task 11F-1 - Design proposal: production migration of option E into `src/`
 
-Status: PROPOSAL, awaiting explicit approval. No `src/` file has been changed. D23-D26 are all adopted (D25 locked in 11F-0, commit `0598e70`).
+Status: ~~PROPOSAL, awaiting explicit approval.~~ **Update (Task 15 sync): approved and implemented in commit `bfd1e80` (Task 11F).** The text below is the design as proposed; the implemented behaviour is `docs/methodology.md` section 2.3j. No `src/` file has been changed. D23-D26 are all adopted (D25 locked in 11F-0, commit `0598e70`).
 
 Existing production pieces this design must coexist with: `calibration.py` (monthly national-P logistic, D22: `fit_calibration`, `run_calibration`, `CalibrationResult`, bootstrap CI), `projection.py` (`project_curtailment_two_curves` -> table `pte_curtailment_two_curves.parquet`, consumed by `mitigation.compute_mitigation` through the columns `E_curt_twh[_low|_high]`, `E_curt_{wind,solar}_twh[_low|_high]`, `extrapolated_{wind,solar}`), `mitigation.py`, `results_writer.py`.
 

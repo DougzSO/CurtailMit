@@ -1,5 +1,7 @@
 ﻿# CurtailMit - Master Roadmap: Curtailment x CO2 Mitigation Pipeline (PTE/EPE Scenarios) - v3.1 FINAL
 
+> **Current status (Task 15 sync).** This file keeps its original text; later sections "Update (Task ...)" at the end are the history, newest last. Where the original text below disagrees with the code, the latest update and `docs/reproducibility.md` prevail. As of Task 15: option E (hourly dose-response model, D24) is in production; `curtailmit-run` runs the whole pipeline (Task 14); D1-D34 are listed in `docs/reproducibility.md`; acceptance criteria are mapped in `docs/acceptance_criteria_status.md`. Next: Task 13B (figures, limitations summary).
+
 ## 0. Project identity
 - Package name: curtailmit
 - Working title: "CurtailMit: Quantifying the Curtailment-Driven Mitigation Deficit under
@@ -20,6 +22,8 @@ This is not an hourly dispatch pipeline. Curtailment is an externally calibrated
 applied on top of PTE shares. Confirmed in both official PDFs: PTE does not quantitatively
 model curtailment - it appears only as a qualitative policy risk (Relatorio Tecnico, p.60-62).
 This reinforces, rather than weakens, the paper's methodological position.
+
+> **Update (Task 15 sync):** "not an hourly dispatch pipeline; curtailment is an externally calibrated function applied on top of PTE shares" (section 1) was written for the monthly national C(P). The production model (D24) is an hourly dose-response model on the whole-SIN hourly panel, applied to the 2025 hourly profile scaled to each PTE scenario-year. It is still not a dispatch model. "v1 = national, no regional breakdown" (section 0, D11) still holds for the reported results (SIN); the regional formulations were investigated and kept as reference. Original text kept.
 
 ## 2. Decisions closed since v3 (changelog)
 
@@ -75,6 +79,16 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 > Note (Task 11D): Stages 2-3 are no longer a single national-P calibration followed by a projection. They now include a regional / time-controlled / pooled branch
 > (see "Update (Task 11D)" at the end of this file). Stage 6 / Task 13 is blocked until that branch is decided.
 
+> **Update (Task 15 sync): current stage table of the production path** (run by `curtailmit-run`, see `docs/orchestration.md`). The table above is the original v3.1 plan; its stages 2-3 are replaced.
+>
+> | Step | Module | Responsibility |
+> |---|---|---|
+> | Stage 1 | `data_ingestion.py` (+ clients) | acquisition, classification, MCTI factors, data-quality report |
+> | Hourly calibration | `hourly_model.py`, `hourly_uncertainty.py` | Option E curves, base profile, horizon bands (replaces `calibration.py`, which is reference-only) |
+> | Option E projection | `projection.py`, `limitations.py` | `pte_curtailment_option_E.parquet` with D25 limitation propagation |
+> | Final results | `results_writer.py`, `mitigation.py`, `hydrogen.py` | long-format `final_results` (OM/CM split, H2), 156 rows |
+> | Reference check, run manifest | `pipeline.py`, `run_manifest.py` | reference totals within 1e-9; `run_manifest_<UTC>.json` |
+
 ## 6. Stage 1 (data_ingestion.py) - final spec
 
 1. Load config/scenarios.yaml, validate against schemas.py (Pydantic v2):
@@ -102,6 +116,8 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 - Every interpolated year used in a figure/table is labeled as such in output metadata.
 - 2020 is tagged source: historical_ons, never source: pte_projection.
 
+> **Update (Task 15 sync): section 7 is mapped to the production table in `docs/acceptance_criteria_status.md`** (criterion 5, the 2020 historical tag, is not applicable to `final_results`, which starts at 2025; "5 anchor points" is 4 projection years).
+
 ## 8. Remaining open items (execution outputs, not decisions)
 
 - Exact ONS/MCTI resource_ids and coverage windows - produced by Stage 1 at run time, logged.
@@ -111,6 +127,8 @@ curtailmit_database/     # local only - raw/interim/processed data, logs, large 
 - ANEEL (`aneel_client.py`, Task 6) is a FALLBACK, not the default path: standalone, never invoked automatically, and it can only
   provide installed capacity by source (ANEEL has no SIN generation-energy series), so it cannot replace the ONS generation-based P(t)
   without a new decision (D19).
+
+> **Update (Task 15 sync):** the first bullet below, "Calibrated C(P) function parameters - produced by Stage 2 at run time", is superseded: the fitted parameters are the hourly curves `processed/hourly_curve_{wind,solar}[_L1].json` (wind L = 0.733, k = 0.1427, x0 = 40.9; solar L = 0.736, k = 0.1011, x0 = 41.9, `docs/methodology.md` section 2.3j). The resource ids and coverage windows are in `docs/stage1_data_quality_report.md` and the retrieval manifests; no fallback was triggered (the classified ONS series is available, `classification_available = true`; the ANEEL fallback was never invoked).
 
 ## 9. Next steps
 
@@ -218,7 +236,7 @@ Task 11E4 (investigation / prototype, Brazil-only, no `src/` change; `docs/task1
 
 - Publication-ready in-sample coverage figure produced (`fig_insample_coverage.{pdf,svg,png}`): 99.6-99.8 percent of the hours are inside the observed support in 2025-2030, 86-96 percent in 2040, 43-70 percent in 2050; the figure is to be used as the method's transparency exhibit.
 - NE-hourly driver: does not extend the support (2050 hours inside 32-59 percent against 43-70 percent for the SIN-wide hourly driver); no validation gain.
-- Sub-hourly data: ONS publishes 30-minute realized load and COFF data; a 2025 sample shows no wider range of r than the hourly aggregation (maximum ratio 1.006); candidate D27 **not registered** (negative result). Sample documented in `docs/ons_subhourly_data_sources.md`.
+- Sub-hourly data: ONS publishes 30-minute realized load and COFF data; a 2025 sample shows no wider range of r than the hourly aggregation (maximum ratio 1.006); candidate D27-candidate (an unregistered Task 11E4 candidate, never adopted; not the adopted D27 of Task 13) **not registered** (negative result). Sample documented in `docs/ons_subhourly_data_sources.md`.
 - Conformal prediction: finite 80 percent intervals for 2030 / 2040 (3-10 times wider than the empirical band; coverage confirmed by leave-one-quarter-out), none for 2050 (unbounded: exchangeability violated), reported explicitly.
 - Updated recommendation for the next step: unchanged in substance (D24 = E by horizon, D25 closed, D26 retire), with the coverage figure and the "no valid conformal interval at 2050" statement added to the 2050 reporting. D23 still open. Task 11F and Task 13 remain **blocked** until you decide. International hourly data were excluded by your decision (note in the memo).
 
@@ -294,3 +312,9 @@ Task 14 done: `curtailmit-run` / `python -m curtailmit.pipeline` runs pre-check,
 ## Update (Task 15-1) - design proposal for reproducibility and documentation sync; Task 15 awaits approval
 
 Design only (`docs/task15_design.md`, no code change). Findings: no non-determinism (seeded bootstrap; 13 output files byte-identical across runs with different hash seeds and thread counts); dependencies are floors only, no lock; no single reproducibility document; a 15-item documentation audit (README and the Task 12-era stage tables are stale). Pending decisions D33 (data-availability promise: the database is local-only) and D34 (scope split, lock mechanism, D1-D12 handling). Task 13B (figures) follows Task 15.
+
+---
+
+## Update (Task 15) - reproducibility manifest and documentation sync implemented; D33, D34 adopted
+
+Task 15 done (design `docs/task15_design.md`): standing determinism tests (synthetic unit test in CI, real-pipeline integration test), exact pin lock `requirements.lock.txt` with CI job `unit-tests-locked`, run manifest `logs/run_manifest_<UTC>.json` (success runs only), committed `data_snapshot_manifest.json` (250 raw files; no data redistributed, D33), `docs/reproducibility.md` with the generated D1-D34 register and a consistency test (it also catches decision-number collisions), `docs/acceptance_criteria_status.md`, README rewritten, and the 15-item documentation audit applied (narrative history annotated, status markers struck through with update notes, the unregistered Task 11E4 "D27" relabelled `D27-candidate`). The article needs a data-availability statement citing the snapshot manifest (open item for the article step). Next: Task 13B (figures, `limitations_summary.md`).

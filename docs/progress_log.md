@@ -173,7 +173,7 @@ into `config/scenarios.yaml`.
 
 ## Task 11E4 (2026-10) - coverage figure, NE-hourly, sub-hourly feasibility, conformal prediction
 
-- Investigation / prototype only; no `src/` change; D13-D22 untouched; D23, D24, D25, D26 `pending`; D27 not registered (negative sub-hourly result). New data: 2025 verified-load sample (30-minute, 37 MB).
+- Investigation / prototype only; no `src/` change; D13-D22 untouched; D23, D24, D25, D26 `pending`; D27-candidate (an unregistered Task 11E4 candidate, never adopted; not the adopted D27 of Task 13) not registered (negative sub-hourly result). New data: 2025 verified-load sample (30-minute, 37 MB).
 - Added `analysis/task11e4_*.py`, `tests/test_analysis_task11e4.py`, `docs/task11e4_findings.md`, `docs/ons_subhourly_data_sources.md`, the figure `fig_insample_coverage.*`.
 - Findings (preliminary): NE-hourly does not extend the support; 30-minute r has the same extremes as the hourly one; conformal intervals are finite but wide for 2030-2040 and cannot be certified for 2050 (exchangeability violated). 2050 stays conditional. Recommendation unchanged in substance (D24 = E by horizon, D25 closed, D26 retire); Task 11F and Task 13 blocked.
 
@@ -223,3 +223,7 @@ into `config/scenarios.yaml`.
 ## Task 15-1 (2026-10) - design of the reproducibility manifest and documentation sync
 
 - Design only: `docs/task15_design.md`. Determinism checked statically and empirically (three recomputations with different `PYTHONHASHSEED` and BLAS threads, identical MD5 on 13 files). Environment state re-verified (floors only; local Python 3.11.9, CI 3.11.17). Documentation audit list in section 5. Pending D33, D34 in `config/discovered_sources.yaml`. No `src/`, test, dependency or workflow change.
+
+## Task 15 (2026-10) - reproducibility manifest and documentation sync
+
+- `src/curtailmit/run_manifest.py` (run manifest, data snapshot manifest, `verify`), `src/curtailmit/decision_registry.py` (generated D1-D34 register), `pipeline.py` writes the run manifest on SUCCESS/SUCCESS_PARTIAL (`RunManifestError` is a gate, exit 2). Tests: `test_determinism.py`, `test_run_manifest.py`, `test_environment_lock.py`, `test_decision_registry.py`, `test_docs_sync.py`, run-manifest cases in `test_pipeline.py`. `requirements.lock.txt` from the project `.venv` (Python 3.11.9); CI job `unit-tests-locked`. D33, D34 adopted. Documents: `docs/reproducibility.md`, `docs/acceptance_criteria_status.md`, README, annotations in roadmap, methodology, claude_commands, design docs, limitations, data_dictionary, orchestration. D24 YAML text changed only by the `D27-candidate` relabel: stage stamps went stale once, outputs recomputed byte-identical (final_results.csv MD5 918fdb74... unchanged).

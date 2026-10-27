@@ -1,6 +1,6 @@
 # Task 13-1 - Design proposal: `results_writer.py` (OM/CM split and final output layer)
 
-Status: PROPOSAL, awaiting explicit approval. Design only: no `src/` file and no test was changed in this task. Implementation is Task 13, contingent on approval of this document and on the three decisions in section 0.
+Status: ~~PROPOSAL, awaiting explicit approval.~~ **Update (Task 15 sync): approved and implemented in commit `57d9488` (Task 13; D27-D29 adopted, closeout `659b8fe`).** The text below is the design as proposed; the implemented behaviour is `docs/methodology.md` section 2.3k and `docs/data_dictionary.md`. Design only: no `src/` file and no test was changed in this task. Implementation is Task 13, contingent on approval of this document and on the three decisions in section 0.
 
 Inputs read for this design: `src/curtailmit/results_writer.py` (existing), `mitigation.py`, `projection.py` (Task 11F), `limitations.py`, `emission_factors.py`, `hydrogen.py`, `schemas.py`, `docs/data_dictionary.md`, `tests/test_results_writer.py`, `tests/test_data_dictionary.py`, `docs/claude_commands.md` (Task 13 text), D12, D18, D23-D26, and the real table `processed/pte_curtailment_option_E.parquet` (12 rows).
 

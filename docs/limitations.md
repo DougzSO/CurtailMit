@@ -23,3 +23,13 @@ or endlessly re-probed by future work (human or Claude Code).
   version, the only viable path is manual download, isolated in
   `manual_ingestion.py` and explicitly logged as a limitation — never
   silently mixed into the automated pipeline.
+
+## Where the other live limitations are recorded (Task 15 sync)
+
+This file tracks data-source access limitations only (above: CCEE). The model limitations are recorded with their decisions and are not duplicated here:
+
+- D25 (time-confounded wind drift, upward only): `config/discovered_sources.yaml` (D25), `docs/methodology.md` section 2.3j, and the `known_limitations` / `known_limitations_text` columns and `.limitations.json` sidecars of every output table.
+- Short solar record (`SOLAR_SHORT_RECORD`), 2050 conditional range, partial uncertainty composition of emission factors (D28-D30): `docs/methodology.md` sections 2.3j and 2.3k.
+- October 2026 cutoff (`END_EXCLUSIVE`): `docs/orchestration.md`, maintenance watchpoints.
+- Data availability (the raw data are not bundled; hash manifest instead, D33): `docs/reproducibility.md`, section 1.
+- The article-facing limitations summary (`limitations_summary.md`) is generated in Task 13B.

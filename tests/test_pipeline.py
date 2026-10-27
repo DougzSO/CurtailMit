@@ -16,6 +16,7 @@ import yaml
 
 from curtailmit import pipeline as pl
 from curtailmit import provenance as prov
+from curtailmit.mitigation import ModelProvenanceError
 
 PROJECT = Path(__file__).resolve().parents[1]
 
@@ -35,6 +36,15 @@ def parse(*argv):
 def _write(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
+
+
+def _write_raw(path: Path, text: str, url: str = "https://example.org/data") -> None:
+    """A raw data file together with a valid retrieval manifest (the run manifest step refuses raw files whose provenance cannot be stated)."""
+    import hashlib
+
+    _write(path, text)
+    data = path.read_bytes()
+    _write(path.with_suffix(path.suffix + ".manifest.json"), json.dumps({"source_url": url, "http_status": 200, "retrieved_at_utc": "2026-10-27T00:00:00+00:00", "sha256": hashlib.sha256(data).hexdigest(), "byte_size": len(data)}))
 
 
 class Recorder:
@@ -119,7 +129,7 @@ def test_missing_stamp_with_existing_outputs_is_recomputed(db, ok_reference):
 
 def test_changed_input_makes_the_stage_stale_and_unchanged_downstream_is_still_skipped(db, ok_reference):
     run(parse(), Recorder(), ok_reference)
-    _write(db / "raw" / "ons" / "capacity_factor" / "new_month.parquet", "new data")
+    _write_raw(db / "raw" / "ons" / "capacity_factor" / "new_month.parquet", "new data")
     rec = Recorder()
     record = run(parse("--use-cache"), rec, ok_reference)
     assert rec.calls == ["stage1", "calibration"]  # the recomputed calibration reproduces identical bytes, so projection and results verify and are skipped
@@ -183,7 +193,7 @@ def test_force_flags(db, ok_reference, flag, expected):
 def test_skip_stage1_is_a_labelled_partial_run(db, ok_reference):
     for key in pl.STAGE1_PROCESSED:
         _write(db / "processed" / key, "x")
-    _write(db / "raw" / "ons" / "x.parquet", "x")
+    _write_raw(db / "raw" / "ons" / "x.parquet", "x")
     rec = Recorder()
     record = run(parse("--skip-stage1"), rec, ok_reference)
     assert "stage1" not in rec.calls and record.status == "SUCCESS_PARTIAL"
@@ -212,7 +222,6 @@ def test_stage_that_does_not_produce_its_outputs_fails(db, ok_reference):
 # -------------------------------------------------------------------------------------------------------------------------------- gates, exit
 def _gate_cases():
     from curtailmit.data_ingestion import Stage1Error
-    from curtailmit.mitigation import ModelProvenanceError
     from curtailmit.results_writer import FinalResultsError, SupportStatusConflictError
 
     return [("stage1", Stage1Error("x")), ("projection", ModelProvenanceError("bad model")), ("results", SupportStatusConflictError("conflict")), ("results", FinalResultsError("bad table"))]
@@ -389,12 +398,103 @@ def test_requirements_txt_mirrors_pyproject_dependencies():
     assert declared == required
 
 
-def test_ci_workflow_declares_three_jobs_and_states_the_integration_exclusion():
+def test_ci_workflow_declares_its_jobs_and_states_the_integration_exclusion():
     text = (PROJECT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     wf = yaml.safe_load(text)
-    assert set(wf["jobs"]) == {"lint", "unit-tests", "smoke-test"}
+    assert set(wf["jobs"]) == {"lint", "unit-tests", "unit-tests-locked", "smoke-test"}
+    locked = " ; ".join(str(step.get("run", "")) for step in wf["jobs"]["unit-tests-locked"]["steps"])
+    assert "pip install -r requirements.lock.txt" in locked and "pip install -e . --no-deps" in locked and 'pytest -v -m "not integration"' in locked and "ruff check src tests" in locked
     assert "integration" in wf["jobs"]["unit-tests"]["name"] and "curtailmit_database" in text and "never present in CI" in text
     assert 'pytest -v -m "not integration"' in text and "ruff check src tests" in text and "curtailmit-run --dry-run" in text
     assert "DATABASE_ROOT" in wf["env"]
     assert all(step.get("with", {}).get("python-version", "3.11") == "3.11" for job in wf["jobs"].values() for step in job["steps"])
     assert 'pip install -e ".[dev]"' in text and "requirements.txt" not in text.split("jobs:")[1]
+
+
+# ------------------------------------------------------------------------------------------------------------ run manifest (Task 15)
+def _manifests(db):
+    return sorted((db / "logs").glob("run_manifest_*.json"))
+
+
+def test_successful_run_writes_a_run_manifest_with_the_reproducibility_facts(db, ok_reference):
+    from curtailmit import hourly_model as hm
+
+    _write_raw(db / "raw" / "ons" / "capacity_factor" / "m.parquet", "bytes", url="https://example.org/m")
+    record = run(parse(), Recorder(), ok_reference)
+    (path,) = _manifests(db)
+    m = json.loads(path.read_text(encoding="utf-8"))
+    assert record.status == "SUCCESS" and m["status"] == "SUCCESS" and m["partial"] is False and record.outputs["run_manifest"] == str(path)
+    assert m["end_exclusive"] == hm.END_EXCLUSIVE == "2026-10-01"
+    assert set(m["code"]) >= {"commit", "dirty"} and m["environment"]["python"] and m["environment"]["lock_file"] == "requirements.lock.txt"
+    assert set(m["environment"]["packages"]["pandas"]) == {"locked", "installed"}
+    assert set(m["decisions_sha256"]) >= {"D24", "D25", "D27", "D30"} and set(m["config_sha256"]) == {f"config/{n}" for n in pl.CONFIG_FILES}
+    assert [s["stage"] for s in m["stages"]] == list(pl.STAGES) and m["reference_check"]["values_compared"] == 1
+    (raw,) = m["raw_inputs"]["files"]
+    assert raw["path"] == "ons/capacity_factor/m.parquet" and raw["source_url"] == "https://example.org/m" and m["raw_inputs"]["verified_against_retrieval_manifests"] is True
+    assert "tables/final_results.csv" in m["artifacts_sha256"] and "processed/pte_curtailment_option_E.parquet" in m["artifacts_sha256"]
+
+
+def test_partial_run_also_writes_a_run_manifest_flagged_partial(db, ok_reference):
+    for key in pl.STAGE1_PROCESSED:
+        _write(db / "processed" / key, "x")
+    _write_raw(db / "raw" / "ons" / "x.parquet", "x")
+    record = run(parse("--skip-stage1"), Recorder(), ok_reference)
+    (path,) = _manifests(db)
+    m = json.loads(path.read_text(encoding="utf-8"))
+    assert record.status == "SUCCESS_PARTIAL" and m["status"] == "SUCCESS_PARTIAL" and m["partial"] is True
+
+
+@pytest.mark.parametrize("failing", [{"projection": ModelProvenanceError("not option E")}, {"calibration": RuntimeError("boom")}])
+def test_failed_run_writes_no_run_manifest(db, ok_reference, failing):
+    with pytest.raises(type(next(iter(failing.values())))):
+        run(parse(), Recorder(fail=failing), ok_reference)
+    assert _manifests(db) == [] and list((db / "logs").glob("pipeline_run_*.json"))
+
+
+def test_reference_mismatch_writes_no_run_manifest(db, tmp_path, monkeypatch):
+    bad = {"rtol": 1e-9, "n_rows": 2, "totals": [{"scenario": "TB", "year": 2025, "quantity": "curtailed_energy", "component": "total", "central_value": 99.0}]}
+    ref = tmp_path / "bad_ref.json"
+    ref.write_text(json.dumps(bad), encoding="utf-8")
+    df = pd.DataFrame({"scenario": ["TB", "TB"], "year": [2025, 2030], "quantity": ["curtailed_energy"] * 2, "component": ["total"] * 2, "central_value": [43.8, 60.0]})
+    monkeypatch.setattr("curtailmit.results_writer.read_final_results", lambda p: df)
+    with pytest.raises(pl.ReferenceMismatchError):
+        run(parse(), Recorder(), ref)
+    assert _manifests(db) == []
+
+
+def test_dry_run_writes_no_run_manifest_and_nothing_else(db, ok_reference):
+    pl.run_pipeline(parse("--dry-run"), reference_path=ok_reference)
+    assert not db.exists()
+
+
+def test_tampered_raw_file_is_a_gate_failure_with_exit_code_2(db, ok_reference, monkeypatch, capsys):
+    from curtailmit.run_manifest import RunManifestError
+
+    def tamper(ctx, args):
+        _write_raw(ctx.raw / "ons" / "capacity_factor" / "m.parquet", "original")
+        (ctx.raw / "ons" / "capacity_factor" / "m.parquet").write_text("changed after download", encoding="utf-8")
+        for key in pl.STAGE1_PROCESSED:
+            _write(ctx.processed / key, "x")
+
+    rec = Recorder()
+    actions = {**rec.actions(), "stage1": tamper}
+    with pytest.raises(RunManifestError) as err:
+        pl.run_pipeline(parse(), actions=actions, reference_path=ok_reference)
+    assert "m.parquet" in str(err.value) and RunManifestError in pl.gate_errors()
+    assert _manifests(db) == []
+    last = json.loads(max((db / "logs").glob("pipeline_run_*.json")).read_text(encoding="utf-8"))
+    assert last["status"] == "FAILED" and last["failure"]["stage"] == "run-manifest" and last["failure"]["gate"] is True
+    monkeypatch.setattr(pl, "run_pipeline", lambda args: (_ for _ in ()).throw(RunManifestError("x")))
+    assert pl.main([]) == pl.EXIT_GATE
+
+
+def test_raw_file_without_a_retrieval_manifest_fails_the_manifest_step(db, ok_reference):
+    from curtailmit.run_manifest import RunManifestError
+
+    def stage1(ctx, args):
+        _write(ctx.raw / "ons" / "capacity_factor" / "orphan.parquet", "no sidecar")
+        for key in pl.STAGE1_PROCESSED:
+            _write(ctx.processed / key, "x")
+
+    with pytest.raises(RunManifestError, match="no retrieval manifest"):
+        pl.run_pipeline(parse(), actions={**Recorder().actions(), "stage1": stage1}, reference_path=ok_reference)

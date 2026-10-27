@@ -1,6 +1,6 @@
 # Task 11E4 - Coverage figure, NE-hourly extension, sub-hourly feasibility, conformal prediction intervals: consolidated memo
 
-Status: investigation / prototype, Brazil-only data. No file under `src/` was changed and no decision was adopted (D13-D22 untouched; D23, D24, D25, D26 `status: pending`; **D27 was not registered**, see section 3).
+Status: investigation / prototype, Brazil-only data. No file under `src/` was changed and no decision was adopted (D13-D22 untouched; D23, D24, D25, D26 `status: pending`; **D27-candidate (an unregistered Task 11E4 candidate, never adopted; not the adopted D27 of Task 13) was not registered**, see section 3).
 Follows `docs/task11e3_findings.md` (commit `fd3b5bd`), `docs/task11e2_findings.md`, `docs/task11e_findings.md` (cross-linked, not edited).
 Code (throwaway, outside the package): `analysis/task11e4_coverage_figure.py` (a), `task11e4_ne_hourly.py` (b), `task11e4_subhourly_feasibility.py` (c), `task11e4_conformal_prediction.py` (d); smoke tests `tests/test_analysis_task11e4.py` (5).
 Tables and figures: `DATABASE_ROOT/outputs/tables/task11e4_*`, `fig_insample_coverage_data.csv`; `DATABASE_ROOT/outputs/figures/fig_insample_coverage.{pdf,svg,png}` and `task11e4_*`.
@@ -12,7 +12,7 @@ New data: a 2025 sample of the ONS verified-load API (30-minute), documented in 
 |---|---|---|
 | (a) Coverage figure | Publication-ready figure (vector PDF / SVG, 600-dpi PNG), data table and caption text produced (section 1). | - |
 | (b) NE-hourly | **Does not extend the support; it shrinks it.** 2050 hours inside the NE-hourly support: 48 / 32 / 59 % (TB / TA / TG) against 60 / 43 / 70 % with the SIN-wide hourly driver; curtailment from beyond-support hours 76 / 87 / 66 % against 62 / 77 / 51 %. The NE curve validates about as well as the SIN one (partial correlation given time 0.69 vs 0.68) but is not better. | No |
-| (c) Sub-hourly data | **Exists (30 minutes, realized), tested on 2025: negative.** Maximum of r at 30 minutes is 1.006 times the hourly maximum (SIN) and 1.001 times (NE); the 30-minute driver explains 0.1-0.6 % more of the unexplained curtailment variance. **D27 not registered.** | No |
+| (c) Sub-hourly data | **Exists (30 minutes, realized), tested on 2025: negative.** Maximum of r at 30 minutes is 1.006 times the hourly maximum (SIN) and 1.001 times (NE); the 30-minute driver explains 0.1-0.6 % more of the unexplained curtailment variance. **D27-candidate not registered.** | No |
 | (d) Conformal prediction | 2030 / 2040: finite 80 % intervals (and a finite 90 % one for wind), but **3-10 times wider** than the Task 11E3 empirical band; empirical coverage is right (LOQO 85-92 %). **2050: the guaranteed procedure returns no finite interval** (unbounded at 80 % and 90 %, every scenario and technology); the exchangeability assumption is clearly violated. An unguaranteed heuristic interval for wind is reported (91-630 TWh, TB). | No: it confirms that 2050 is not quantitatively defensible |
 
 **Does any workstream move 2050 from "conditional" to "quantitatively defensible"? No, for any scenario or subset.** Details and the single updated D24 recommendation are in sections 5 and 6.
@@ -63,7 +63,7 @@ Data: the Task 11E hourly subsystem panel (NE rows, 2022-01..2026-09, 41,616 hou
 | p95 of projected r over the support edge, NE / SIN | 0.97 / 0.97 | 1.28 / 1.22 | 1.10 / 1.06 | 1.65 / 1.49 | 2.00 / 1.79 | 1.49 / 1.36 |
 Solar gives the same ranking. **The NE-hourly reference does not improve the coverage of 2040 or 2050; it lowers it by 1-15 points of hours and raises the beyond-support share of curtailment by 3-13 points.** The reason is arithmetic: both references are scaled from the same 2025 profile by the same PTE factors, and the NE hourly range tops out in relative terms at the same point (the NE hours are slightly more volatile, so its supported band is narrower in relative terms). Combining the regional and hourly dimensions therefore adds no support; the regional information would have to come from a different (non-proxy) NE projection, which the PTE does not publish.
 
-## 3. Sub-task 11E4-c - sub-hourly feasibility check (D27)
+## 3. Sub-task 11E4-c - sub-hourly feasibility check (D27-candidate)
 
 ### 3.1 What exists (full inventory in `docs/ons_subhourly_data_sources.md`)
 ONS publishes 30-minute realized data for **load** (verified load API, per area) and **curtailment / generation of the COFF plants** (already in the project's `raw/`, only summed to the hour by Task 11E), 30-minute programmed (DESSEM) balances since 2025-05-23, and half-hour restriction-period files. **Nothing finer than 30 minutes with generation or load was found.** So the finest instantaneous VRE-share-of-load that open data allow is the 30-minute one, and its generation side was already local; only the load needed acquisition.
@@ -75,7 +75,7 @@ Acquired: verified load 2025, four areas (37 MB, 60 requests, seconds each; foun
 | SIN p99.9 / maximum | 61.1 / 66.4 | 61.1 / 66.0 | 1.000 / 1.006 |
 | NE p99.9 / maximum | 296.8 / 322.7 | 295.0 / 322.4 | 1.006 / 1.001 |
 Within-hour spread of the SIN r (difference between the two half-hours): median 0.67 pp, p99 5.7 pp, maximum 27 pp (isolated events). Dose-response: the unexplained share of 30-minute curtailment variance is 0.500 with the 30-minute driver against 0.504 with the hourly one for wind (0.6 % relative reduction), 0.486 against 0.486 for solar (0.1 %).
-**D27 rule (fixed before the test): register only if the 30-minute p99.9 or maximum exceeds the hourly by at least 10 % and the 30-minute driver reduces the unexplained variance by at least 15 %.** Both conditions fail (ratio 1.006 and reduction 0.6 %). **D27 is not registered. Result: negative.** Hourly aggregation does not hide extreme instantaneous VRE shares of load at the system level; the fleet and the load average out within the hour. Limits of this finding: one year, 30 minutes is the finest resolution available, and plant-level or sub-30-minute events (the intra-half-hour restriction files) are not a system-level driver.
+**D27-candidate rule (fixed before the test): register only if the 30-minute p99.9 or maximum exceeds the hourly by at least 10 % and the 30-minute driver reduces the unexplained variance by at least 15 %.** Both conditions fail (ratio 1.006 and reduction 0.6 %). **D27-candidate is not registered. Result: negative.** Hourly aggregation does not hide extreme instantaneous VRE shares of load at the system level; the fleet and the load average out within the hour. Limits of this finding: one year, 30 minutes is the finest resolution available, and plant-level or sub-30-minute events (the intra-half-hour restriction files) are not a system-level driver.
 (The 2025 SIN maximum here, 66.4 %, is below the 71.3 % of the main panel because COFF plants carry 96.3 % of the balance wind and the verified load is 2.3 % higher than the balance load.)
 
 ## 4. Sub-task 11E4-d - conformal prediction intervals
@@ -117,7 +117,7 @@ No scenario or technology subset is defensible quantitatively in 2050. The close
 Adopt option E reported by horizon, as in Task 11E3, with these changes of emphasis from Task 11E4:
 1. **2030 and 2040:** E central values with the Task 11E3 empirical annual band as the headline uncertainty (descriptive), and the conformal 80 % interval in the supplement as the conservative formal bound (wind and solar separately; no 90 % bound certifiable for solar or the total). TA 2040 is partly beyond the support (14.5 % of hours, 30-45 % of the curtailment): flag it.
 2. **2050:** E central, the in-support / beyond-support decomposition, the flexibility-conditional range (phi 1.5 to L = 1), the coverage figure (a), and an explicit sentence that a conformal interval could not be produced because the calibration and projection conditions are not exchangeable. No probability, no "calibrated" label.
-3. No change to D25 (close with the wording of Task 11E3) and D26 (retire with the stated limitation); no D27.
+3. No change to D25 (close with the wording of Task 11E3) and D26 (retire with the stated limitation); no D27-candidate.
 4. The paper can present the two uncertainty treatments side by side (empirical band and conformal interval for 2030-2040; conditional range and "no valid interval" for 2050) and let the reader see where they agree (both say the central value is more likely low than high, and both widen as the horizon grows) and disagree (conformal is 3-10 times wider because it counts quarter-level noise and early-training errors).
 Decidable now: D24, D25, D26 (yes); D23 remains open and does not block them.
 
@@ -133,7 +133,7 @@ Per the user's decision for this task, **international hourly peak data (for exa
 | `docs/methodology.md` | Appended section "2.3f Update (Task 11E4)". |
 | `docs/claude_commands.md` | Appended section 1.11E4 after 1.11E3; task table: new 11E4 row. |
 | `docs/progress_log.md` | Appended a Task 11E4 entry. |
-| `config/discovered_sources.yaml` | D24 `task11e4_update` (pending); D27 not registered. |
+| `config/discovered_sources.yaml` | D24 `task11e4_update` (pending); D27-candidate not registered. |
 | `analysis/task11e4_*.py`, `tests/test_analysis_task11e4.py` | New throwaway analysis code and smoke tests. |
 | `DATABASE_ROOT/raw/ons/mmgd/cargaverificada_*_2025-*.json` (+ manifests) | New data: 2025 verified load, 30-minute, 37 MB. |
 | `DATABASE_ROOT/interim/task11e4_subhourly_2025.parquet` | Regenerable analysis cache. |

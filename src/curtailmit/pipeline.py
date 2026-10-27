@@ -1,6 +1,6 @@
 """End-to-end orchestration of the CurtailMit production path (Task 14; decisions D31, D32).
 
-    pre-check -> Stage 1 -> hourly calibration -> Option E projection -> final results -> reference-value check -> summary
+    pre-check -> Stage 1 -> hourly calibration -> Option E projection -> final results -> reference-value check -> run manifest -> summary
 
 Invocation: `curtailmit-run` (console script), `python -m curtailmit.pipeline`, or `scripts/run_pipeline.py` (thin shim). See docs/orchestration.md.
 
@@ -12,6 +12,7 @@ Rules enforced here (and by tests/test_pipeline.py):
 - Stage 1 downloads from remote sources whose freshness cannot be verified offline: without --use-cache it is always re-run; with --use-cache the SHA-256-verified local cache is reused.
 - The retired national/regional calibration (Tasks 7-11D) is reference-only (D24) and is not imported or called here.
 - The reference-value check always runs, after the final results, whichever stages were skipped or re-run.
+- A run that ends in SUCCESS or SUCCESS_PARTIAL also writes logs/run_manifest_<UTC>.json (Task 15, `curtailmit.run_manifest`); a failed run writes only pipeline_run_<UTC>.json.
 """
 
 from __future__ import annotations
@@ -76,8 +77,9 @@ def gate_errors() -> tuple[type[BaseException], ...]:
     from curtailmit.limitations import LimitationError
     from curtailmit.mitigation import ModelProvenanceError
     from curtailmit.results_writer import FinalResultsError, SupportStatusConflictError
+    from curtailmit.run_manifest import RunManifestError
 
-    return (Stage1Error, LimitationError, ModelProvenanceError, SupportStatusConflictError, FinalResultsError, ReferenceMismatchError)
+    return (Stage1Error, LimitationError, ModelProvenanceError, SupportStatusConflictError, FinalResultsError, ReferenceMismatchError, RunManifestError)
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------- context
@@ -317,6 +319,16 @@ def _write_record(ctx: Context, record: RunRecord) -> Path:
     return path
 
 
+def _write_run_manifest(ctx: Context, record: RunRecord) -> Path:
+    """Reproducibility record of a successful run (Task 15). Raises RunManifestError (a gate) when a raw input cannot be tied to its retrieval manifest."""
+    from curtailmit.hourly_model import END_EXCLUSIVE
+    from curtailmit.run_manifest import write_run_manifest
+
+    decisions = prov.decision_hashes(sorted({*STAGE1_DECISIONS, *CALIBRATION_DECISIONS, *PROJECTION_DECISIONS, *RESULTS_DECISIONS}))
+    artifacts = {**_out_stage1(ctx), **_out_calibration(ctx), **_out_projection(ctx), **_out_results(ctx)}
+    return write_run_manifest(ctx.logs, record=record.__dict__, raw_root=ctx.raw, config_hashes=_config_hashes(), decision_hashes=decisions, artifacts=artifacts, end_exclusive=END_EXCLUSIVE)
+
+
 def _say(text: str) -> None:
     print(text, flush=True)
 
@@ -336,6 +348,7 @@ def run_pipeline(args: argparse.Namespace, actions: dict[str, Callable] | None =
                 _say(f"[{i}/4] {spec.key:<12} plan: {dec.label}")
                 record.stages.append({"stage": spec.key, "status": "PLANNED", "kind": dec.kind, "detail": dec.detail})
             _say("[ref] reference-value check would run after the final results")
+            _say("[manifest] a run manifest would be written if the run ends in SUCCESS or SUCCESS_PARTIAL")
             record.status = "DRY_RUN"
             _say("DRY RUN complete: configuration, imports and gate wiring verified; no stage executed and nothing written (input files were only read to hash them).")
             return record
@@ -366,6 +379,9 @@ def run_pipeline(args: argparse.Namespace, actions: dict[str, Callable] | None =
         _say(f"[ref] reference-value check OK: {record.reference_check['values_compared']} values within rtol {record.reference_check['rtol']}")
         record.outputs = {k: str(p) for k, p in _out_results(ctx).items()}
         record.status = "SUCCESS_PARTIAL" if record.partial else "SUCCESS"
+        stage_name = "run-manifest"
+        record.outputs["run_manifest"] = str(_write_run_manifest(ctx, record))
+        _say(f"[manifest] run manifest written: {record.outputs['run_manifest']}")
         path = _write_record(ctx, record)
         _say("SUMMARY: " + record.status + (" (Stage 1 not executed: --skip-stage1)" if record.partial else ""))
         for k, v in record.outputs.items():

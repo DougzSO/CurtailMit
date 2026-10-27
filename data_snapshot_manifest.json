@@ -1,0 +1,2009 @@
+{
+ "schema": 1,
+ "description": "SHA-256, size, source URL and retrieval time of every raw data file used by the CurtailMit production pipeline (decision D33). The data themselves are NOT redistributed: re-download from the sources with Stage 1 and verify with `python -m curtailmit.run_manifest verify`. Publishers may revise or remove historical files, so a difference is reported, never assumed away.",
+ "generated_utc": "2026-10-27T16:15:11.678227+00:00",
+ "n_files": 250,
+ "total_bytes": 508946664,
+ "files": [
+  {
+   "path": "mcti/average_emission_factor/Inventario_2026_janset.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Inventario_2026_janset.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:20.130545+00:00",
+   "http_status": 200,
+   "sha256": "50cbb9b78ea583baa0115e59e234c3820caae0496cf0609822c398bf238046ec",
+   "byte_size": 12365
+  },
+  {
+   "path": "mcti/margin_factors/2020_fatores-de-emissao-de-co2-pela-geracao-de-energia-eletrica-no-sistema-interligado-nacional-do-brasil-ano-base-2020-com-correcoes-de-setembro-a-dezembro.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/Banner_Relatorios_Especiais_IPCC/metodo-da-analise-de-despacho/fatores-de-emissao-de-co2-pela-geracao-de-energia-eletrica-no-sistema-interligado-nacional-do-brasil-ano-base-2020-com-correcoes-de-setembro-a-dezembro.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:24.379105+00:00",
+   "http_status": 200,
+   "sha256": "1c695ae53521b601206190e95a2314527dd9081575019f12d744affd08ae227a",
+   "byte_size": 110898
+  },
+  {
+   "path": "mcti/margin_factors/2021_Despacho_2021_jandez.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2021_jandez.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:25.503691+00:00",
+   "http_status": 200,
+   "sha256": "ee38dd40072c37b3b0e5315429751c26597b2aa2fd172e247e199945f58c2fd6",
+   "byte_size": 104280
+  },
+  {
+   "path": "mcti/margin_factors/2022_Margemdeconstruo_2022corrigido.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Margemdeconstruo_2022corrigido.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:26.760563+00:00",
+   "http_status": 200,
+   "sha256": "ee306887468a50a914624ea62f3b33ab3516cd375df5981815555586b5f81235",
+   "byte_size": 155777
+  },
+  {
+   "path": "mcti/margin_factors/2023_Margemdeconstruo_2023corrigido.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Margemdeconstruo_2023corrigido.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:28.218099+00:00",
+   "http_status": 200,
+   "sha256": "c1e0408a35377d4564008571cfff4618804376293e4f080cb78054e95eeb2adf",
+   "byte_size": 429365
+  },
+  {
+   "path": "mcti/margin_factors/2024_Despacho_2024_jandezcomcorrees_FE_MC.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2024_jandezcomcorrees_FE_MC.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:29.507307+00:00",
+   "http_status": 200,
+   "sha256": "f34f223baef0162a350a9d3c5b0c66a4f659a4c775c82dc3b9a189238d295e1b",
+   "byte_size": 208203
+  },
+  {
+   "path": "mcti/margin_factors/2025_Despacho_2025_jandez_corrigidacomMO.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:30.952306+00:00",
+   "http_status": 200,
+   "sha256": "70b5c353da0198d84c53cc622be78d472c79e512ff6c27246401b44bf27b2edf",
+   "byte_size": 136371
+  },
+  {
+   "path": "mcti/margin_factors/2026_Despacho_2026_janset.xlsx",
+   "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2026_janset.xlsx",
+   "retrieved_at_utc": "2026-10-27T14:22:32.219656+00:00",
+   "http_status": 200,
+   "sha256": "508b38962814f9df59f509481229a5da4c84e8fa607590c9fefb2e2d2d449a13",
+   "byte_size": 63953
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade-2021.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE_2021.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:09.968533+00:00",
+   "http_status": 200,
+   "sha256": "18434cb78ff5d0af47a6a551e92a0ad167b07bd277eccab160d377b394bb720b",
+   "byte_size": 27816756
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:13.460711+00:00",
+   "http_status": 200,
+   "sha256": "9edb0b9bc4d5142cc3cea252d35ac9f42d96ee211c8c072a3e1019766cac511c",
+   "byte_size": 2587692
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:18.288270+00:00",
+   "http_status": 200,
+   "sha256": "9c03aa5debf087ede97c9f343b020ae4d2788bb4e0a31c4cbb9fd69cc4023177",
+   "byte_size": 2395493
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:24.105498+00:00",
+   "http_status": 200,
+   "sha256": "8f4bc626404890e2a034148de988e9f2929d0df40240ea5e630d80b64aa4e7fb",
+   "byte_size": 2665620
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:27.424342+00:00",
+   "http_status": 200,
+   "sha256": "a794e10f5d161d132579c506932e68cfd4409537a70428962d1f44849b038ce6",
+   "byte_size": 2554067
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:31.057525+00:00",
+   "http_status": 200,
+   "sha256": "2242ebf2762dc8f23fb6d145ff187b62834bcc340921ee15d61db0c3841676b6",
+   "byte_size": 2701263
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:34.534349+00:00",
+   "http_status": 200,
+   "sha256": "4257051229509bc4f046788ce3ec93d2a4d89a9ceea25b53b9192545a4319f96",
+   "byte_size": 2603111
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:38.014502+00:00",
+   "http_status": 200,
+   "sha256": "1b1b39e12cdd737bd3bcb19bf0ee5b8ab53f1b02c639983360630ccfc540e243",
+   "byte_size": 2898114
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:46.929501+00:00",
+   "http_status": 200,
+   "sha256": "9bf00154b175dbf6020d4cc28ace9f128af3bfee75d5b4255a489ca6dd14d1dd",
+   "byte_size": 2947870
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:52.549510+00:00",
+   "http_status": 200,
+   "sha256": "03d806fa4610e717792ed2e245a8e857b41f2855a1eeafaf2d9ed74fe7c50b16",
+   "byte_size": 2918907
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:16:57.780147+00:00",
+   "http_status": 200,
+   "sha256": "0fe6c1f8385578d64c92f92702d114be111ce3005c8cbee9daa6006f47a56698",
+   "byte_size": 3143876
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:03.809453+00:00",
+   "http_status": 200,
+   "sha256": "fcc2e2452a0f1692354e92ad345f63e0b9038f2ba7e61c709ec3971105b0715c",
+   "byte_size": 2948147
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2022-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2022_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:09.229110+00:00",
+   "http_status": 200,
+   "sha256": "7c1f45b6086b338e22cf060d1dd978f83b0e2553273b1ff3e1eb351295b3d262",
+   "byte_size": 3028818
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:12.816643+00:00",
+   "http_status": 200,
+   "sha256": "f1fb9475e864db2605001afd0ae79ae799c071adcf1f10fec51f89f541336c4b",
+   "byte_size": 3102731
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:16.265169+00:00",
+   "http_status": 200,
+   "sha256": "d57c7ac16fc783b6ad7ab53d63e6d1e179e05c9f155ffd19fdf38c5069409f4b",
+   "byte_size": 2862852
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:20.638596+00:00",
+   "http_status": 200,
+   "sha256": "87737d78cf4adb2e0cd0aae3cf51bde405345ad8f110037c8958cbb403b4e55b",
+   "byte_size": 3018831
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:25.119431+00:00",
+   "http_status": 200,
+   "sha256": "0dcfd7e165dd7f28fa91fd2e3790521130934b4d2efd33f5898274f6ebf116a2",
+   "byte_size": 2893029
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:29.137511+00:00",
+   "http_status": 200,
+   "sha256": "afedae70d05f9e14d5dc73118f1ba872032722cdd082c205280f2aafe07cde59",
+   "byte_size": 3139673
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:32.817408+00:00",
+   "http_status": 200,
+   "sha256": "086c5b96fdd96148afc397702cc2ede78e359214d77e2a23f148ebb0468304e4",
+   "byte_size": 3165623
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:36.443527+00:00",
+   "http_status": 200,
+   "sha256": "723b868fab8562f78486d2d5a5870b67a405dc4624b96ec82b585a8f5ecdadda",
+   "byte_size": 3340759
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:44.788127+00:00",
+   "http_status": 200,
+   "sha256": "46becc0f13e12dcfbbffa671afa45e821b9768cc40445cbf3729300dd29d5f3f",
+   "byte_size": 3343341
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:51.046683+00:00",
+   "http_status": 200,
+   "sha256": "8f4bf1fd025f6d154fc68a7e14329829c08a33f34cfef3ed67a3c1947dafe016",
+   "byte_size": 3192273
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:54.830372+00:00",
+   "http_status": 200,
+   "sha256": "c28af1cd3c099849f84f5528c3188098b85566cf5a50d50fcd325605b4176156",
+   "byte_size": 3428020
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:17:58.503419+00:00",
+   "http_status": 200,
+   "sha256": "9fd8dcd6bc3d211dbafbe4f684919115c8abfd6e149792cd766e16186e7e9c83",
+   "byte_size": 3290328
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2023-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2023_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:04.016802+00:00",
+   "http_status": 200,
+   "sha256": "6d60e4da841793392f9737cfcfd3e817633b9e632289bf34ce08936324208aca",
+   "byte_size": 3463040
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:08.639888+00:00",
+   "http_status": 200,
+   "sha256": "753c321ed9a525a4cdbf2bec53dad5b2f190c99410308c98521a1fbaefb03c8b",
+   "byte_size": 3346631
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:12.115817+00:00",
+   "http_status": 200,
+   "sha256": "4941b777aad2f34352ede23667d41bedfd4d08bad57e1ddd79bbe436244735da",
+   "byte_size": 3209825
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:15.775301+00:00",
+   "http_status": 200,
+   "sha256": "ec8c7148141caa397639f9b1d15b4c0ca8b30224898d09962cc19b5669a88a57",
+   "byte_size": 3344134
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:20.924544+00:00",
+   "http_status": 200,
+   "sha256": "5849214910e5d418d439b6cb9008d2b50942e82785e1bf0b9257ecfefa7d3f09",
+   "byte_size": 3323288
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:25.611040+00:00",
+   "http_status": 200,
+   "sha256": "20089ca79fb78f32cbccbccda5194f96bde320f3763750e4752e64e421e83608",
+   "byte_size": 3607635
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:29.506777+00:00",
+   "http_status": 200,
+   "sha256": "eaa4db21d7b00009c8313800c1bdb004d7ea6e9d5dc20676413485b06cf5690d",
+   "byte_size": 3542078
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:34.552773+00:00",
+   "http_status": 200,
+   "sha256": "f92560c74ab233ebea0969065343d0049b18faef230ed7dc9aaa97428e2d63b5",
+   "byte_size": 3674187
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:38.460277+00:00",
+   "http_status": 200,
+   "sha256": "4fe0d553b1ba712025d00fc6992e8ec5ee6554eb574ab3b466658b0b7a327eef",
+   "byte_size": 3742345
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:45.401989+00:00",
+   "http_status": 200,
+   "sha256": "166acfd0bfb854b11b22c35735b0e85a06e0f971aa85f3eb803fff04aa7523c2",
+   "byte_size": 3610522
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:49.365711+00:00",
+   "http_status": 200,
+   "sha256": "eb2c4051d2a2bdd3c55997be9a980a75298e6513f794461ba869452f0aa0d264",
+   "byte_size": 3617476
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:54.918354+00:00",
+   "http_status": 200,
+   "sha256": "ed3696b2969959f8e8dc4e096a760419d882bfdbd849de0449112b188abd9b32",
+   "byte_size": 3486004
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2024-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2024_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:18:58.940851+00:00",
+   "http_status": 200,
+   "sha256": "c576c15ae7fa44f71fc776ae800d8a4e60e69e9f4606ab0b85fb931c7b90d4ae",
+   "byte_size": 3631707
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:04.221635+00:00",
+   "http_status": 200,
+   "sha256": "22dee3b4dc05ce9a49fcae6fd63037b82894440bf937b8a050160d8f98e1e91c",
+   "byte_size": 3452601
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:10.442624+00:00",
+   "http_status": 200,
+   "sha256": "0e988f16028d92b2fa12964a7a661c65584ceefcb67b2a701f4adff6769c750b",
+   "byte_size": 3078139
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:16.924986+00:00",
+   "http_status": 200,
+   "sha256": "f22415de793422216ddcf1f923b37169a14128e7c17cdb0c474e1efcbf4f27ef",
+   "byte_size": 3564826
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:20.939117+00:00",
+   "http_status": 200,
+   "sha256": "c8815015d0b1debc83ec4bfeba3c8897a25af7da0c30166c31a039cf1e54c673",
+   "byte_size": 3423768
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:25.863340+00:00",
+   "http_status": 200,
+   "sha256": "1ddfaffddadc4a5b9717d97424cb416ac83b7f01e6cba37c7d607478343c98f4",
+   "byte_size": 3589423
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:30.115328+00:00",
+   "http_status": 200,
+   "sha256": "36ac785c01a30c6681bfe0147c3e2dfd2228bf6e20f718b94e6048085d499eb1",
+   "byte_size": 3490239
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:36.897602+00:00",
+   "http_status": 200,
+   "sha256": "156dd5df114f4e74beb2661f0e17aee34af026d254b1dfa2ca9989835e2b564b",
+   "byte_size": 3604879
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:41.505389+00:00",
+   "http_status": 200,
+   "sha256": "a8147becc0b364608a39b5e5c4750f68fb31655f10897d6fd2a6086b2a4bcc4a",
+   "byte_size": 3599513
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:45.603672+00:00",
+   "http_status": 200,
+   "sha256": "eec57c7a3079903bc695cccdeab18db057fdab77704e27ac5f3ade9be9334d8f",
+   "byte_size": 3552625
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:50.081096+00:00",
+   "http_status": 200,
+   "sha256": "5e2cd9f1a0f543de37717e70aa101e78e9cf90c7d5cc4969a15923f900bef94a",
+   "byte_size": 3656261
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:54.364217+00:00",
+   "http_status": 200,
+   "sha256": "45be05c864815d6517d18b5c4572945a2fdd62059186673b25b1130e2f0d9cd5",
+   "byte_size": 3496423
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2025-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2025_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:19:57.793766+00:00",
+   "http_status": 200,
+   "sha256": "077becf875a02a37081267b8b818016bbc637c0a2832195a341c59a9a84b7d64",
+   "byte_size": 3640264
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:01.450143+00:00",
+   "http_status": 200,
+   "sha256": "d94e54de0d2a0d0e6a8e35d9fcdf362377ed0f309b163d6b285b95ecf02d3a26",
+   "byte_size": 2644014
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:06.309733+00:00",
+   "http_status": 200,
+   "sha256": "97a560c131dee526b454a97cd8bbcf2cdff847230dceefda40dfd1926c2d9d5b",
+   "byte_size": 2331071
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:11.986652+00:00",
+   "http_status": 200,
+   "sha256": "70d78bf0ef8440267e04bcb3d4074d628e570728b4fc829498c11207bf5b1e19",
+   "byte_size": 2571119
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:16.431194+00:00",
+   "http_status": 200,
+   "sha256": "5f0db07f6cc2569f91d19529fb9432c2658287c5352ccbb6f9941e32e42a2051",
+   "byte_size": 2502087
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:22.031514+00:00",
+   "http_status": 200,
+   "sha256": "bbf54aa8f8fbec5cb945a7f8db1f7842ccb4d8f13961e8025c8d3d645798f964",
+   "byte_size": 2633481
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:26.617253+00:00",
+   "http_status": 200,
+   "sha256": "d30ff426cf1d9687e5f17655ffc8126fb7e5bd968ffc0e07e14ae4d986072647",
+   "byte_size": 2600842
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:31.454199+00:00",
+   "http_status": 200,
+   "sha256": "7c31e51c3de371418a3c81c2d67f2f85ebf0b02c13a6fb9d53046a9ed5c0f943",
+   "byte_size": 2707103
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:37.810635+00:00",
+   "http_status": 200,
+   "sha256": "4a6e2e3b1b32ea5a9458821eb94ce3ea0fa6c33151639ffc0a15be7eabbc3290",
+   "byte_size": 2728652
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:41.089544+00:00",
+   "http_status": 200,
+   "sha256": "f7e65fe3e8155af45c1e7af356a2c8c0bf3f6d82248400d2d0a75d1629f132b2",
+   "byte_size": 2669310
+  },
+  {
+   "path": "ons/capacity_factor/Fator_Capacidade_2-2026-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/fator_capacidade_2_di/FATOR_CAPACIDADE-2_2026_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:44.862961+00:00",
+   "http_status": 200,
+   "sha256": "2d42e9638a13de3dd095408f7df07af45e6a0c2c0483a1c0fd57895bfe4bfe17",
+   "byte_size": 2156529
+  },
+  {
+   "path": "ons/carga_energia/data_dictionary.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/carga_energia_di/DicionarioDados_Carga_Energia_Diaria.json",
+   "retrieved_at_utc": "2026-10-22T10:37:11.117033+00:00",
+   "http_status": 200,
+   "sha256": "6dd72e3eda9802031e3c6694634c698dc61a0d450e308f32cb95f35e83ac6411",
+   "byte_size": 568
+  },
+  {
+   "path": "ons/curtailment_solar/data_dictionary.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/DicionarioDados_RestricaoContrainedoff_UsiFotovoltaica.json",
+   "retrieved_at_utc": "2026-10-27T14:22:05.478393+00:00",
+   "http_status": 200,
+   "sha256": "d3f324977219d3b7ba98d131228dc7f8ea30984672b68f2e836db44b680c5d1e",
+   "byte_size": 4667
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:48.131235+00:00",
+   "http_status": 200,
+   "sha256": "3693f72949440ec924d25a155f6c52ed3c723621d2bc5c6a21c8b8f1fa42c531",
+   "byte_size": 677734
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:52.691309+00:00",
+   "http_status": 200,
+   "sha256": "dfe82b91788474776a9fdd3b087177b695a0ddd0bad60e4f20f0f97922dff975",
+   "byte_size": 779325
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:55.527153+00:00",
+   "http_status": 200,
+   "sha256": "bf01ac30d461492c1bddaf30e189c023ffe05cae28fe6f216123e06279aafe1e",
+   "byte_size": 814018
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:58.178591+00:00",
+   "http_status": 200,
+   "sha256": "f2010b7e01c3d6a024fe8e735664fbc1832ce6079fee9245c67d6863daad5fcd",
+   "byte_size": 901649
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:01.806457+00:00",
+   "http_status": 200,
+   "sha256": "25f4594f364b079fb5a8da5220d8a77dfd458c37fa8022796624688f1ea0aea5",
+   "byte_size": 958370
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:04.475980+00:00",
+   "http_status": 200,
+   "sha256": "1b7078bf88ac4b16cbfce282112835415771b63478849ebcd9a7da972eda083f",
+   "byte_size": 954835
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:07.326537+00:00",
+   "http_status": 200,
+   "sha256": "d8ef4a8f04613daf384b3a8cb91cd0c63e4b4b2a03ded2e75c50a05326e3ed30",
+   "byte_size": 960311
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:10.390916+00:00",
+   "http_status": 200,
+   "sha256": "a1a61ea30c1fab6d4ebd7260fae62b6798eb637344fef4c9bdde9e79b6a5d8b6",
+   "byte_size": 908939
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2024-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2024_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:15.093696+00:00",
+   "http_status": 200,
+   "sha256": "0486a5acb87abf6523547e205097540dcc2ee4c9ceb3041dfdca1018f7b744e3",
+   "byte_size": 1048562
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:18.344028+00:00",
+   "http_status": 200,
+   "sha256": "f9960fd7954d7305c48194e338764cafa961a7b01c379d840f334ad20320eb71",
+   "byte_size": 1030629
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:22.476789+00:00",
+   "http_status": 200,
+   "sha256": "7702565f1a2e82fac0ec88c506816dbad9aa608ac007d71609d649c02aef3a76",
+   "byte_size": 991484
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:25.344406+00:00",
+   "http_status": 200,
+   "sha256": "a3b6e9488e2f03873c43a5d17127bda47c83100ea1a37ad20a380e864c4040a7",
+   "byte_size": 1016432
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:29.087968+00:00",
+   "http_status": 200,
+   "sha256": "d71681651229c96cb174b91c59e3139206c44b5ad3ce04651ac0f60d8d64d081",
+   "byte_size": 957849
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:31.952808+00:00",
+   "http_status": 200,
+   "sha256": "3a2fe3f06ca1f51bbf066fcb67d56580ba654150fd8accc5bb7f19b50ca7c8d7",
+   "byte_size": 1125095
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:35.158421+00:00",
+   "http_status": 200,
+   "sha256": "74f4cee8a6cef29d2abe3922ffa05da026a7ab27521e43ee2db390c26765985c",
+   "byte_size": 1055413
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:38.606165+00:00",
+   "http_status": 200,
+   "sha256": "12ddc02784ee0c15f2c699c2b129d2919a71a5d6f798d022aca2fd95c13d4596",
+   "byte_size": 1147572
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:42.934032+00:00",
+   "http_status": 200,
+   "sha256": "6547bdf4f7877774a20d4465e93d19eee1d1a3be14dff24eb49d6fd1dbb7389e",
+   "byte_size": 1185801
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:47.061887+00:00",
+   "http_status": 200,
+   "sha256": "90d6336b3add45dcf7cba038d1a29b8e5d539db9c02781e0dfb6f8c349abe76b",
+   "byte_size": 1200817
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:49.764196+00:00",
+   "http_status": 200,
+   "sha256": "e615c3919e13228dfc9840a009341eb8f07d7b9247d29c4b1723fcd7575f47d9",
+   "byte_size": 1277532
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:53.236643+00:00",
+   "http_status": 200,
+   "sha256": "7da952371b3a5ff2d28b7294dec8ded22df7f00e15a99fcaf572393bad3c2917",
+   "byte_size": 1225806
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2025-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2025_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:56.245120+00:00",
+   "http_status": 200,
+   "sha256": "b86fe52f0ba149ea2d84af5c4f23f1ff648185a2ef3ad87f020b13bafb4e1128",
+   "byte_size": 1232727
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:14:59.470285+00:00",
+   "http_status": 200,
+   "sha256": "82d7bfb5a22feab4de1b3dd2cfe3b9ee58241a966c88fc5f6782c0721c9a3cea",
+   "byte_size": 1257823
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:03.640517+00:00",
+   "http_status": 200,
+   "sha256": "bbd081c99e9b45ef4ca05f4bbc30ee68d629c1252fe34a2213b676fbacc36d9d",
+   "byte_size": 1028057
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:07.269846+00:00",
+   "http_status": 200,
+   "sha256": "0758fc32da44d1f1d1a3f0307ec092b98eb05b214ca77fd7a322e05ed75f0261",
+   "byte_size": 1301640
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:10.413358+00:00",
+   "http_status": 200,
+   "sha256": "f1abbb1e48649e88903d389734924488c6a38b11fd148b5cfd37111cde307e4a",
+   "byte_size": 1311407
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:13.851046+00:00",
+   "http_status": 200,
+   "sha256": "75fce8ef8715cbd815d6ffef28b66726f62bcb8233766457da383b492c5604e2",
+   "byte_size": 1345985
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:17.007753+00:00",
+   "http_status": 200,
+   "sha256": "6070a9fb630ea9aa2e44fff773a5b36a2b320d8560005b1ffd5fda263f3aa1df",
+   "byte_size": 1231733
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:20.062838+00:00",
+   "http_status": 200,
+   "sha256": "a4a8f538ee8879abb15045323ed86c6202210351811a9ff76a61476ef0f4e681",
+   "byte_size": 1339148
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:23.159166+00:00",
+   "http_status": 200,
+   "sha256": "7c609a08af4aece39f0cf42583b7713ab64d73cd347ab572d49124ad592fa791",
+   "byte_size": 1417630
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:26.482366+00:00",
+   "http_status": 200,
+   "sha256": "3c038ed2d4906d7ec8c9aab7e6aba2c35f5217121a06123b396623593b5aaf5b",
+   "byte_size": 1429761
+  },
+  {
+   "path": "ons/curtailment_solar/Restricoes_coff_fotovoltaica-2026-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:15:30.312394+00:00",
+   "http_status": 200,
+   "sha256": "b0da6f53a886be0d6c6da6fc376890eceb4e7bd8fbfbf353ad176c16946b5421",
+   "byte_size": 1413191
+  },
+  {
+   "path": "ons/curtailment_wind/data_dictionary.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/DicionarioDados_RestricaoContrainedoff_UsiEolicas.json",
+   "retrieved_at_utc": "2026-10-27T14:22:08.400302+00:00",
+   "http_status": 200,
+   "sha256": "136d14be22a722e68e51b36c92800cc22eb5c7f2599cdfbceb70eaec7be74028",
+   "byte_size": 4715
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:08:35.755103+00:00",
+   "http_status": 200,
+   "sha256": "b10b94386ce0a3e4b134ce7fa56acd0f5bf5b6b06c078ece35458e6c1a47a12c",
+   "byte_size": 2160624
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:08:40.912030+00:00",
+   "http_status": 200,
+   "sha256": "03ac898958adaf4dd983a4c24e5251da42975184ea5ebbe4a938cbf8b021369d",
+   "byte_size": 2057766
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:08:46.905105+00:00",
+   "http_status": 200,
+   "sha256": "a29032a0ea047eed00f7c3187266e05c7ea277d4607f14f864612e7346486b45",
+   "byte_size": 2255479
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:08:53.065207+00:00",
+   "http_status": 200,
+   "sha256": "3b75093c12e5c87e4d837598d6979b29d4cfa91b20cf34b7f9f996d4a2dc8da4",
+   "byte_size": 2155872
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:08:57.675794+00:00",
+   "http_status": 200,
+   "sha256": "3ac41eb8e59a135d6231d4435f73186d29e050c5ad57d094a097764370d2e330",
+   "byte_size": 2287728
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:01.474691+00:00",
+   "http_status": 200,
+   "sha256": "afb8ad73e1cc95575c2f3fe2677d7b85a27d5330baf062729938e8fa249f5c71",
+   "byte_size": 2158369
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:06.653506+00:00",
+   "http_status": 200,
+   "sha256": "f86791592efc698f03a7bd15972058712052d9c12c4bc7d76af50f393d4b1511",
+   "byte_size": 2502303
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:14.764729+00:00",
+   "http_status": 200,
+   "sha256": "249550569f99db5bdb0a93f8b8982747e26250f63becc787838398c26436bdc2",
+   "byte_size": 2576713
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:18.761113+00:00",
+   "http_status": 200,
+   "sha256": "a5fe1464815f213778822e6ca079fe58e3f618c6898373bd1cda9e0f7c30d2ee",
+   "byte_size": 2509194
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:25.382348+00:00",
+   "http_status": 200,
+   "sha256": "7d18056799ebb6502c7f596ae89a579e3ba71b6b251ee79e2ea87f07c8de5bc7",
+   "byte_size": 2679439
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:30.657561+00:00",
+   "http_status": 200,
+   "sha256": "faad14ee5f9bbc4057fa724fa2c7721eac974439937ebc9666691e7145385374",
+   "byte_size": 2362463
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2022-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2022_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:33.985067+00:00",
+   "http_status": 200,
+   "sha256": "027dad0483fa9036f0e73afcdb6b6b9e8470080b90baa7f8086cc31db72ca5ae",
+   "byte_size": 2499956
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:38.140605+00:00",
+   "http_status": 200,
+   "sha256": "eb2a1e169b90b794b5fcb291b16697a49337099ed1eb2925c067805f2b683a80",
+   "byte_size": 2533150
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:42.376988+00:00",
+   "http_status": 200,
+   "sha256": "82820cacdda637cfb319b1a71786d39a117efaa9900038c44f40d2e2e1228bcd",
+   "byte_size": 2406856
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:45.716164+00:00",
+   "http_status": 200,
+   "sha256": "a0fc92a430979ccf1ab222d989e4347901d076b534e8d75cac4fd1bcb2421add",
+   "byte_size": 2613881
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:49.558788+00:00",
+   "http_status": 200,
+   "sha256": "e78089c9376b6b3fb4ead92add6dd8a4ec01232f54c73b92c16b7b1ec15728a5",
+   "byte_size": 2367275
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:53.729654+00:00",
+   "http_status": 200,
+   "sha256": "ec5e4eb7381509fdd6ac48738a530966d41f168252b4a46977f6f9e6dbb67a29",
+   "byte_size": 2564945
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:09:57.499708+00:00",
+   "http_status": 200,
+   "sha256": "564d5fd7337bb4ceab15776e8c7d2226f357855974d9f279474adb55f90d72d9",
+   "byte_size": 2905822
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:04.803767+00:00",
+   "http_status": 200,
+   "sha256": "11683abd2fbe0f78ad0a854b9d41666bf11742f0ff4af0bd44e77d50400201a4",
+   "byte_size": 3111835
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:08.585051+00:00",
+   "http_status": 200,
+   "sha256": "28dff5960d40836429f5aded6a134c9931947fea358d64aea79445a5b276cb15",
+   "byte_size": 3118391
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:12.768590+00:00",
+   "http_status": 200,
+   "sha256": "82f39af87db0a204dbe9d3a6decd5fc710c625170faa393c7756c5f240108819",
+   "byte_size": 3326215
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:19.512361+00:00",
+   "http_status": 200,
+   "sha256": "027faf8db524b7a1e30273345a66bd8a092746fe43763ba555b93f8f2f302d80",
+   "byte_size": 3318833
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:24.139385+00:00",
+   "http_status": 200,
+   "sha256": "00877e21c0b0f1b1361e34d25e1d851669b8273d566a2ebc75d5c9f79635fe69",
+   "byte_size": 3018375
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2023-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2023_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:27.652494+00:00",
+   "http_status": 200,
+   "sha256": "24e7c1448bd92e7d33c12c501c2518f95129ac4c753fe515c24369f584286aed",
+   "byte_size": 3098734
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:31.317801+00:00",
+   "http_status": 200,
+   "sha256": "561c12e71cfdceb1dafdab23a9b24983917429b93708b917be91ce8f6a987da1",
+   "byte_size": 2702440
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:36.409441+00:00",
+   "http_status": 200,
+   "sha256": "58e8b8c8be059031404c9ca34844a312ece0560dcd1fedb4e137bcf5ed40a7a8",
+   "byte_size": 2726660
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:41.514322+00:00",
+   "http_status": 200,
+   "sha256": "91e98a32591dee635f5b2c9ce4945ec09f5662bde76d524f2bc0e861610e0cfc",
+   "byte_size": 2795723
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:46.746315+00:00",
+   "http_status": 200,
+   "sha256": "29bb33d966b4d23f7bee1ea008542deec1fee69272a9722d5160f8b0e4ba12b5",
+   "byte_size": 2830457
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:52.436083+00:00",
+   "http_status": 200,
+   "sha256": "7496be757b93f0305f5d32d48a3da640de8b25fddec6aea88e8b89157744fab3",
+   "byte_size": 3272193
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:10:57.083324+00:00",
+   "http_status": 200,
+   "sha256": "db1c2f9f6ecc2cb1d9f8fe889682a4b7bd119259f31c5b6fc9f7366f0ca2e5c9",
+   "byte_size": 3462283
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:03.311571+00:00",
+   "http_status": 200,
+   "sha256": "58480926990a653065e94bbbb04bcc115ff458eee9d90d09b60fdfaddb33b2a0",
+   "byte_size": 3971926
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:10.007559+00:00",
+   "http_status": 200,
+   "sha256": "bf779f5387fd55c1384028859075eca20018adf0dda02fe3c2444c7154bff33d",
+   "byte_size": 4360354
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:16.390715+00:00",
+   "http_status": 200,
+   "sha256": "2439a86bd92444f520ab8990c3e0f6624ea8507a9d2ebf8851855344ed7843fe",
+   "byte_size": 4324853
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:20.678983+00:00",
+   "http_status": 200,
+   "sha256": "e86692858654621fe169e1487835133c92afcd8d6462e7c0ee8135df61d0074d",
+   "byte_size": 3911506
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:25.550612+00:00",
+   "http_status": 200,
+   "sha256": "16a3ebd7c7c22c94bc215ad5d35d59f5a36a4b2d87b16e349a9b8dfef270ab24",
+   "byte_size": 3525276
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2024-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2024_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:32.414260+00:00",
+   "http_status": 200,
+   "sha256": "cba1f0de63b498a0eae3b671b68fb7a62fd8dab186199aa42629180104bb4c5a",
+   "byte_size": 3719705
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:37.850269+00:00",
+   "http_status": 200,
+   "sha256": "431709d434d065213a3f4ce1404f718a2ca2a3ab05f22feb28b257753892a763",
+   "byte_size": 3253368
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:42.868833+00:00",
+   "http_status": 200,
+   "sha256": "2389034a0011d07e60ffbfc1aeefd3bfd7c823b37dc3499978dcc2b28da2019a",
+   "byte_size": 3722753
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:47.355883+00:00",
+   "http_status": 200,
+   "sha256": "c584081112a5efd475a130c976ac1d59fe0829c3629ad6f1ca6ee8f9e3ba9630",
+   "byte_size": 3498526
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:54.087179+00:00",
+   "http_status": 200,
+   "sha256": "0aaff25651b79edcea2d10ed6b1ba04e15e57d60b4e1ac70b39b410f2e42bfee",
+   "byte_size": 3225522
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:11:58.887277+00:00",
+   "http_status": 200,
+   "sha256": "edda6abd19f0a21247f7bc31af3f7dd4302d38b04c88d3a346a95a30774ec1a4",
+   "byte_size": 4105618
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:05.252682+00:00",
+   "http_status": 200,
+   "sha256": "025b8067cd6fe36198eca3a8ccbe93386f1c0a0a9a8047c36d481fdb707d0b40",
+   "byte_size": 3973542
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:11.568466+00:00",
+   "http_status": 200,
+   "sha256": "a5d9316788012f58bbfe254970d3d509f42e4db4eb07d324967bc65eb5e0d793",
+   "byte_size": 4273457
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:16.973985+00:00",
+   "http_status": 200,
+   "sha256": "0b86dc86836127ee05f2638bedea44d5846f98f6bbbe4199dc935681b0e3f92b",
+   "byte_size": 4509482
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:24.342183+00:00",
+   "http_status": 200,
+   "sha256": "bd07d2fda2cafcddc9171cc550a520365af1cc18b30ac2bdc635b363366fa6cd",
+   "byte_size": 4453066
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:29.748499+00:00",
+   "http_status": 200,
+   "sha256": "e2e6104c01f35f51441a18e26f2f811e7a7cdb6f74da0c65f4bf33e1e8e78f9d",
+   "byte_size": 4649456
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-11.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_11.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:34.444051+00:00",
+   "http_status": 200,
+   "sha256": "8d070364171414387c366a96497dbbeeeca857e3d8332206e2634a664d36c943",
+   "byte_size": 4106610
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2025-12.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2025_12.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:42.413456+00:00",
+   "http_status": 200,
+   "sha256": "602e7f45d187d7bbcde05a8347d81ecb42df436122a7a83c0b0bfb6a7efddcc3",
+   "byte_size": 3971259
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-01.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_01.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:46.517304+00:00",
+   "http_status": 200,
+   "sha256": "d8832a130a93dd40878da1545a6271a69c2d85e4840f42d0774003e253aded8e",
+   "byte_size": 4165544
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-02.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_02.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:51.099832+00:00",
+   "http_status": 200,
+   "sha256": "0d18bf06337840c839d55da443bdf3b8b59b0e493f6c5f87e0c515b8d742b762",
+   "byte_size": 2934696
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-03.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_03.parquet",
+   "retrieved_at_utc": "2026-10-27T14:12:58.380251+00:00",
+   "http_status": 200,
+   "sha256": "43da00348fe53edf5802afeca42d64133e3b8591313d1d5e6901cbe1794c950b",
+   "byte_size": 3462171
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-04.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_04.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:06.593386+00:00",
+   "http_status": 200,
+   "sha256": "539444b1390664c08c27bd8195a268cd65284f63b737d6e250fdecd180b5e486",
+   "byte_size": 3547016
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-05.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_05.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:12.071396+00:00",
+   "http_status": 200,
+   "sha256": "ac295852533b956a921e3188e70987b79508c36e9614fb5eca89ecf962638ce4",
+   "byte_size": 4050889
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-06.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_06.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:17.073307+00:00",
+   "http_status": 200,
+   "sha256": "e0dc62ffafa0211b84d601a4933fb835eed94de8b308403791012846e0625d52",
+   "byte_size": 3696290
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-07.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_07.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:22.063045+00:00",
+   "http_status": 200,
+   "sha256": "66f09c1a6dc236ef4a3e83d47599ceaaa468eb621f30199f1ff73e9d2c8cc0f1",
+   "byte_size": 4234747
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-08.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_08.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:26.617453+00:00",
+   "http_status": 200,
+   "sha256": "f794af75a7b2d7341b134b3d9511148684574b5915259c3637c09dce4b0c1ebf",
+   "byte_size": 4419667
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-09.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_09.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:30.845588+00:00",
+   "http_status": 200,
+   "sha256": "ac7750210a8798038f9cf8fa0ddd043b2edee94f0590b30e5fd063fb4bda5772",
+   "byte_size": 4208205
+  },
+  {
+   "path": "ons/curtailment_wind/Restricoes_coff_eolicas-2026-10.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_10.parquet",
+   "retrieved_at_utc": "2026-10-27T14:13:37.973504+00:00",
+   "http_status": 200,
+   "sha256": "eb9a3e16934944d6544570dc335e0fb53bad1a91f6306fc202512f71feee7a19",
+   "byte_size": 3806361
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2016.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2016.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:52.186295+00:00",
+   "http_status": 200,
+   "sha256": "ca211d66d9ca65afc5a4bf660457f72f059905d76c69ad3792c8593422ed3ee1",
+   "byte_size": 2400482
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2017.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2017.parquet",
+   "retrieved_at_utc": "2026-10-27T14:20:56.934729+00:00",
+   "http_status": 200,
+   "sha256": "bd43eeb3c330c7030619fdea5d737083c49326479cd04be4f9292710ca8c1b57",
+   "byte_size": 2431121
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2018.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2018.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:01.505455+00:00",
+   "http_status": 200,
+   "sha256": "c5c56cb8963ea0e8895577f80ea2bed1623eec6e591099def54a5f9452afaef2",
+   "byte_size": 2530297
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2019.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2019.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:07.130914+00:00",
+   "http_status": 200,
+   "sha256": "0cdf6f1e7516f1f27fc5d1b8d7a6407e13a4698b5d6426d12378f3efef042184",
+   "byte_size": 2541342
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2020.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2020.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:12.288874+00:00",
+   "http_status": 200,
+   "sha256": "f56a93b08875d50da06ac94aefe685ee27c4b82d638408ada71d40e8c5cf510b",
+   "byte_size": 2555477
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2021.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2021.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:18.374838+00:00",
+   "http_status": 200,
+   "sha256": "eb4b771e72a60d0193a4c57fc20ca7adab2e2651210ce8be97bf3289f0717f87",
+   "byte_size": 2623319
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2022.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2022.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:22.459209+00:00",
+   "http_status": 200,
+   "sha256": "4bf9709aa1dec7a3f2c233891d0975095d143593fc47f4bc96326aa44ecb6eef",
+   "byte_size": 2750811
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2023.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2023.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:26.979719+00:00",
+   "http_status": 200,
+   "sha256": "f7afdc813eba42a81d64fc264c0e5d7efcb9d379d29b88ae87b789048c796131",
+   "byte_size": 2075363
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2024.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2024.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:30.102757+00:00",
+   "http_status": 200,
+   "sha256": "51e24a2daf08824298ea6aad2a1d39fbe00683e090d78367959aab9497ebea5c",
+   "byte_size": 2086316
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2025.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2025.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:34.055626+00:00",
+   "http_status": 200,
+   "sha256": "e9b36337b8980693228de317789d06e309305949f643cb50c5d6bf53fe5ca2d0",
+   "byte_size": 2105644
+  },
+  {
+   "path": "ons/generation_by_source/Balanco_de_Energia_Subsistema-2026.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2026.parquet",
+   "retrieved_at_utc": "2026-10-27T14:21:39.970516+00:00",
+   "http_status": 200,
+   "sha256": "94f3c0932f46b8e1e2b1c54ac3310d255201d874ed4f767d568d95dc71779809",
+   "byte_size": 1744377
+  },
+  {
+   "path": "ons/generation_by_source/data_dictionary.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/DicionarioDados_Balanco_Energia_Subsistema.json",
+   "retrieved_at_utc": "2026-10-22T10:37:07.982633+00:00",
+   "http_status": 200,
+   "sha256": "b9a2e1ae184e9945b5ecf564ba7bd2407fe44a7bd70e7fda98acb25cfac9464f",
+   "byte_size": 1286
+  },
+  {
+   "path": "ons/interchange/Capacidade_Transformacao.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/capacidade-transformacao/CAPACIDADE_TRANSFORMACAO.parquet",
+   "retrieved_at_utc": "2026-10-22T18:57:08.508679+00:00",
+   "http_status": 200,
+   "sha256": "4cbfc485d37e5eb3ae5e24ee26d82a7fb34e4513ad3c4d6747fb31dc5ecd25ad",
+   "byte_size": 87722
+  },
+  {
+   "path": "ons/interchange/DicionarioDados_Capacidade_Transformacao.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/capacidade-transformacao/DicionarioDados_Capacidade_Transformacao_RB.json",
+   "retrieved_at_utc": "2026-10-22T18:57:28.431546+00:00",
+   "http_status": 200,
+   "sha256": "065a0a0ff195b6814f84a57161002957a09cdaa88ce82fe3c2fe369e69f4cd7a",
+   "byte_size": 2627
+  },
+  {
+   "path": "ons/interchange/DicionarioDados_Intercambio_Nacional.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/DicionarioDados_Intercambio_Nacional.json",
+   "retrieved_at_utc": "2026-10-22T18:57:30.562253+00:00",
+   "http_status": 200,
+   "sha256": "e4224d3fc163d018aea689022148945d33ffa232ebf24d17d837048ce11700ce",
+   "byte_size": 960
+  },
+  {
+   "path": "ons/interchange/DicionarioDados_Linha_Transmissao.json",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/linha_transmissao/DicionarioDados_Linha_Transmissao.json",
+   "retrieved_at_utc": "2026-10-22T18:57:26.232331+00:00",
+   "http_status": 200,
+   "sha256": "9e56218d19b854725596f843f6b82ec23ebde6b2337b1b3281ff82a286e1a7fc",
+   "byte_size": 6813
+  },
+  {
+   "path": "ons/interchange/Intercambio_Nacional-2021.csv",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_2021.csv",
+   "retrieved_at_utc": "2026-10-22T18:56:48.165201+00:00",
+   "http_status": 200,
+   "sha256": "247fc4b4a510aa072814fe25dd90d752bebd9e1921f85dd312492b3384dd6f20",
+   "byte_size": 1886367
+  },
+  {
+   "path": "ons/interchange/Intercambio_Nacional-2022.csv",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_2022.csv",
+   "retrieved_at_utc": "2026-10-22T18:56:51.604991+00:00",
+   "http_status": 200,
+   "sha256": "6d2eee986018152829d7f60d3426afe8acde32e1558921aae33a5eb995226cd1",
+   "byte_size": 1882399
+  },
+  {
+   "path": "ons/interchange/Intercambio_Nacional-2023.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_2023.parquet",
+   "retrieved_at_utc": "2026-10-22T18:56:53.615507+00:00",
+   "http_status": 200,
+   "sha256": "82bc8b81467395bb610cf1204d6e995ec472fb3254e9b840c8a430be9e1b85ff",
+   "byte_size": 377008
+  },
+  {
+   "path": "ons/interchange/Intercambio_Nacional-2024.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_2024.parquet",
+   "retrieved_at_utc": "2026-10-22T18:56:57.391830+00:00",
+   "http_status": 200,
+   "sha256": "c420eb392e7314e44578b0ebf58ee55515a8bd48e92e2bd7e7001344faeca14a",
+   "byte_size": 377408
+  },
+  {
+   "path": "ons/interchange/Intercambio_Nacional-2025.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_2025.parquet",
+   "retrieved_at_utc": "2026-10-22T18:56:59.345056+00:00",
+   "http_status": 200,
+   "sha256": "ff7343de6f03768fe6fd1538d5d22da00610eb81e155a1496cee264ee934fb6f",
+   "byte_size": 377333
+  },
+  {
+   "path": "ons/interchange/Intercambio_Nacional-2026.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_2026.parquet",
+   "retrieved_at_utc": "2026-10-22T18:57:01.749907+00:00",
+   "http_status": 200,
+   "sha256": "9ebd747c9fa42452fbd098a98e918ef1c8e9897d1339908f77988078412c8c35",
+   "byte_size": 608445
+  },
+  {
+   "path": "ons/interchange/Linha_Transmissao.parquet",
+   "source_url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/linha_transmissao/LINHA_TRANSMISSAO.parquet",
+   "retrieved_at_utc": "2026-10-22T18:57:04.886537+00:00",
+   "http_status": 200,
+   "sha256": "1e0245a33a6336aadc4e495b4fe0d4bcc127c6f41721a57c64ab61b42ba242e5",
+   "byte_size": 230112
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2023-04-20_2023-05-10.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2023-04-20&dat_fim=2023-05-10&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-22T10:37:35.735500+00:00",
+   "http_status": 200,
+   "sha256": "165e8d96d858ea753458c5de658409d6ce14c79997a19f1bc102b080628cf8f8",
+   "byte_size": 489618
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2024-06-01_2024-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2024-06-01&dat_fim=2024-06-30&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-22T10:37:43.254490+00:00",
+   "http_status": 200,
+   "sha256": "7d735a44b8f1d385bb50d5d3e3995e78506c654cf39aa14eeb3f969169c4426d",
+   "byte_size": 698915
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-01-01_2025-01-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-01-01&dat_fim=2025-01-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:24:24.557328+00:00",
+   "http_status": 200,
+   "sha256": "752395814adb97869697ccfe6477bd694804bf233327040eeec1965e4b41fa32",
+   "byte_size": 721803
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-02-01_2025-02-28.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-02-01&dat_fim=2025-02-28&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:24:42.393235+00:00",
+   "http_status": 200,
+   "sha256": "ae68c359e8fae34045370f57f13350b9dffccb1385871a3300f6da7660494986",
+   "byte_size": 651986
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-03-01_2025-03-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-03-01&dat_fim=2025-03-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:24:52.956718+00:00",
+   "http_status": 200,
+   "sha256": "aa2b960197ce04ed953e489ad63cb9e50d0bdf5ad95c9511b3cfd859cfcac29a",
+   "byte_size": 721690
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-04-01_2025-04-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-04-01&dat_fim=2025-04-30&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:25:02.803728+00:00",
+   "http_status": 200,
+   "sha256": "9a960dcd45192f9e745e9fd128c0c63848ba013b5f30fcded3d21eacbd5d1618",
+   "byte_size": 697748
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-05-01_2025-05-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-05-01&dat_fim=2025-05-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:25:21.330488+00:00",
+   "http_status": 200,
+   "sha256": "9cd6ac9a0614ae27bd3131c7c9efc0aef805484597a3b2ff6458d0fe9fb93d25",
+   "byte_size": 720932
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-06-01_2025-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-06-01&dat_fim=2025-06-30&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:27:50.009075+00:00",
+   "http_status": 200,
+   "sha256": "bb11b2367a6076447d29fae58a43db1013c6e8c5c2b1e299a2eedd1e57952d6d",
+   "byte_size": 697717
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-07-01_2025-07-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-07-01&dat_fim=2025-07-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:28:13.489785+00:00",
+   "http_status": 200,
+   "sha256": "146a6dd3d853e585ca5fd8b7b980ba04b7e48e7cf4ce33c14b714147e0ef99e5",
+   "byte_size": 720928
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-08-01_2025-08-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-08-01&dat_fim=2025-08-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:28:40.122973+00:00",
+   "http_status": 200,
+   "sha256": "27083f158d61d06d80030589598466795803ddca55ba2ff9143a339ff8a7a14a",
+   "byte_size": 721027
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-09-01_2025-09-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-09-01&dat_fim=2025-09-30&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:28:51.638209+00:00",
+   "http_status": 200,
+   "sha256": "f2c5031bada4913aa73a73f2c3163b9e4d49dd1711f555f437d69c2278e24e11",
+   "byte_size": 698529
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-10-01_2025-10-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-10-01&dat_fim=2025-10-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:29:05.532221+00:00",
+   "http_status": 200,
+   "sha256": "bd0995000ae142e8564624274f2cc2acac31a1d74bc60c96a902148673b02f20",
+   "byte_size": 722167
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-11-01_2025-11-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-11-01&dat_fim=2025-11-30&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:29:21.925730+00:00",
+   "http_status": 200,
+   "sha256": "c4d807d125913c8757f89df25eecf1a3d434b89c3ea95ba70dc5894cc633fc2c",
+   "byte_size": 697891
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_N_2025-12-01_2025-12-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-12-01&dat_fim=2025-12-31&cod_areacarga=N",
+   "retrieved_at_utc": "2026-10-26T16:29:52.889143+00:00",
+   "http_status": 200,
+   "sha256": "99a0aee06873ef68799231ec1d33c15116ccd75563fd38c8dffa90c46e90bc52",
+   "byte_size": 720694
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2023-04-20_2023-05-10.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2023-04-20&dat_fim=2023-05-10&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-22T10:37:37.367474+00:00",
+   "http_status": 200,
+   "sha256": "21a20c1020eff496b404da9215b128c7c5157a8dfb01d7a378de07f1bd904dce",
+   "byte_size": 493133
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2024-06-01_2024-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2024-06-01&dat_fim=2024-06-30&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-22T10:37:45.394262+00:00",
+   "http_status": 200,
+   "sha256": "7937e5fdf78caf7bc82c01a8428e208c8b84a3421b171134798980480648dbe5",
+   "byte_size": 704329
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-01-01_2025-01-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-01-01&dat_fim=2025-01-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:24:27.184527+00:00",
+   "http_status": 200,
+   "sha256": "f8fb213753ccfd40d577ddc69f07f0ac7624eeb4e746a060e21d13c2d21bb4b7",
+   "byte_size": 728023
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-02-01_2025-02-28.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-02-01&dat_fim=2025-02-28&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:24:44.855616+00:00",
+   "http_status": 200,
+   "sha256": "6dcf309b9b663e67e450d51e7e573084e1df47a05c15f44bcf85dab4a239dabe",
+   "byte_size": 657611
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-03-01_2025-03-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-03-01&dat_fim=2025-03-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:23:14.438100+00:00",
+   "http_status": 200,
+   "sha256": "671994b839ee5ae2de0d274c46c1e7382f7560dab0198d175d823de26257046c",
+   "byte_size": 727963
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-04-01_2025-04-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-04-01&dat_fim=2025-04-30&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:25:05.765295+00:00",
+   "http_status": 200,
+   "sha256": "fc813f58760196a3e853addf41c7dc79cee4518d5a0d86dd94c1d3fa5507cb1b",
+   "byte_size": 704526
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-05-01_2025-05-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-05-01&dat_fim=2025-05-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:25:24.189063+00:00",
+   "http_status": 200,
+   "sha256": "5867a6153f94178b1209d66ff6ebcdbdf4acb59ae7c78486811a4725243b32a2",
+   "byte_size": 727809
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-06-01_2025-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-06-01&dat_fim=2025-06-30&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:27:52.313673+00:00",
+   "http_status": 200,
+   "sha256": "ed94c279c12105a2c442a7c4a334b9eda5a03016318a00b6b9be4804eda938ea",
+   "byte_size": 704268
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-07-01_2025-07-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-07-01&dat_fim=2025-07-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:28:23.855128+00:00",
+   "http_status": 200,
+   "sha256": "778445f57a3e7a317fe2216654ef28db2a51cf8432121485d25194d82fcb5f96",
+   "byte_size": 727678
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-08-01_2025-08-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-08-01&dat_fim=2025-08-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:28:43.551480+00:00",
+   "http_status": 200,
+   "sha256": "1515948293a4efc39d40ec028a614eedb814235441bfbe2cd323b54032db18e2",
+   "byte_size": 727609
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-09-01_2025-09-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-09-01&dat_fim=2025-09-30&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:28:54.821143+00:00",
+   "http_status": 200,
+   "sha256": "1d1aeed97865aac58826390eee7fe202855a1a15b4ec3c08b73e67fc3b862101",
+   "byte_size": 705733
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-10-01_2025-10-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-10-01&dat_fim=2025-10-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:29:08.279339+00:00",
+   "http_status": 200,
+   "sha256": "67d623888a2dbb89019aa099e9551d5ddcd792d515ea9676549de3d6bbc161d5",
+   "byte_size": 729506
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-11-01_2025-11-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-11-01&dat_fim=2025-11-30&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:29:30.000952+00:00",
+   "http_status": 200,
+   "sha256": "d384ae3078900a6006d5b3c0d8168f924df043dcf250657b57b62b09849b2f20",
+   "byte_size": 706288
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_NE_2025-12-01_2025-12-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-12-01&dat_fim=2025-12-31&cod_areacarga=NE",
+   "retrieved_at_utc": "2026-10-26T16:29:57.063231+00:00",
+   "http_status": 200,
+   "sha256": "df0a668728863b7aafa8e9252885062572c11dcd61c121831081b01240d694cb",
+   "byte_size": 727487
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2023-04-20_2023-05-10.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2023-04-20&dat_fim=2023-05-10&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-22T10:37:39.100642+00:00",
+   "http_status": 200,
+   "sha256": "945806150fc3a4fa9c87a7fb8fa42b966d43d64345c974e6aea97def8e5f165b",
+   "byte_size": 491936
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2024-06-01_2024-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2024-06-01&dat_fim=2024-06-30&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-22T10:37:47.296564+00:00",
+   "http_status": 200,
+   "sha256": "cbf2e6629e58cbda2bd082d5d4b5085c5c7eaa302a1178347d9928ac7994d3d2",
+   "byte_size": 702545
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-01-01_2025-01-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-01-01&dat_fim=2025-01-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:24:29.585625+00:00",
+   "http_status": 200,
+   "sha256": "c1c79bf978184c047f66942effc33dab53252401a31d5e4f48bcba9a164b2b4a",
+   "byte_size": 727024
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-02-01_2025-02-28.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-02-01&dat_fim=2025-02-28&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:24:47.178426+00:00",
+   "http_status": 200,
+   "sha256": "2ca5da5dd5bd5d0f02f7aad9f5f4ff4ef08c26fac956d543f7107c8dfb7f1ede",
+   "byte_size": 656450
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-03-01_2025-03-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-03-01&dat_fim=2025-03-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:24:56.143477+00:00",
+   "http_status": 200,
+   "sha256": "f6c5f7bcc5f3533d37ae2edef03f1b5efaee60672721baf3cdc76f1b85d23d3b",
+   "byte_size": 726685
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-04-01_2025-04-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-04-01&dat_fim=2025-04-30&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:25:09.205866+00:00",
+   "http_status": 200,
+   "sha256": "dd5a50664e7e9076fbb30e58fc6cdecde48656b4967b5252a73bddfdc20a7af0",
+   "byte_size": 703160
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-05-01_2025-05-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-05-01&dat_fim=2025-05-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:25:26.945640+00:00",
+   "http_status": 200,
+   "sha256": "dcc1493a989c93a2eafad7d634f7b8d9a396ff884657cb91a72fa6db4fcd4d82",
+   "byte_size": 725233
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-06-01_2025-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-06-01&dat_fim=2025-06-30&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:28:07.191911+00:00",
+   "http_status": 200,
+   "sha256": "136122b65b2a65abbcdf99a28fe08975b734a56812fa11d78ca53d263817e6e1",
+   "byte_size": 703349
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-07-01_2025-07-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-07-01&dat_fim=2025-07-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:28:27.342099+00:00",
+   "http_status": 200,
+   "sha256": "48baad23932a372a60ec4a00e0c7100577556c4ed6b56dce021f2d3476af02ff",
+   "byte_size": 726888
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-08-01_2025-08-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-08-01&dat_fim=2025-08-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:28:45.954414+00:00",
+   "http_status": 200,
+   "sha256": "5264842ae71d7f7a6c25da0b9ddd3a46d5d53891fc37dada2d6898b8993d7659",
+   "byte_size": 727291
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-09-01_2025-09-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-09-01&dat_fim=2025-09-30&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:28:58.523794+00:00",
+   "http_status": 200,
+   "sha256": "519e9601d0661c3a2ef72e2c46fec30181f51c1eb78a81dab382fb876454cfb8",
+   "byte_size": 704293
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-10-01_2025-10-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-10-01&dat_fim=2025-10-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:29:12.505990+00:00",
+   "http_status": 200,
+   "sha256": "b524e79aaf3f314155f52cfc7b924a559991b16f1f06995cafe7ac53ec24f0ef",
+   "byte_size": 728611
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-11-01_2025-11-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-11-01&dat_fim=2025-11-30&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:29:41.795929+00:00",
+   "http_status": 200,
+   "sha256": "aa8823191133610b7454524eb11c9cb28805ed21a1bad7f037e0e0e879721147",
+   "byte_size": 704983
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_S_2025-12-01_2025-12-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-12-01&dat_fim=2025-12-31&cod_areacarga=S",
+   "retrieved_at_utc": "2026-10-26T16:29:59.954020+00:00",
+   "http_status": 200,
+   "sha256": "eba900196cab87444c62087da31e6bd75d0b10e4fdbaad6326cef234e964fb1c",
+   "byte_size": 727216
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2023-04-20_2023-05-10.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2023-04-20&dat_fim=2023-05-10&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-22T10:37:41.180808+00:00",
+   "http_status": 200,
+   "sha256": "956a5c1caf2f082ae06cffd3b722cd4e22b3e5c29ec1ba190b972e4cc993b1b5",
+   "byte_size": 481766
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2024-06-01_2024-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2024-06-01&dat_fim=2024-06-30&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-22T10:37:49.319988+00:00",
+   "http_status": 200,
+   "sha256": "553908e3b6278e5b6632ffa1b21163986f14b66d8fd6897f54a0eac14084743c",
+   "byte_size": 690332
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-01-01_2025-01-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-01-01&dat_fim=2025-01-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:24:32.017319+00:00",
+   "http_status": 200,
+   "sha256": "43de90fa19c6bdb70bd451fea549c782a31ff7794e82ea85ca1da5600603cca3",
+   "byte_size": 715516
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-02-01_2025-02-28.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-02-01&dat_fim=2025-02-28&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:24:49.630439+00:00",
+   "http_status": 200,
+   "sha256": "bc5a2815b5fa3f0faa59a9854ace900fe13e496a89e347b14eeb9c75236ca335",
+   "byte_size": 646200
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-03-01_2025-03-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-03-01&dat_fim=2025-03-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:24:59.436370+00:00",
+   "http_status": 200,
+   "sha256": "f28f21312462ea2f68bafe7f7016b7d4cb085df8e6a1f80c273d1c73aac3866a",
+   "byte_size": 714921
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-04-01_2025-04-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-04-01&dat_fim=2025-04-30&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:25:11.492664+00:00",
+   "http_status": 200,
+   "sha256": "d02c6c14cef8df0ff73e88cafe9241a2450d3df82a289e25b4da877401215ce4",
+   "byte_size": 690726
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-05-01_2025-05-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-05-01&dat_fim=2025-05-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:25:28.280375+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-06-01_2025-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-06-01&dat_fim=2025-06-30&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:28:09.296974+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-07-01_2025-07-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-07-01&dat_fim=2025-07-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:28:28.629225+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-08-01_2025-08-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-08-01&dat_fim=2025-08-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:28:47.386383+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-09-01_2025-09-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-09-01&dat_fim=2025-09-30&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:28:59.769820+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-10-01_2025-10-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-10-01&dat_fim=2025-10-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:29:14.780474+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-11-01_2025-11-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-11-01&dat_fim=2025-11-30&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:29:43.349120+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SE_2025-12-01_2025-12-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-12-01&dat_fim=2025-12-31&cod_areacarga=SE",
+   "retrieved_at_utc": "2026-10-26T16:30:02.975091+00:00",
+   "http_status": 200,
+   "sha256": "e36e7acbb95df8472e08a6e6f54a4018b4cfb56aeb13d064ae2ae405969c209a",
+   "byte_size": 5
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-01-01_2025-01-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-01-01&dat_fim=2025-01-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:27:31.020447+00:00",
+   "http_status": 200,
+   "sha256": "7ca03ceaafe3d4b83d120f2f291aa51084742a1db1f82a2b689be9eb8b3a1bb7",
+   "byte_size": 731815
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-02-01_2025-02-28.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-02-01&dat_fim=2025-02-28&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:27:33.753547+00:00",
+   "http_status": 200,
+   "sha256": "0b06d644576a13e69b9c2c52304dac249d74453474074417f971cc2ce998644a",
+   "byte_size": 659336
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-03-01_2025-03-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-03-01&dat_fim=2025-03-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:27:35.947414+00:00",
+   "http_status": 200,
+   "sha256": "fd741afc4138a2aea81c90eb1c386a3ba1b0eb008cf034f9e0f2f1b71d9f283b",
+   "byte_size": 731736
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-04-01_2025-04-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-04-01&dat_fim=2025-04-30&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:27:43.233974+00:00",
+   "http_status": 200,
+   "sha256": "15912cb2acc4fd92783e5c5b94ae90b0fc6335f8eeab2034de79acad37ec56f6",
+   "byte_size": 707946
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-05-01_2025-05-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-05-01&dat_fim=2025-05-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:27:46.596557+00:00",
+   "http_status": 200,
+   "sha256": "30e0bdcd29c7446b20762fb3be32bfaf7916f146373ed40c1a5d498bfc9ae5aa",
+   "byte_size": 731507
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-06-01_2025-06-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-06-01&dat_fim=2025-06-30&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:28:11.371487+00:00",
+   "http_status": 200,
+   "sha256": "edc97ee20b84190e4da1cac54667f9ca85ed77413e5cc28bb344d184d9416182",
+   "byte_size": 707385
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-07-01_2025-07-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-07-01&dat_fim=2025-07-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:28:30.767180+00:00",
+   "http_status": 200,
+   "sha256": "0bbda428f68773395ed808a123457435575b0b80e61ab47322e673c826ae81ac",
+   "byte_size": 731774
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-08-01_2025-08-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-08-01&dat_fim=2025-08-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:28:49.418780+00:00",
+   "http_status": 200,
+   "sha256": "9d4708749331bab43cbcd8c4dfd780f4d809ce868c37f50b43e1fe311c8212f8",
+   "byte_size": 731662
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-09-01_2025-09-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-09-01&dat_fim=2025-09-30&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:29:01.846293+00:00",
+   "http_status": 200,
+   "sha256": "3d92d2d524dc6980ab49b464ae19a0f5c5c3cf5397687615a32dfa37e0ca3206",
+   "byte_size": 708842
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-10-01_2025-10-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-10-01&dat_fim=2025-10-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:29:19.073256+00:00",
+   "http_status": 200,
+   "sha256": "fe06975206895bbd4e04dee57e6bcc7232c4c19f65f00ddcf067d8d23452e777",
+   "byte_size": 732769
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-11-01_2025-11-30.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-11-01&dat_fim=2025-11-30&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:29:47.796626+00:00",
+   "http_status": 200,
+   "sha256": "f31b3cfc1f861b94fbe319d673e4a6692d07429fcc24b22a598287c49830c85a",
+   "byte_size": 708730
+  },
+  {
+   "path": "ons/mmgd/cargaverificada_SECO_2025-12-01_2025-12-31.json",
+   "source_url": "https://apicarga.ons.org.br/prd/cargaverificada?dat_inicio=2025-12-01&dat_fim=2025-12-31&cod_areacarga=SECO",
+   "retrieved_at_utc": "2026-10-26T16:30:06.782095+00:00",
+   "http_status": 200,
+   "sha256": "d5676fba595e4f04c20d21fcf60e9baa0637c4740363902f795f62c9793c292d",
+   "byte_size": 731849
+  }
+ ]
+}
