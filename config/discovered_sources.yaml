@@ -822,7 +822,7 @@ decisions:
       include_analysis_scripts: "Not recommended: diagnostics are not part of the reproducible production path."
     decided: >
       ADOPTED on 2026-10-27 (Task 14) by explicit user decision. The orchestrated end-to-end run is Stage 1 -> hourly calibration -> Option E projection -> final results layer (results_writer.py), plus pre-check and reference-value check. Out of scope: analysis/reference scripts (retired national/regional calibration is never imported by the orchestrator), PLD modeling (D10, disabled), figures (Task 13B), reproducibility manifest (Task 15).
-    implemented_in: "curtailmit.pipeline (orchestrator: Stage 1 -> hourly calibration -> Option E projection -> final results; console script curtailmit-run); docs/orchestration.md; Task 14 commit(s) (pending)"
+    implemented_in: "curtailmit.pipeline (orchestrator: Stage 1 -> hourly calibration -> Option E projection -> final results; console script curtailmit-run); docs/orchestration.md; Task 14 commit(s) 18f1e54 (D32 test), a6093c8 (orchestrator, CI)"
 
   D32:
     status: adopted
@@ -839,7 +839,7 @@ decisions:
       mark_integration: "Mark the test integration: simplest, but the helper loses CI coverage."
     decided: >
       ADOPTED on 2026-10-27 (Task 14) by explicit user decision: the leaking test test_compounding_never_exceeds_the_asymptote is rewritten with a synthetic PTE table (not reclassified as integration), so the invariant stays in the fast standard suite and passes with an empty DATABASE_ROOT, which is what CI uses. CI runs with DATABASE_ROOT explicitly empty so any other accidental dependency on curtailmit_database fails loudly.
-    implemented_in: "tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote (synthetic PTE table, no database dependency); CI workflow .github/workflows/ci.yml; Task 14 commit(s) (pending)"
+    implemented_in: "tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote (synthetic PTE table, no database dependency); CI workflow .github/workflows/ci.yml; Task 14 commit(s) 18f1e54 (D32 test), a6093c8 (orchestrator, CI)"
 
 ben_cross_check:
   status: reference_only
