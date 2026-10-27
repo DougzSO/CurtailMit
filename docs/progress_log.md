@@ -219,3 +219,7 @@ into `config/scenarios.yaml`.
 ## Task 14 (2026-10) - orchestration and CI
 
 - `src/curtailmit/pipeline.py`, `src/curtailmit/provenance.py`, `tests/test_pipeline.py`, `docs/orchestration.md`; console script `curtailmit-run`; `scripts/run_pipeline.py` is a shim. D31 and D32 adopted. `acquisition.fetch_and_cache(use_cache=True)` now verifies SHA-256/size against the manifest. `paths.resolve_database_root(create=False)` and `planned_layout` added. Leaking test `test_compounding_never_exceeds_the_asymptote` made synthetic. `.github/workflows/ci.yml` rewritten (three jobs).
+
+## Task 15-1 (2026-10) - design of the reproducibility manifest and documentation sync
+
+- Design only: `docs/task15_design.md`. Determinism checked statically and empirically (three recomputations with different `PYTHONHASHSEED` and BLAS threads, identical MD5 on 13 files). Environment state re-verified (floors only; local Python 3.11.9, CI 3.11.17). Documentation audit list in section 5. Pending D33, D34 in `config/discovered_sources.yaml`. No `src/`, test, dependency or workflow change.

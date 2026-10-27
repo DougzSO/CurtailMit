@@ -841,6 +841,33 @@ decisions:
       ADOPTED on 2026-10-27 (Task 14) by explicit user decision: the leaking test test_compounding_never_exceeds_the_asymptote is rewritten with a synthetic PTE table (not reclassified as integration), so the invariant stays in the fast standard suite and passes with an empty DATABASE_ROOT, which is what CI uses. CI runs with DATABASE_ROOT explicitly empty so any other accidental dependency on curtailmit_database fails loudly.
     implemented_in: "tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote (synthetic PTE table, no database dependency); CI workflow .github/workflows/ci.yml; Task 14 commit(s) 18f1e54 (D32 test), a6093c8 (orchestrator, CI)"
 
+  D33:
+    status: pending
+    date: "2026-10-27"
+    topic: "Data-availability promise of the project (curtailmit_database is local-only)"
+    source_task: "Task 15-1 (docs/task15_design.md section 0)"
+    found: >
+      A clean clone of the public curtailmit repository cannot reproduce any number: raw (487 MB), interim and processed data live only in the local curtailmit_database. The PTE/EPE scenario table
+      is in the repository (config/scenarios.yaml); the external inputs are ONS and MCTI open-data downloads. Redistribution licences of those datasets were NOT checked in Task 15-1.
+    options:
+      snapshot_manifest_plus_statement: "Recommended: commit a data_snapshot_manifest.json (SHA-256, size, URL, retrieval time of the raw files) and state in the article that code and hashes are public and data are re-downloadable open data; bitwise identity of re-downloads is not guaranteed by the publishers."
+      archive_snapshot: "As above plus archive the raw snapshot in a DOI repository; needs a licence check and an upload outside the repository."
+      code_only: "Statement only; weakest, nothing to verify data against."
+    working_reading: "snapshot_manifest_plus_statement; the article needs a data-availability statement in any case."
+  D34:
+    status: pending
+    date: "2026-10-27"
+    topic: "Task 15 scope split, environment lock mechanism, handling of D1-D12 in the YAML"
+    source_task: "Task 15-1 (docs/task15_design.md sections 1-4)"
+    found: >
+      No non-determinism found (seeded bootstrap only; 13 output files byte-identical across three runs with different PYTHONHASHSEED and thread counts). Dependencies are floors only
+      (requirements.txt and pyproject.toml), no lock; CI resolves the newest releases on every run. No single reproducibility document exists. The original Task 15 text asks to normalise D1-D12 into the YAML.
+    options:
+      all_scopes_in_task15: "Recommended: A (determinism test), B (exact pip-freeze lock file + one CI job, no pip-tools/Docker), C (run manifest, docs/reproducibility.md, documentation sync)."
+      split_15_15b: "Task 15 = A + C, Task 15B = B and archive/Docker."
+      d1_d12_in_yaml: "Not recommended: rewriting the YAML; use a generated decision register in docs/reproducibility.md instead (stamps hash the D14+ entries, adopted texts are the audit trail)."
+    working_reading: "all_scopes_in_task15; D1-D12 not rewritten; limitations_summary.md waits for Task 13B."
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

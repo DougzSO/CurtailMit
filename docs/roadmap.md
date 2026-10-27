@@ -288,3 +288,9 @@ Design only (`docs/task14_design.md`, no code change). Findings: `scripts/run_pi
 ## Update (Task 14) - orchestration command and CI implemented; D31, D32 adopted
 
 Task 14 done: `curtailmit-run` / `python -m curtailmit.pipeline` runs pre-check, Stage 1, hourly calibration, Option E projection and final results with stamp-verified skip logic (re-run whenever validity cannot be established), per-stage `SKIPPED/RAN` reporting, hard gates with exit code 2, and an always-on reference-value check (`tests/fixtures/final_results/reference_totals.json`). CI rewritten (lint, unit tests with integration excluded, dry-run smoke test). See `docs/orchestration.md`. Figures and the limitations report remain Task 13B; the run manifest remains Task 15.
+
+---
+
+## Update (Task 15-1) - design proposal for reproducibility and documentation sync; Task 15 awaits approval
+
+Design only (`docs/task15_design.md`, no code change). Findings: no non-determinism (seeded bootstrap; 13 output files byte-identical across runs with different hash seeds and thread counts); dependencies are floors only, no lock; no single reproducibility document; a 15-item documentation audit (README and the Task 12-era stage tables are stale). Pending decisions D33 (data-availability promise: the database is local-only) and D34 (scope split, lock mechanism, D1-D12 handling). Task 13B (figures) follows Task 15.
