@@ -730,8 +730,9 @@ decisions:
     implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); documentation only (docs/roadmap.md); no code existed for the retired extension"
 
   D27:
-    status: pending
-    date: "2026-10-26"
+    status: adopted
+    date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "Fate of the pre-existing results_writer.ResultsRow schema (supersede, coexist or freeze) when the Option E final output layer is built"
     source_task: "Task 13-1 - docs/task13_design.md section 0.1"
     found: >
@@ -744,12 +745,14 @@ decisions:
       supersede_in_same_module: "Recommended: one module, legacy kept importable under a deprecation note, legacy-to-new mapping in the data dictionary."
       coexist: "Keep ResultsRow for a 2020 historical baseline row and use the new schema for projections; two output schemas in the repo."
       freeze_and_new_module: "Leave results_writer.py untouched and put the new writer in a differently named module; same coexistence cost, misleading name."
-    decidable_now: "yes"
-    working_reading: "Task 13-1 author's recommendation, not a decision. Nothing in the legacy module was changed."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 13) by explicit user decision: option A, supersede in the same module. The legacy results_writer.ResultsRow (schema-only, never wired, never produced an output) stays importable and its tests keep passing, with a deprecation note pointing to the new long-format writer (FinalResultsRow / build_final_results / write_final_results) as the production path. The older Task 13 instruction 'do not alter this schema' (docs/claude_commands.md) is superseded by this decision; it is annotated, not deleted.
+    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; Task 13 commit (see git log, subject 'Task 13: ...')"
 
   D28:
-    status: pending
-    date: "2026-10-26"
+    status: adopted
+    date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "How the OM/CM split interacts with the horizon-dependent range of option E (2050 flexibility-conditional range, 2025-2040 empirical band and conformal supplement)"
     source_task: "Task 13-1 - docs/task13_design.md section 0.2"
     found: >
@@ -763,12 +766,14 @@ decisions:
     options:
       post_split_per_factor: "Recommended."
       energy_range_only: "Report the range for TWh only and leave tCO2 as central values plus a note; simpler, loses the range where the article needs it."
-    decidable_now: "yes"
-    working_reading: "Task 13-1 author's recommendation, not a decision."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 13) by explicit user decision, as recommended in docs/task13_design.md 0.2. The energy-side range (2025-2040 empirical band, 2050 flexibility-conditional range phi 1.5 to L=1) is applied after the OM/CM split (arithmetically equal to applying it before; the documented and tested order). Emission factors are fixed point values, not conditioned on the same flexibility assumption, and range_basis says so explicitly (energy range only; emission factor fixed at the stated year, not included in range). OM and CM are alternative proxies and are never summed. The final 2050 figures therefore carry a partial uncertainty composition (energy-side conditional range + point-value emission factor), which must be stated in any article-facing text derived from the table.
+    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; Task 13 commit (see git log, subject 'Task 13: ...')"
 
   D29:
-    status: pending
-    date: "2026-10-26"
+    status: adopted
+    date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "MCTI emission-factor year applied to the projection years 2030, 2040 and 2050 (open duty recorded in the D18 caveat and the roadmap)"
     source_task: "Task 13-1 - docs/task13_design.md section 0.3"
     found: >
@@ -778,8 +783,9 @@ decisions:
       hold_latest_complete_year: "Recommended default: use 2025 for all projection years; simplest and traceable."
       multi_year_mean_2021_2025: "Smooths hydrology-driven swings; larger methodological content."
       report_both_as_sensitivity: "Headline with one rule, the other as a labelled sensitivity."
-    decidable_now: "yes"
-    working_reading: "Task 13-1 author's reading, not a decision; examples in the design use hold-2025 as a placeholder only. The rule chosen is logged per row in emission_factor_basis."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 13) by explicit user decision. Central/production tCO2 values for all projected years use the MCTI factor of the last complete year (2025), per the D18 deferral. The 2021-2025 mean factor is computed and reported as a non-blocking, clearly labelled sensitivity (companion table plus a central-value column in the main table), following the pattern of the D23 net-PTE sensitivity; it is not part of the central value. The spread of the annual average factor over 2021-2025 (0.0385 to 0.1263 tCO2/MWh, about 3x) is documented in docs/methodology.md so the choice is auditable.
+    implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; Task 13 commit (see git log, subject 'Task 13: ...')"
 
 ben_cross_check:
   status: reference_only

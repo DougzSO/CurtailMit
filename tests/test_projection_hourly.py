@@ -19,7 +19,7 @@ from curtailmit import hourly_uncertainty as hu
 from curtailmit import limitations as lim
 from curtailmit import projection as pj
 from curtailmit.calibration import REGIONAL_REFERENCE_LABEL, fit_regional_reference, logistic
-from curtailmit.mitigation import compute_mitigation, output_prefix
+from curtailmit.mitigation import ModelProvenanceError, compute_mitigation, output_prefix
 
 FIX = Path(__file__).parent / "fixtures" / "option_e"
 GOLDEN = json.loads((FIX / "golden.json").read_text(encoding="utf-8"))
@@ -209,8 +209,12 @@ def test_mitigation_guard_and_passthrough(out):
     avg = pd.DataFrame({"year": list(YEARS), "factor_tco2_per_mwh": 0.1})
     marg = pd.DataFrame({"year": list(YEARS), "om_factor": 0.5, "cm_factor": 0.3})
     flat = out.reset_index()
-    with pytest.raises(ValueError, match="no 'model' column"):
+    with pytest.raises(ModelProvenanceError, match="no 'model' column"):
         compute_mitigation(flat.drop(columns=["model"]), avg, marg, True, require_model=True)
+    # Task 13 (D27-D29 design): the guard now rejects every table that is not entirely option_E_hourly, including labelled reference tables
+    with pytest.raises(ModelProvenanceError, match="reference_national_curve"):
+        compute_mitigation(flat.assign(model="reference_national_curve", role="reference"), avg, marg, True, require_model=True)
+    assert compute_mitigation(flat.assign(model="reference_national_curve", role="reference"), avg, marg, True).role.eq("reference").all()
     res = compute_mitigation(flat, avg, marg, True, require_model=True)
     assert (res.model == pj.OPTION_E_MODEL_LABEL).all() and (res.known_limitations.str.startswith("D25")).all() and (res.drift_direction == "upward").all()
     assert not res.loc[res.year == 2050, "calibrated_label"].any() and "mitigation_deficit_avg_tco2_low" in res.columns

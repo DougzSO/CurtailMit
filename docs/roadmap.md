@@ -264,3 +264,9 @@ Task 11F (D23-D26 adopted) migrated the hourly dose-response model into `src/`: 
 ## Update (Task 13-1) - design proposal for the final output layer; Task 13 awaits approval
 
 Design only (`docs/task13_design.md`, no `src/` change). A legacy `results_writer.py` (frozen `ResultsRow`, schema + CSV/JSON only) already exists; it is unreachable from any entry point, has never produced an output and does not contradict Option E figures, but it is structurally incompatible with the required per-row ranges and caveats. Three decisions are registered as `pending` (D27 fate of `ResultsRow`, D28 OM/CM split versus the horizon-dependent range, D29 MCTI factor year for 2030-2050). Task 13 starts only after the user answers the questions in section 9 of the design. The 2050 range stays a flexibility-conditional range (`conditional_range_low/high`, `range_basis`), never a confidence interval.
+
+---
+
+## Update (Task 13) - final results layer implemented; D27, D28, D29 adopted
+
+Task 13 (Parts A and B) done: `results_writer.py` superseded in place (D27 A), long-format writer with per-row caveats, OM/CM split with the energy range applied after the split and fixed emission factors (D28), MCTI factor 2025 central with the 2021-2025 mean as a labelled sensitivity (D29), `mitigation.ModelProvenanceError`. Outputs in DATABASE_ROOT/outputs/tables. Part C (figures and the auto-generated limitations report) is out of scope and deferred to a later task (13B). The 2050 range stays a flexibility-conditional range, never a confidence interval. See `docs/methodology.md` section 2.3k.

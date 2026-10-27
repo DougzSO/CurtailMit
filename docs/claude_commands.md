@@ -297,7 +297,7 @@ GLOBAL RULES FOR THIS PROJECT (CurtailMit):
 | 11F | Production migration of option E (D23-D26 adopted): hourly model, by-horizon projection, D25 limitation propagation, labelled references | `src/curtailmit/hourly_model.py`, `hourly_uncertainty.py`, `limitations.py`, `projection.py` | ✅ DONE (Task 13 unblocked, awaiting confirmation) |
 | 11F | Production migration of the chosen driver (formerly numbered 11E) | `calibration.py`, `projection.py` | ⬜ NOT started; contingent on D23, D24 (incl. option E), D25 |
 | 12 | Stage 5: `hydrogen.py` | `hydrogen.py` | ✅ DONE |
-| 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ⛔ BLOCKED pending Task 11D / 11E outcome (rewritten below) |
+| 13 | Stage 6: finalize `results_writer.py` wiring + reports/figures | `results_writer.py`, `mitigation.py` | ✅ Parts A-B DONE (Task 13, D27-D29; see the 'SUPERSEDED INSTRUCTION' note); Part C (figures) deferred |
 | 14 | End-to-end orchestration + CI | `scripts/run_pipeline.py`, CI | ⬜ |
 | 15 | Reproducibility pass + documentation sync | `docs/`, `README.md` | ⬜ |
 
@@ -411,6 +411,12 @@ Acceptance:
 - No ResultsRow is ever written with only one marginal figure — both OM and
   CM columns populated on every row.
 ```
+
+---
+
+### Task 13 - SUPERSEDED INSTRUCTION AND IMPLEMENTATION NOTE (2026-10-27, decision D27)
+
+> **The sentence "Do not change this schema" in the Task 13 text above (about `results_writer.ResultsRow`) is superseded by decision D27 (adopted 2026-10-27, option A).** It was written before D23-D26 and the horizon-dependent ranges; the original text is kept unchanged above for the record. The legacy `ResultsRow` stays importable and tested, marked DEPRECATED; `results_writer.py` now also holds the long-format production writer (central value, conditional range with a mandatory `range_basis`, per-row `known_limitations` / `calibrated_label` / support status, OM and CM as separate quantities). Also decided: D28 (energy range applied after the OM/CM split; emission factors fixed point values outside the range) and D29 (MCTI factor year 2025 central, 2021-2025 mean as a labelled sensitivity). Task 13 Parts A and B were implemented as described in `docs/task13_design.md` and `docs/methodology.md` section 2.3k; Part C (reports and figures) was explicitly left out of Task 13 and is deferred to a later task (Task 13B or later).
 
 ---
 

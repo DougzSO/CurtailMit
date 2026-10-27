@@ -203,3 +203,7 @@ into `config/scenarios.yaml`.
 ## Task 13-1 (2026-10) - design of the final output layer
 
 - Design only: `docs/task13_design.md`. Legacy `results_writer.py` investigated (unused, never produced output, structural conflict with the new schema). Pending decisions D27, D28, D29 registered in `config/discovered_sources.yaml`. No `src/` or test change; Task 13 not started.
+
+## Task 13 (2026-10) - final results layer
+
+- `config/discovered_sources.yaml`: D27, D28, D29 adopted. `src/curtailmit/results_writer.py` extended (legacy `ResultsRow` kept, DEPRECATED); `mitigation.py` gains `ModelProvenanceError`, `check_provenance`, `split_margins` (OM and CM families); `tests/test_final_results.py` (21 default tests + 1 integration), `tests/test_projection_hourly.py` guard test updated. Outputs written to DATABASE_ROOT/outputs/tables (`final_results.*`, `final_results_mcti_sensitivity.*`). Docs: methodology 2.3k, data dictionary, roadmap, claude_commands (D27 supersession note). No figures, no matplotlib.
