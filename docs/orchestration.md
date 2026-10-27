@@ -40,3 +40,7 @@ After the final results, always (also when every stage was skipped): `final_resu
 ## CI
 
 `.github/workflows/ci.yml`: `lint` (`ruff check src tests`), `unit-tests` (`pytest -m "not integration"`, `DATABASE_ROOT` an empty directory), `smoke-test` (`curtailmit-run --dry-run` and `python -m curtailmit.pipeline --dry-run`), Python 3.11. Integration tests are excluded because they need the local `curtailmit_database`; CI does not validate the scientific output. D32: the one default test that read the local database (`test_compounding_never_exceeds_the_asymptote`) now uses a synthetic table.
+
+## Changelog: cache trust semantics changed during Task 14
+
+Found while investigating the orchestrator's skip logic (Task 14), not a planned Task 14 goal: `acquisition.fetch_and_cache(use_cache=True)` used to trust a cached file whenever it existed next to its manifest. It now verifies the file's SHA-256 and byte size against the manifest before trusting it, and a mismatch (or a missing manifest) triggers a fresh download. This affects every Stage 1 acquisition made with `--use-cache` (commit `a6093c8`); earlier Stage 1 runs with `use_cache=True` relied on existence only. At the time of the change all 250 raw files of the local database verified against their manifests.
