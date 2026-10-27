@@ -250,3 +250,18 @@ The prototype `analysis/task11e4_coverage_figure.py` is left in place and annota
 6. **Comparison figure for the methodological journey** (national vs regional vs Option E, D24 "reference / comparison points"): not proposed; if wanted, it would be a separate figure labelled "comparison, not a result", built from a fixture, never from the exploratory PNGs. Include or leave to the text?
 7. **DeCarbon defaults** (section 1.4): confirm after reading the guide for authors, or tell me the actual requirements.
 8. **The "largest observed value" tick** of the coverage figure (section 1.1): drop it (recommended) or add `r_max` to the Option E table (production-table change)?
+
+---
+
+## Update (Task 13B-1 Addendum - Decisions, 2026-10-27)
+
+Documentation-only addendum. Sections 1-9 above are unchanged (append-only); this section records the user's resolution of the eight open questions of section 9. No code was touched and the design is not re-opened.
+
+1. **Q1 - 2050 representation: option V1 approved** (separate shaded zone, hatched box with dashed outline, diamond for the central value, legend "conditional range (not a confidence interval)", caption note and in-figure annotation, as in section 3.1). The `FORBIDDEN_LANGUAGE` check on figure text gets a **narrow, literal exception for the exact string `not a confidence interval`**, and for nothing else; it is not a general relaxation of the filter, and the filter on table columns and text is untouched. The implementation must carry a code comment referencing D24 stating that the exception exists because the phrase explicitly *denies* being a confidence interval.
+2. **Q2 - no historical 2022-2025 overlay in F1 for now.** Closed decision, not pending. F1 stays sourced from `final_results` only.
+3. **Q3 - backtest figure approved as supplement S2** (Task 11E2 observed-vs-modelled annual figure). Its numbers exist only as analysis output (`task11e2_backtest_annual.csv`), so a small committed fixture dataset has to be built for it and the figure labelled analysis-derived.
+4. **Q4 - F3 becomes panel (c) of F2**, not a separate figure. The main text carries four figures: F1, F2 (panels a-c), F4, plus supplements S1 and S2.
+5. **Q5 - `limitation:` and `theme:` fields will be added to the entries D23-D35 of `config/discovered_sources.yaml`** (not a code mapping; status and adopted text unchanged). **Dependency, flagged explicitly:** the schema of these fields and the generator that consumes them (`limitations_summary.py`, the generated `docs/limitations_summary.md` and its consistency tests, section 4) are designed and implemented in **Task 16** (see `docs/task16_design.md` once it exists), not directly in Task 13B. Task 13B therefore does not produce `limitations_summary.md` until Task 16 delivers the generator.
+6. **Q6 - no methodological-journey comparison figure.** The national / regional / Option E comparison stays text-only in `docs/methodology.md` (already present in section 2.3k); the exploratory PNGs of `analysis/` are not promoted.
+7. **Q7 - DeCarbon figure standards remain UNCONFIRMED** (DPI, column width, font size, colour palette; section 1.4 defaults are not final). The user will verify the author guide manually. **Task 13B must not be marked complete until the user confirms these standards or explicitly waives the check.**
+8. **Q8 - the "largest observed value" (r_max) reference is removed from the coverage-figure design.** No `r_max` column is added to the Option E production table.
