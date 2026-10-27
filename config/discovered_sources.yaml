@@ -238,6 +238,10 @@ decisions:
         is not itself evidence about curtailment behavior, so these figures do not
         establish that 2020 solar curtailment was negligible. The documented-zero
         treatment rests on ONS not publishing earlier data (see decided/caveat).
+    # Optional field (D14): data-coverage decision, so only its documented-zero caveat is a reader-facing limitation; the solar record length is carried by D24.
+    limitation:
+      - theme: solar-record
+        text: "The 2020 baseline solar curtailment is a documented zero, an assumption backed by ONS not publishing earlier data, not a measurement: 3.3 GW of PV existed in 2020."
 
   D15:
     status: adopted
@@ -299,6 +303,10 @@ decisions:
       the Paraguayan share of Itaipu; whether BEN solar includes MMGD.
     reference: "docs/pte_ons_basis_investigation.md"
     implemented_in: "documentation only; behaviour already in projection.py (source labels) and ons_generation.py"
+    # Optional field (D16): predates the hourly model, so it is kept as the record of the ONS-vs-PTE basis difference; the current gross/net limitation is carried by D23.
+    limitation:
+      - theme: generation-basis
+        text: "The calibrated curve is fitted on ONS SIN-basis data and applied to PTE-basis data without reconciliation, under the assumption that curtailment risk scales with the penetration share regardless of the accounting scope; this is an assumption, not a proven equivalence."
 
   D17:
     status: adopted
@@ -377,6 +385,10 @@ decisions:
       or skipping the year. It was identified and fixed within Task 5 (the BM is now the first non-empty cell after the year;
       a text cell there means no BM yet), with a corresponding test added
       (test_parse_margin_grid_incomplete_year_is_flagged_not_silently_filled). Fix shipped in the Task 5 commit (dfe1cb5).
+    # Optional field (D18): acquisition decision, so only how the factors are built is recorded; the choice of factor year is carried by D29.
+    limitation:
+      - theme: emission-factors
+        text: "Margin factors exist only for completed years, so projection years have no factor of their own, and the annual operating margin is a simple mean of 12 monthly values because MCTI publishes no generation weights."
 
   D19:
     status: adopted
@@ -467,6 +479,10 @@ decisions:
       curtailment data exists in that window to be affected). Does not alter D16
       (ONS-SIN vs PTE-basis treatment of projection years) in any way.
     implemented_in: "commit 224ad96 (Task 9: ons_generation.py P(t) tables, ons_solar_gap.py, calibration.py wiring); report docs/task9_calibration_report.md"
+    # Optional field (D20): data-basis correction, so only the choice that keeps the non-dispatched solar component out of the curtailment basis is recorded.
+    limitation:
+      - theme: generation-basis
+        text: "Solar generation is defined as the ONS-dispatched series, not the balance series that includes a non-dispatched component from 2023-04-29 onward; this is a project-level methodological choice, not an ONS-confirmed fact for that field."
 
   D21:
     status: adopted
@@ -506,6 +522,9 @@ decisions:
       single combined curve as decided in 'decided_wind_only_months' above; that paragraph and the combined bootstrap numbers are kept as the
       record of the non-primary diagnostic curve.
     implemented_in: "Task 7C: calibration.fit_calibration (bounds), calibration.bootstrap_calibration_ci"
+    superseded_in_practice_by: D24
+    limitation: none
+    limitation_reason: "Superseded in practice by D24: kept as a documented reference / comparison point of the methodological journey, not the production model."
 
   D22:
     status: adopted
@@ -533,6 +552,9 @@ decisions:
       Both curves still end at the same observed maximum P (29.4 percent) and place P0 beyond it, so every PTE point above 29.4 percent is an
       extrapolation for both curves; the bootstrap interval (sampling uncertainty only) must be propagated by Stage 3 (D21).
     implemented_in: "Task 7D: calibration.build_technology_frames, TechnologyCurve, CalibrationResult, run_calibration"
+    superseded_in_practice_by: D24
+    limitation: none
+    limitation_reason: "Superseded in practice by D24: kept as a documented reference / comparison point of the methodological journey, not the production model."
 
   D23:
     status: adopted
@@ -564,6 +586,9 @@ decisions:
       the delivered -> potential inversion overstates the observed 2025 curtailment about three-fold, 113 vs 37 TWh, docs/task11e2_findings.md), but it is no longer a blocking requirement. If the PTE generation were in fact delivered energy, the gross
       figures would be a lower bound of what the same curve implies. To be stated in the paper as an assumption with this caveat.
     implemented_in: "working assumption in operational use since Task 7 / Task 11B (curtailed = PTE generation x rate: src mitigation / projection tables) and carried through Tasks 11C-11E4 (docs/task11e4_findings.md, section 6); adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); no code change"
+    limitation:
+      - theme: generation-basis
+        text: "The generation of the PTE / BLUES scenarios is treated as gross (pre-curtailment) by user decision, not by evidence; if it is in fact delivered energy, the curtailment figures are a lower bound of what the same curve implies. The net-basis alternative is documented as a sensitivity only."
 
   D24:
     status: adopted
@@ -651,6 +676,13 @@ decisions:
       Known limits carried with the adoption: option E holds today's flexibility fixed; the curve is stable across years 2023-2026 but not across seasons or hours of day; wind drifts upward about +2 pp per year (unexplained); solar has 30 months; the central
       values are more likely low than high. Option E is validated for 2030-2040, not for 2050 (51-77 percent of the 2050 energy comes from hours with no historical analogue). Options A, B, C, D are not adopted.
     implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); prototype code analysis/task11e_*.py, task11e2_*.py, task11e3_*.py, task11e4_*.py (docs/task11e_findings.md ... docs/task11e4_findings.md); production migration into src/ was Task 11F (UPDATE, done: src/curtailmit/hourly_model.py, hourly_uncertainty.py, limitations.py, projection.project_curtailment_hourly; docs/task11f_design.md)"
+    limitation:
+      - theme: support-extrapolation
+        text: "Option E is validated for 2030-2040, not for 2050: 51-77 percent of the 2050 energy comes from hours with no historical analogue, and the TA scenario is partially outside the observed hourly support in 2040. The 2050 range is conditional, not a statistical interval, and no valid conformal interval could be produced at that horizon."
+      - theme: flexibility-transmission
+        text: "Option E holds today's flexibility fixed; the 2050 range varies the flexibility assumption (phi = 1.5 as the lower scenario to L = 1 as the upper) but remains conditional on it."
+      - theme: solar-record
+        text: "The solar curve is fitted on 30 months of data, a shorter record than wind."
 
   D25:
     status: adopted
@@ -699,6 +731,9 @@ decisions:
       composition, cause not identified. Compounded naively to 2050 it would add about 39 pp, but it is bounded by the asymptote of the curve (2050 wind rate headroom 7-17 pp): additional 2050 wind curtailment +1-4 percent (step), +15-20 TWh (saturating), at most +34-52 TWh (linear, capped), i.e. 3-15 percent of the 2050 wind + solar total, upward only; for 2030 +10-14
       percent of wind curtailment. The drift is not corrected in the adopted specification of D24 (an explicit trend term was tested and rejected); central values of option E are more likely low than high.
     implemented_in: "adoption recorded in the Task 11F-0 commit ('Task 11F-0: formal adoption of D25; D23-D26 all adopted'); propagated into production outputs as the known_limitations / drift_direction fields and the .limitations.json sidecar (Task 11F; src/curtailmit/limitations.py, projection.project_curtailment_hourly)"
+    limitation:
+      - theme: drift
+        text: "Central values are more likely low than high: the wind curtailment rate at a fixed hourly VRE share drifts upward by about +1.4 to +1.6 pp per year over 2022-2026, the cause is not identified and the drift is not corrected. Compounded to 2050 it adds at most +15-20 TWh (saturating) or +34-52 TWh (linear, capped), upward only."
 
   D26:
     status: adopted
@@ -728,6 +763,9 @@ decisions:
       of NE wind curtailment is still attributable to network-element limits, 23 percent of it internal to the NE network (15 percent interchange-related), which expansion could reduce; this share is covered only as the flexibility sensitivity (phi) of option E,
       not as a calibrated pathway, and must be stated in the paper's limitations. The statement supported is that curtailment is not primarily export-bound, not that transmission is irrelevant.
     implemented_in: "adoption recorded in the Task 11F0 commit ('Task 11F0: formal adoption of D23, D24, D26'); documentation only (docs/roadmap.md); no code existed for the retired extension"
+    limitation:
+      - theme: flexibility-transmission
+        text: "Transmission expansion is not modelled (retired by D26): in 2026 about 38 percent of Northeast wind curtailment is still attributable to network-element limits and 23 percent of it is internal to the Northeast network, which expansion could reduce; this share is covered only by the flexibility sensitivity of option E. The finding supported is that curtailment is not primarily export-bound, not that transmission is irrelevant."
 
   D27:
     status: adopted
@@ -748,6 +786,8 @@ decisions:
     decided: >
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision: option A, supersede in the same module. The legacy results_writer.ResultsRow (schema-only, never wired, never produced an output) stays importable and its tests keep passing, with a deprecation note pointing to the new long-format writer (FinalResultsRow / build_final_results / write_final_results) as the production path. The older Task 13 instruction 'do not alter this schema' (docs/claude_commands.md) is superseded by this decision; it is annotated, not deleted.
     implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
+    limitation: none
+    limitation_reason: "Output-schema decision: it fixes how the results table is laid out and carries no modelling assumption."
 
   D28:
     status: adopted
@@ -769,6 +809,11 @@ decisions:
     decided: >
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision, as recommended in docs/task13_design.md 0.2. The energy-side range (2025-2040 empirical band, 2050 flexibility-conditional range phi 1.5 to L=1) is applied after the OM/CM split (arithmetically equal to applying it before; the documented and tested order). Emission factors are fixed point values, not conditioned on the same flexibility assumption, and range_basis says so explicitly (energy range only; emission factor fixed at the stated year, not included in range). OM and CM are alternative proxies and are never summed. The final 2050 figures therefore carry a partial uncertainty composition (energy-side conditional range + point-value emission factor), which must be stated in any article-facing text derived from the table.
     implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
+    limitation:
+      - theme: emission-factors
+        text: "Emission factors are fixed point values, not conditioned on the flexibility assumption of the energy range, so the 2050 figures carry a partial uncertainty composition (energy-side conditional range plus a point-value factor). OM and CM are alternative proxies and are never summed."
+      - theme: support-extrapolation
+        text: "The energy-side range depends on the horizon: an empirical band with a conformal supplement for 2025-2040, a flexibility-conditional range for 2050."
 
   D29:
     status: adopted
@@ -786,6 +831,9 @@ decisions:
     decided: >
       ADOPTED on 2026-10-27 (Task 13) by explicit user decision. Central/production tCO2 values for all projected years use the MCTI factor of the last complete year (2025), per the D18 deferral. The 2021-2025 mean factor is computed and reported as a non-blocking, clearly labelled sensitivity (companion table plus a central-value column in the main table), following the pattern of the D23 net-PTE sensitivity; it is not part of the central value. The spread of the annual average factor over 2021-2025 (0.0385 to 0.1263 tCO2/MWh, about 3x) is documented in docs/methodology.md so the choice is auditable.
     implemented_in: "curtailmit.results_writer (build_final_results, write_final_results, FinalResultsRow supersedes ResultsRow), mitigation.compute_mitigation (OM/CM columns, ModelProvenanceError), docs/methodology.md 2.3k; commit 57d9488 ('Task 13: final results layer ...')"
+    limitation:
+      - theme: emission-factors
+        text: "Projected years use the MCTI factor of the last complete year (2025); the 2021-2025 mean is only a labelled sensitivity. The annual average factor varies about 3x over 2021-2025 (0.0385 to 0.1263 tCO2/MWh), so the tCO2 figures depend on the factor year chosen."
 
   D30:
     status: adopted
@@ -806,6 +854,9 @@ decisions:
       columns sec_sensitivity_low / sec_sensitivity_high and is not incorporated into the conditional range. The range_basis of every h2_potential row states that the range is energy-side only and that
       the SEC is fixed (consistent with D28). Hydrogen rows carry the same per-row caveats as every other row.
     implemented_in: "commits 57d9488 and cb58ba4 (Task 13): results_writer.build_final_results (h2_potential quantity, sec_sensitivity_* columns, range_basis); documented in docs/methodology.md 2.3k and docs/data_dictionary.md (Task 13-2)"
+    limitation:
+      - theme: hydrogen-sec
+        text: "The hydrogen potential uses a fixed specific energy consumption of 52.5 kWh/kg; the 50 to 55 kWh/kg sensitivity interval is kept in separate columns and is not part of the conditional range."
 
   D31:
     status: adopted
@@ -823,6 +874,8 @@ decisions:
     decided: >
       ADOPTED on 2026-10-27 (Task 14) by explicit user decision. The orchestrated end-to-end run is Stage 1 -> hourly calibration -> Option E projection -> final results layer (results_writer.py), plus pre-check and reference-value check. Out of scope: analysis/reference scripts (retired national/regional calibration is never imported by the orchestrator), PLD modeling (D10, disabled), figures (Task 13B), reproducibility manifest (Task 15).
     implemented_in: "curtailmit.pipeline (orchestrator: Stage 1 -> hourly calibration -> Option E projection -> final results; console script curtailmit-run); docs/orchestration.md; Task 14 commit(s) 18f1e54 (D32 test), a6093c8 (orchestrator, CI)"
+    limitation: none
+    limitation_reason: "Orchestration-scope decision (what end to end means for the command): no modelling assumption."
 
   D32:
     status: adopted
@@ -840,6 +893,8 @@ decisions:
     decided: >
       ADOPTED on 2026-10-27 (Task 14) by explicit user decision: the leaking test test_compounding_never_exceeds_the_asymptote is rewritten with a synthetic PTE table (not reclassified as integration), so the invariant stays in the fast standard suite and passes with an empty DATABASE_ROOT, which is what CI uses. CI runs with DATABASE_ROOT explicitly empty so any other accidental dependency on curtailmit_database fails loudly.
     implemented_in: "tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote (synthetic PTE table, no database dependency); CI workflow .github/workflows/ci.yml; Task 14 commit(s) 18f1e54 (D32 test), a6093c8 (orchestrator, CI)"
+    limitation: none
+    limitation_reason: "CI test-isolation decision: it affects how the tests run, not the results."
 
   D33:
     status: adopted
@@ -862,6 +917,9 @@ decisions:
       the redistribution terms of the ONS and MCTI datasets were not verified (a web search in Task 15 found no explicit terms and no prohibition; the manifest lists identities, not content). Code-only was
       rejected. The article must carry an explicit data-availability statement that cites the manifest and the re-download/verification procedure (flagged for the article-writing step; no article text was drafted).
     implemented_in: "data_snapshot_manifest.json; curtailmit.run_manifest (build_snapshot, verify_snapshot, `python -m curtailmit.run_manifest snapshot|verify`); run manifest raw_inputs cross-check; docs/reproducibility.md section 1 and 3; Task 15 commit 135cfea"
+    limitation:
+      - theme: data-provenance
+        text: "The raw data are not bundled (curtailmit_database is local-only). A snapshot manifest lets readers re-download and verify hash by hash, but the redistribution terms of the ONS and MCTI datasets are not verified, so no statement of permission is made."
   D34:
     status: adopted
     date: "2026-10-27"
@@ -884,6 +942,9 @@ decisions:
       on the existing adopted texts, which remain the audit trail). limitations_summary.md is deferred to Task 13B. Documentation sync applied by kind: narrative history append-only with superseding notes, pure
       bookkeeping errors fixed directly, stale status markers corrected with a visible strike-through plus update note, README rewritten.
     implemented_in: "tests/test_determinism.py; requirements.lock.txt; .github/workflows/ci.yml (unit-tests-locked); curtailmit.run_manifest; curtailmit.decision_registry; docs/reproducibility.md; docs/acceptance_criteria_status.md; README.md; Task 15 commit 135cfea"
+    limitation:
+      - theme: reproducibility-scope
+        text: "Reproducibility is verified for the locked environment: no non-determinism was found across hash seeds and thread counts, and the reference-value check is the portable promise. Bitwise identity of the outputs across platforms or library versions is not promised."
 
   D35:
     status: adopted
@@ -902,6 +963,9 @@ decisions:
       -11 percent leave-one-year-out, -19 percent trained on 2022-24), recorded as the D25 limitation. This is a pipeline / production-data decision only; whether the article's figures include historical context
       (for example an observed 2020 reference) is a separate editorial choice deferred to the figure design of Task 13B and is not a production requirement.
     implemented_in: "docs/acceptance_criteria_status.md (criterion 5 restated as superseded by D35); no change to src/ or to final_results; Task 15-3 commit 0bd4a31"
+    limitation:
+      - theme: historical-validation
+        text: "No 2020 historical anchor is part of the production table; historical validation rests on the 2023-2026 backtest, which shows a downward bias in the latest years (wind 2025: -8 percent in sample, -19 percent trained on 2022-24), recorded as the D25 limitation."
 
 ben_cross_check:
   status: reference_only

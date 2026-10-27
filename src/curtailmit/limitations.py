@@ -20,14 +20,19 @@ SOLAR_SHORT_RECORD = "SOLAR_SHORT_RECORD"
 REFERENCE_NOT_PRODUCTION = "REFERENCE_NOT_PRODUCTION"
 DRIFT_DIRECTION = "upward"  # the central values of option E are more likely low than high (D25)
 
-# Quantified bounds transcribed from the adopted D25 text (tests assert that each figure appears in the text).
+# Quantified bounds transcribed from the adopted D25 text (tests assert that each figure appears in the text). The row caveat text of results_writer.limitations_text is built from the same
+# constants, so the numbers exist once in code.
+D25_DRIFT_RANGE = "+1.4 to +1.6"
+D25_DRIFT_PERIOD = "2022-2026"
+SOLAR_MONTHS = 30  # months of dispatched solar generation in the calibration record (D14 floor 2024-04); wind has 57
+FLEX_2050_RANGE = "phi 1.5 to L=1"  # the flexibility-conditional 2050 range (D24)
 D25_QUANTIFIED = {
-    "rate_drift_pp_per_year": "+1.4 to +1.6 (95 percent interval 0.5 to 2.7), 2022-2026",
+    "rate_drift_pp_per_year": f"{D25_DRIFT_RANGE} (95 percent interval 0.5 to 2.7), {D25_DRIFT_PERIOD}",
     "wind_additional_2030": "+10-14 percent of wind curtailment",
     "wind_additional_2050": "+1-4 percent (step); +15-20 TWh (saturating); at most +34-52 TWh (linear, capped) = 3-15 percent of the 2050 wind + solar total",
     "direction": DRIFT_DIRECTION,
 }
-SOLAR_NOTE = "Solar curve fitted on 30 months of dispatched-generation data (from 2024-04); shorter record than wind (57 months)."
+SOLAR_NOTE = f"Solar curve fitted on {SOLAR_MONTHS} months of dispatched-generation data (from 2024-04); shorter record than wind (57 months)."
 D26_NOTE = ("Transmission-expansion (PDE/PET) extension retired (D26); sensitivity note: in 2026, 38 percent of Northeast wind curtailment is still attributable to network-element "
             "limits and 23 percent is internal to the Northeast.")
 

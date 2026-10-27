@@ -35,7 +35,7 @@ curtailmit-run --use-cache      # reuse SHA-256-verified cached downloads
 curtailmit-run --skip-stage1    # explicit partial run on the existing Stage 1 products
 python -m curtailmit.data_ingestion   # Stage 1 alone (acquisition + data-quality report)
 ```
-Sequence: pre-check -> Stage 1 (acquisition, classification, MCTI factors, quality report) -> hourly calibration (`hourly_model.py`, `hourly_uncertainty.py`) -> Option E projection (`projection.py`) -> final results (`results_writer.py` with `mitigation.py` and `hydrogen.py`) -> reference-value check -> run manifest. A stage is skipped only when its stamp verifies; otherwise it is recomputed. Output: `final_results.csv/.parquet` (156 rows, long format) under `DATABASE_ROOT/outputs/tables`. Hard gates stop the run with exit code 2. Details: `docs/orchestration.md`.
+The stage sequence is in `docs/orchestration.md` (generated from the code). A stage is skipped only when its stamp verifies; otherwise it is recomputed. Output: `final_results.csv/.parquet` (156 rows, long format) under `DATABASE_ROOT/outputs/tables`. Hard gates stop the run with exit code 2. Details: `docs/orchestration.md`.
 
 ## Tests and checks
 
@@ -44,18 +44,19 @@ pytest -m "not integration"     # unit suite (what CI runs, with an empty DATABA
 pytest -m integration           # needs the local curtailmit_database (and some, the network)
 ruff check src tests
 python -m curtailmit.run_manifest verify   # local raw files vs data_snapshot_manifest.json
-python -m curtailmit.decision_registry --check
+python -m curtailmit.doc_generation --check   # generated documentation blocks vs their sources
 ```
 
 ## Documentation (map)
 
 | Document | Content |
 |---|---|
-| `docs/reproducibility.md` | start here to reproduce the numbers: environment, data, run, why Option E, decision register D1-D34 |
+| `docs/reproducibility.md` | start here to reproduce the numbers: environment, data, run, why Option E, decision register |
 | `docs/methodology.md` | the model (section 2.3j, current) and results layer (2.3k); earlier sections are the historical record |
 | `docs/orchestration.md` | the `curtailmit-run` command, skip logic, gates, CI |
 | `docs/roadmap.md`, `docs/progress_log.md`, `docs/claude_commands.md` | plan, history by task, task prompts (append-only history, with update notes) |
 | `docs/pre_submission_checklist.md` | open items to close by hand before submitting the article (ONS/MCTI licensing) |
+| `docs/limitations_summary.md` | the limitations of the production model by theme, generated from the decisions and the output table caveats |
 | `docs/acceptance_criteria_status.md` | roadmap acceptance criteria against the production table |
 | `docs/data_dictionary.md` | output columns and run records |
 | `config/discovered_sources.yaml` | the adopted decisions D13 onward with their texts |

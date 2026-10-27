@@ -51,7 +51,7 @@ import numpy as np
 import pandas as pd
 
 from curtailmit.hydrogen import compute_hydrogen_potential
-from curtailmit.limitations import LIMITATIONS_SIDECAR_SUFFIX, limitations_payload, write_table_with_limitations
+from curtailmit.limitations import D25_DRIFT_PERIOD, D25_DRIFT_RANGE, DRIFT_DIRECTION, FLEX_2050_RANGE, LIMITATIONS_SIDECAR_SUFFIX, SOLAR_MONTHS, limitations_payload, write_table_with_limitations
 from curtailmit.mitigation import REQUIRED_MODEL, ModelProvenanceError, check_provenance, compute_mitigation
 from curtailmit.validation import ValidationError, validate_mcti_factor_coverage
 
@@ -277,13 +277,13 @@ def load_emission_factors(processed_dir: Path | None = None) -> tuple[pd.DataFra
 
 def limitations_text(row: pd.Series) -> str:
     """Self-contained one-paragraph caveat for a row (so that a copied row explains itself). The full adopted D25 text travels in the sidecar."""
-    parts = ["Central values are more likely low than high: residual upward drift of the wind curtailment rate at fixed hourly VRE share (D25; +1.4 to +1.6 pp per year over 2022-2026, not corrected)."]
+    parts = [f"Central values are more likely low than high: residual {DRIFT_DIRECTION} drift of the wind curtailment rate at fixed hourly VRE share (D25; {D25_DRIFT_RANGE} pp per year over {D25_DRIFT_PERIOD}, not corrected)."]
     if "SOLAR_SHORT_RECORD" in str(row["known_limitations"]):
-        parts.append("Solar curve fitted on 30 months (shorter record than wind).")
+        parts.append(f"Solar curve fitted on {SOLAR_MONTHS} months (shorter record than wind).")
     if row["support_status"] != "within_support":
         parts.append(f"Part of the projected curtailment ({100 * (1 - float(row['in_support_fraction'])):.0f} percent) comes from hours with no historical analogue ({row['support_status']}).")
     if row["horizon_treatment"] == HORIZON_CONDITIONAL:
-        parts.append("2050 values are a range conditional on a flexibility assumption (phi 1.5 to L=1), not a calibrated forecast; the emission factor is a fixed point value (D28).")
+        parts.append(f"2050 values are a range conditional on a flexibility assumption ({FLEX_2050_RANGE}), not a calibrated forecast; the emission factor is a fixed point value (D28).")
     return " ".join(parts)
 
 

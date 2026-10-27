@@ -307,3 +307,21 @@ New: `src/curtailmit/doc_generation.py`, `src/curtailmit/hash_cache.py`, `tests/
 8. **D1-D12.** Confirm option (a), a manual historical section in `limitations_summary.md` and no backfill into the YAML? And approve optional fields on D14, D16, D18, D20?
 9. **Pre-filter cost-benefit.** Measured gain: about 1.2 s per repeat run on a warm cache, up to about 17 s cold, in exchange for the residual risk of section 9. Proceed as approved; and should `run_manifest` verification of the raw files stay a full hash (recommended), or may it use the cache?
 10. **Tenth theme.** Accept `reproducibility-scope` for D34, or fold D34 into `data-provenance`?
+
+---
+
+## Update (Task 16 - Decisions, 2026-10-27)
+
+Recorded before implementation. Section 12 and all earlier content above are unchanged. Question numbers refer to section 12.
+
+- **Q1 - mechanism:** approved (`doc_generation.py`, `GENERATED:BEGIN/END` markers, plain string assembly, `decision_registry.py` kept as reader/renderer plus a CLI alias).
+- **Q2 - drift fixes:** approved. The F-1 drifts (stale "D1-D34" in `README.md:54`, the `reproducibility.md` section 7 heading and the `decision_registry.py` docstring; the stale "generated in 13B" claim in `limitations.md:35`; the missing manifest step in the `orchestration.md` stage sequence) are fixed in Task 16 under the Task 15 convention: direct fix for mechanical errors, and a visible superseding note where the text was a narrative claim (no silent overwrite).
+- **Q3 - D21 / D22:** no status change. A new documentation-only metadata field `superseded_in_practice_by`, distinct from `status`, is set to `D24` on both. The generated decision register shows it next to D21 and D22.
+- **Q4 - `docs/stage1_data_quality_report.md`:** stop tracking it (`.gitignore` plus `git rm --cached`); it is still generated locally at run time and stays outside the `doc_generation.py` mechanism.
+- **Q5 - pipeline-sequence block:** generated only in `docs/orchestration.md`. Other documents that narrate the full stage list (for example `README.md`) get a short pointer sentence to `docs/orchestration.md`, not a second generated block. `docs/task14_design.md` is a frozen historical snapshot and is not touched.
+- **Q6 - schema:** S2 approved: `limitation` is a list of `{theme, text}` pairs (`limitation: none` plus `limitation_reason` for the empty case).
+- **Q7 - stamps:** approved. `theme`, `limitation`, `limitation_reason` and `superseded_in_practice_by` (documentation-only) are excluded from the decision content hash used by the pipeline stamps, so adding them forces no stage to recompute. A key not on the exclusion list is still hashed (conservative default).
+- **Q8 - D1-D12:** approved: a manual historical section, separate from the generated D23-D35 block and marked as manually maintained. For the optional fields on D14, D16, D18 and D20, the reason each differs from the rest is documented per decision in a one-line comment in the YAML (see the YAML comments and the appendix of `docs/limitations_summary.md`).
+- **Q9 - pre-filter:** approved. `run_manifest` verification keeps full hashing, with no pre-filter shortcut.
+- **Q10 - tenth theme:** `reproducibility-scope` is added to the fixed theme vocabulary.
+- **Additional:** the duplicated literal in `results_writer.limitations_text` that repeats D25's numbers is replaced by a reference to `limitations.D25_QUANTIFIED`; the output text stays byte-identical.

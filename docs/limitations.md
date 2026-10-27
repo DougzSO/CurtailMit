@@ -32,4 +32,4 @@ This file tracks data-source access limitations only (above: CCEE). The model li
 - Short solar record (`SOLAR_SHORT_RECORD`), 2050 conditional range, partial uncertainty composition of emission factors (D28-D30): `docs/methodology.md` sections 2.3j and 2.3k.
 - October 2026 cutoff (`END_EXCLUSIVE`): `docs/orchestration.md`, maintenance watchpoints.
 - Data availability (the raw data are not bundled; hash manifest instead, D33): `docs/reproducibility.md`, section 1.
-- The article-facing limitations summary (`limitations_summary.md`) is generated in Task 13B.
+- ~~The article-facing limitations summary (`limitations_summary.md`) is generated in Task 13B.~~ (Task 16 update: the summary and its generator belong to Task 16, not 13B; the page is [limitations_summary.md](limitations_summary.md), generated from the decisions of `config/discovered_sources.yaml` and the caveat texts of the production table.)

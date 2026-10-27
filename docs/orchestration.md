@@ -4,7 +4,18 @@ Design: `docs/task14_design.md` (commit `e1287eb`). Implementation: `src/curtail
 
 ## What the command runs (D31)
 
-`pre-check -> Stage 1 -> hourly calibration -> Option E projection -> final results -> reference-value check -> summary`. Out of scope: analysis and reference scripts (the retired national/regional calibration is never imported or called by the orchestrator; a test scans `pipeline.py` and the production-path functions for it), PLD (D10: `pld.enabled: true` is an error, not a silent skip), figures (Task 13B), the reproducibility manifest (Task 15).
+<!-- GENERATED:BEGIN id=pipeline-sequence sources=pipeline.py
+     do not edit by hand; regenerate with: python -m curtailmit.doc_generation --write -->
+
+`pre-check -> Stage 1 -> hourly calibration -> Option E projection -> final results -> reference-value check -> run manifest -> summary`
+
+(Generated from `curtailmit.pipeline.PIPELINE_SEQUENCE`; each stage is skipped only when its stamp verifies.)
+
+<!-- GENERATED:END id=pipeline-sequence -->
+
+*Task 16 update: the sequence above is generated from `pipeline.PIPELINE_SEQUENCE`; the hand-typed line it replaced ended at "reference-value check -> summary" and omitted the run-manifest step (added in Task 15).*
+
+Out of scope: analysis and reference scripts (the retired national/regional calibration is never imported or called by the orchestrator; a test scans `pipeline.py` and the production-path functions for it), PLD (D10: `pld.enabled: true` is an error, not a silent skip), figures (Task 13B), ~~the reproducibility manifest (Task 15)~~ (Task 16 update: the run manifest is part of the run, see the sequence above).
 
 The database root comes from `curtailmit.paths` (`--database-root` > `DATABASE_ROOT` > `.env` > `../curtailmit_database`, resolved against the project root) and is printed at the start. `--dry-run` resolves everything without creating directories.
 
@@ -44,6 +55,14 @@ After the final results, always (also when every stage was skipped): `final_resu
 ## Changelog: cache trust semantics changed during Task 14
 
 Found while investigating the orchestrator's skip logic (Task 14), not a planned Task 14 goal: `acquisition.fetch_and_cache(use_cache=True)` used to trust a cached file whenever it existed next to its manifest. It now verifies the file's SHA-256 and byte size against the manifest before trusting it, and a mismatch (or a missing manifest) triggers a fresh download. This affects every Stage 1 acquisition made with `--use-cache` (commit `a6093c8`); earlier Stage 1 runs with `use_cache=True` relied on existence only. At the time of the change all 250 raw files of the local database verified against their manifests.
+
+## Hash pre-filter for large files (Task 16)
+
+`curtailmit-run` hashes the large data files that enter the stamps (the raw tree, the processed products) through a cache, `processed/pipeline_stamps/hash_cache.json` (`curtailmit.hash_cache`; design: `docs/task16_design.md` part B). **The content hash stays authoritative: a stage is skipped only when the hashes in its stamp equal the hashes of the files now.** The cache only decides whether a file has to be read again to get its hash: a recorded hash is reused when the file has the same size, `mtime_ns` and inode as when it was hashed, is at least 1 MiB, had been quiet for 5 s when it was hashed (racy guard) and does not carry a modification time in the future; in every other case the file is read and hashed in full. Code, configuration, decision entries and files under 1 MiB are always hashed in full, the stamp format is unchanged (deleting the cache is always safe), and the run manifest keeps hashing the raw files in full.
+
+Measured on the real raw tree (500 files, 509 MB): 16.75 s cold, 1.21 s with the operating-system cache warm, 0.05 s for the metadata alone, so the gain is small on a warm cache and real on a cold disk.
+
+**Residual risk.** Content that changes while size, `mtime_ns` and inode stay equal to the recorded values keeps its stale hash (the weakness of every metadata quick-check, such as git's index or rsync's default). It protects against accidental staleness (edits, replaced or restored files, partial writes), not against forged timestamps. `curtailmit-run --no-hash-cache` hashes everything in full and neither reads nor writes the cache: use it on network shares (clock differences can defeat the guard) and for the run that produces the numbers submitted for publication. The accepted risk is a named test, `tests/test_hash_cache.py::test_forged_metadata_is_the_documented_residual_risk`.
 
 ## Maintenance watchpoints
 

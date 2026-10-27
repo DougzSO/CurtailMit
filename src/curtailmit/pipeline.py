@@ -1,6 +1,6 @@
 """End-to-end orchestration of the CurtailMit production path (Task 14; decisions D31, D32).
 
-    pre-check -> Stage 1 -> hourly calibration -> Option E projection -> final results -> reference-value check -> run manifest -> summary
+    pre-check -> Stage 1 -> hourly calibration -> Option E projection -> final results -> reference-value check -> run manifest -> summary    (PIPELINE_SEQUENCE)
 
 Invocation: `curtailmit-run` (console script), `python -m curtailmit.pipeline`, or `scripts/run_pipeline.py` (thin shim). See docs/orchestration.md.
 
@@ -25,13 +25,14 @@ import os
 import sys
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
 from curtailmit import provenance as prov
+from curtailmit.hash_cache import HashCache, default_path
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,9 @@ EXIT_OK, EXIT_ERROR, EXIT_GATE = 0, 1, 2
 REFERENCE_PATH = prov.PROJECT_ROOT / "tests" / "fixtures" / "final_results" / "reference_totals.json"
 REFERENCE_RTOL = 1e-9
 STAGES = ("stage1", "calibration", "projection", "results")
+# The stage sequence as documented (docs/orchestration.md is generated from it by curtailmit.doc_generation; tests tie it to STAGES, SPECS and the steps run_pipeline executes around them).
+STAGE_NAMES = {"stage1": "Stage 1", "calibration": "hourly calibration", "projection": "Option E projection", "results": "final results"}
+PIPELINE_SEQUENCE = ("pre-check", *(STAGE_NAMES[k] for k in STAGES), "reference-value check", "run manifest", "summary")
 EXPECTED_FINAL_ROWS = 156
 
 STAGE1_MODULES = ("data_ingestion", "acquisition", "ckan", "ons_client", "ons_generation", "ons_classification", "ons_solar_gap", "ons_mmgd_probe", "mcti_client", "manual_ingestion", "aneel_client",
@@ -91,6 +95,7 @@ class Context:
     processed: Path
     logs: Path
     tables: Path
+    hash_cache: HashCache | None = None  # metadata pre-filter for large data files (None = every file is hashed in full)
 
     @classmethod
     def build(cls, create: bool) -> Context:
@@ -118,7 +123,7 @@ def _config_hashes() -> dict[str, str]:
 
 
 def _fp_stage1(ctx: Context) -> dict:
-    return {"inputs": {**{f"raw/{k}": v for k, v in prov.tree_hashes(ctx.raw).items()}, **_config_hashes()}, "decisions": prov.decision_hashes(STAGE1_DECISIONS), "code": prov.code_hashes(STAGE1_MODULES), "params": {}}
+    return {"inputs": {**{f"raw/{k}": v for k, v in prov.tree_hashes(ctx.raw, cache=ctx.hash_cache).items()}, **_config_hashes()}, "decisions": prov.decision_hashes(STAGE1_DECISIONS), "code": prov.code_hashes(STAGE1_MODULES), "params": {}}
 
 
 def _out_stage1(ctx: Context) -> dict[str, Path]:
@@ -128,7 +133,7 @@ def _out_stage1(ctx: Context) -> dict[str, Path]:
 def _fp_calibration(ctx: Context) -> dict:
     inputs = {}
     for d in RAW_ONS_INPUTS:
-        inputs.update({f"raw/ons/{d}/{k}": v for k, v in prov.tree_hashes(ctx.raw / "ons" / d, (".parquet",)).items()})
+        inputs.update({f"raw/ons/{d}/{k}": v for k, v in prov.tree_hashes(ctx.raw / "ons" / d, (".parquet",), cache=ctx.hash_cache).items()})
     return {"inputs": inputs, "decisions": prov.decision_hashes(CALIBRATION_DECISIONS), "code": prov.code_hashes(CALIBRATION_MODULES), "params": {"base_year": 2025, "panel_start": "2022-01-01", "panel_cache": "rebuilt"}}
 
 
@@ -137,7 +142,7 @@ def _out_calibration(ctx: Context) -> dict[str, Path]:
 
 
 def _fp_projection(ctx: Context) -> dict:
-    inputs = prov.file_hashes({f"processed/{n}": ctx.processed / n for n in CALIBRATION_PROCESSED})
+    inputs = prov.file_hashes({f"processed/{n}": ctx.processed / n for n in CALIBRATION_PROCESSED}, ctx.hash_cache)
     inputs["config/scenarios.yaml"] = _config_hashes()["config/scenarios.yaml"]
     return {"inputs": inputs, "decisions": prov.decision_hashes(PROJECTION_DECISIONS), "code": prov.code_hashes(PROJECTION_MODULES), "params": {"recalibrate": False, "years": [2025, 2030, 2040, 2050]}}
 
@@ -148,7 +153,7 @@ def _out_projection(ctx: Context) -> dict[str, Path]:
 
 def _fp_results(ctx: Context) -> dict:
     ups = {f"processed/{n}": ctx.processed / n for n in (OPTION_E, f"{OPTION_E}.limitations.json", "mcti_average_factor_annual.parquet", "mcti_margin_factors.parquet", "classification_available.json")}
-    inputs = prov.file_hashes(ups)
+    inputs = prov.file_hashes(ups, ctx.hash_cache)
     inputs["config/scenarios.yaml"] = _config_hashes()["config/scenarios.yaml"]
     return {"inputs": inputs, "decisions": prov.decision_hashes(RESULTS_DECISIONS), "code": prov.code_hashes(RESULTS_MODULES), "params": {"central_factor_year": 2025, "sensitivity": "mean_2021_2025"}}
 
@@ -296,7 +301,7 @@ def decide_stage(ctx: Context, args: argparse.Namespace, spec: StageSpec) -> pro
     """Skip/run decision of one stage against the files on disk NOW. It is evaluated just before the stage, never in advance, so a stage sees the outputs its upstream stages have just written."""
     if spec.key == "stage1" and args.skip_stage1:
         return prov.Decision("skip", "cached", "--skip-stage1: explicit partial run, existing Stage 1 products reused")
-    return prov.decide(ctx.processed, spec.key, spec.fingerprint(ctx), spec.outputs(ctx), force=_forced(args, spec), trust_blocker=spec.trust_blocker(args))
+    return prov.decide(ctx.processed, spec.key, spec.fingerprint(ctx), spec.outputs(ctx), force=_forced(args, spec), trust_blocker=spec.trust_blocker(args), cache=ctx.hash_cache)
 
 
 def plan(ctx: Context, args: argparse.Namespace) -> list[tuple[StageSpec, prov.Decision]]:
@@ -337,6 +342,8 @@ def run_pipeline(args: argparse.Namespace, actions: dict[str, Callable] | None =
     """Run the pipeline. `actions` overrides the stage callables (tests); it can only replace the callables, never the gates, the skip decision or the reference check."""
     actions = {**DEFAULT_ACTIONS, **(actions or {})}
     ctx = Context.build(create=not args.dry_run)
+    if not getattr(args, "no_hash_cache", False):
+        ctx = replace(ctx, hash_cache=HashCache(default_path(ctx.processed), ctx.root))
     record = RunRecord(datetime.now(timezone.utc).isoformat(), str(ctx.root), {k: v for k, v in vars(args).items()}, partial=bool(args.skip_stage1))
     _say(f"CurtailMit pipeline | database root: {ctx.root}")
     stage_name = "pre-check"
@@ -361,7 +368,7 @@ def run_pipeline(args: argparse.Namespace, actions: dict[str, Callable] | None =
                 if missing:
                     raise PipelineError(f"--skip-stage1: Stage 1 products missing: {missing}", {"missing": missing})
                 stamp = prov.read_stamp(ctx.processed, "stage1")
-                verified = bool(stamp) and not prov.compare(stamp, _fp_stage1(ctx), _out_stage1(ctx))
+                verified = bool(stamp) and not prov.compare(stamp, _fp_stage1(ctx), _out_stage1(ctx), ctx.hash_cache)
                 rec.detail += "; stamp verified" if verified else "; products NOT verified (no current stamp)"
             elif dec.action == "run":
                 t0 = time.perf_counter()
@@ -371,7 +378,7 @@ def run_pipeline(args: argparse.Namespace, actions: dict[str, Callable] | None =
                 absent = [k for k, p in outs.items() if not Path(p).is_file()]
                 if absent:
                     raise PipelineError(f"stage {spec.key} finished but did not produce {absent}", {"missing": absent})
-                prov.write_stamp(ctx.processed, spec.key, spec.fingerprint(ctx), outs, extra if isinstance(extra, dict) else {})
+                prov.write_stamp(ctx.processed, spec.key, spec.fingerprint(ctx), outs, extra if isinstance(extra, dict) else {}, cache=ctx.hash_cache)
             _say(f"[{i}/4] {spec.key:<12} {rec.line}")
             record.stages.append(rec.__dict__)
         stage_name = "reference-check"
@@ -396,6 +403,9 @@ def run_pipeline(args: argparse.Namespace, actions: dict[str, Callable] | None =
         path = _write_record(ctx, record)
         logger.error("PIPELINE FAILED at %s: %s: %s (record: %s)", stage_name, type(exc).__name__, exc, path)
         raise
+    finally:
+        if ctx.hash_cache is not None and not args.dry_run:
+            ctx.hash_cache.save()  # only a metadata pre-filter: failing to save it never changes a result, but it is not swallowed silently
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------- CLI
@@ -407,6 +417,7 @@ def build_parser() -> argparse.ArgumentParser:
     for name in ("stage1", "calibration", "projection", "results"):
         p.add_argument(f"--force-{name}", action="store_true", help=f"Recompute the {name} stage regardless of a valid stamp.")
     p.add_argument("--force-all", action="store_true", help="Recompute every stage.")
+    p.add_argument("--no-hash-cache", action="store_true", help="Hash every data file in full: the size / mtime pre-filter (processed/pipeline_stamps/hash_cache.json) is neither read nor written. Use on network shares or before a submission run.")
     p.add_argument("--dry-run", action="store_true", help="Validate configuration, imports and gate wiring and print the skip/run plan; executes no stage and writes nothing.")
     return p
 

@@ -419,6 +419,59 @@ Acceptance:
 
 > **The sentence "Do not change this schema" in the Task 13 text above (about `results_writer.ResultsRow`) is superseded by decision D27 (adopted 2026-10-27, option A).** It was written before D23-D26 and the horizon-dependent ranges; the original text is kept unchanged above for the record. The legacy `ResultsRow` stays importable and tested, marked DEPRECATED; `results_writer.py` now also holds the long-format production writer (central value, conditional range with a mandatory `range_basis`, per-row `known_limitations` / `calibrated_label` / support status, OM and CM as separate quantities). Also decided: D28 (energy range applied after the OM/CM split; emission factors fixed point values outside the range) and D29 (MCTI factor year 2025 central, 2021-2025 mean as a labelled sensitivity). Task 13 Parts A and B were implemented as described in `docs/task13_design.md` and `docs/methodology.md` section 2.3k; Part C (reports and figures) was explicitly left out of Task 13 and is deferred to a later task (Task 13B or later).
 
+## Task 13B-1 Addendum: Record Design Decisions
+
+Context: `docs/task13b_design.md` (commit `6f7a772`) raised 8 open questions in
+Section 9. Decisions have been made by the user. This is a documentation-only
+addendum, not a re-opening of the design.
+
+Instructions:
+1. Append a new section to `docs/task13b_design.md` titled
+   "## Update (Task 13B-1 Addendum — Decisions, <date>)". Do NOT edit or
+   delete Section 9 or any other existing content (append-only rule).
+   This new section must reference each of the 8 open questions from
+   Section 9 by number and record the resolution for each:
+   - Q1: Visual style V1 approved. The `FORBIDDEN_LANGUAGE` test gets a
+     narrow, literal exception for the exact string "not a confidence
+     interval" (not a general relaxation of the filter). Add a code comment
+     referencing D24 explaining the exception exists because the phrase
+     explicitly *denies* being a confidence interval.
+   - Q2: No historical 2022-2025 overlay in F1 for now. Closed decision,
+     not pending.
+   - Q3: Backtest figure (11E2) approved as supplement S2. A small fixture
+     dataset will need to be built since the numbers currently only exist
+     as analysis output.
+   - Q4: F3 becomes panel (c) of F2, not a separate figure.
+   - Q5: `limitation:` and `theme:` fields will be added to
+     `config/discovered_sources.yaml` entries D23-D35 (not a code mapping),
+     but the schema and generator consuming them will be designed and
+     implemented as part of Task 16 (see `docs/task16_design.md` once it
+     exists), not as part of Task 13B directly. Flag this dependency
+     explicitly in the addendum.
+   - Q6: No methodological-journey comparison figure. Text-only in
+     `docs/methodology.md` (already present in section 2.3k).
+   - Q7: DeCarbon figure standards (DPI, column width, font size, color
+     palette) remain UNCONFIRMED pending manual verification by the user
+     of the author guide. Do not mark Task 13B as complete until this is
+     confirmed or explicitly waived by the user.
+   - Q8: Remove the "largest observed value" (r_max) dashed reference line
+     from the coverage figure design. Do not add an `r_max` column to the
+     Option E production table.
+
+2. Run the full unit test suite (`pytest`) and `ruff check` on `src` and
+   `tests` to confirm this documentation-only change introduces no
+   regression (expected: no change, since no code was touched).
+
+3. Check the GitHub Actions status for commit `6f7a772` (the already-pushed
+   `task13b_design.md` commit) and report whether it is green.
+
+4. Commit this addendum with message referencing "Task 13B-1 addendum:
+   record design decisions (no code changes)". Push.
+
+5. Report: full test count, ruff status, CI status of `6f7a772`, and
+   confirmation that Section 9 was not modified, only appended to.
+
+Do not begin Task 13B implementation yet — wait for the next command.
 ---
 
 ### TASK 14 — End-to-end orchestration + CI

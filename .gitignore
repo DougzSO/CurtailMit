@@ -11,3 +11,5 @@ dist/
 build/
 .vscode/*
 !.vscode/settings.json
+# Generated at run time by data_ingestion.run_stage1 (timestamped run report; Task 16, Q4): kept locally, not tracked
+docs/stage1_data_quality_report.md

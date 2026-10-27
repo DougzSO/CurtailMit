@@ -1,0 +1,93 @@
+{
+  "rows_total": 156,
+  "texts": [
+    {
+      "text": "Central values are more likely low than high: residual upward drift of the wind curtailment rate at fixed hourly VRE share (D25; +1.4 to +1.6 pp per year over 2022-2026, not corrected). Solar curve fitted on 30 months (shorter record than wind).",
+      "known_limitations": "D25;SOLAR_SHORT_RECORD",
+      "support_status": "within_support",
+      "n_rows": 104,
+      "scenario_years": [
+        [
+          "TA",
+          2025
+        ],
+        [
+          "TA",
+          2030
+        ],
+        [
+          "TB",
+          2025
+        ],
+        [
+          "TB",
+          2030
+        ],
+        [
+          "TB",
+          2040
+        ],
+        [
+          "TG",
+          2025
+        ],
+        [
+          "TG",
+          2030
+        ],
+        [
+          "TG",
+          2040
+        ]
+      ]
+    },
+    {
+      "text": "Central values are more likely low than high: residual upward drift of the wind curtailment rate at fixed hourly VRE share (D25; +1.4 to +1.6 pp per year over 2022-2026, not corrected). Solar curve fitted on 30 months (shorter record than wind). Part of the projected curtailment (38 percent) comes from hours with no historical analogue (partially_out_of_support).",
+      "known_limitations": "D25;SOLAR_SHORT_RECORD",
+      "support_status": "partially_out_of_support",
+      "n_rows": 13,
+      "scenario_years": [
+        [
+          "TA",
+          2040
+        ]
+      ]
+    },
+    {
+      "text": "Central values are more likely low than high: residual upward drift of the wind curtailment rate at fixed hourly VRE share (D25; +1.4 to +1.6 pp per year over 2022-2026, not corrected). Solar curve fitted on 30 months (shorter record than wind). Part of the projected curtailment (76 percent) comes from hours with no historical analogue (mostly_out_of_support). 2050 values are a range conditional on a flexibility assumption (phi 1.5 to L=1), not a calibrated forecast; the emission factor is a fixed point value (D28).",
+      "known_limitations": "D25;SOLAR_SHORT_RECORD",
+      "support_status": "mostly_out_of_support",
+      "n_rows": 13,
+      "scenario_years": [
+        [
+          "TA",
+          2050
+        ]
+      ]
+    },
+    {
+      "text": "Central values are more likely low than high: residual upward drift of the wind curtailment rate at fixed hourly VRE share (D25; +1.4 to +1.6 pp per year over 2022-2026, not corrected). Solar curve fitted on 30 months (shorter record than wind). Part of the projected curtailment (62 percent) comes from hours with no historical analogue (mostly_out_of_support). 2050 values are a range conditional on a flexibility assumption (phi 1.5 to L=1), not a calibrated forecast; the emission factor is a fixed point value (D28).",
+      "known_limitations": "D25;SOLAR_SHORT_RECORD",
+      "support_status": "mostly_out_of_support",
+      "n_rows": 13,
+      "scenario_years": [
+        [
+          "TB",
+          2050
+        ]
+      ]
+    },
+    {
+      "text": "Central values are more likely low than high: residual upward drift of the wind curtailment rate at fixed hourly VRE share (D25; +1.4 to +1.6 pp per year over 2022-2026, not corrected). Solar curve fitted on 30 months (shorter record than wind). Part of the projected curtailment (53 percent) comes from hours with no historical analogue (mostly_out_of_support). 2050 values are a range conditional on a flexibility assumption (phi 1.5 to L=1), not a calibrated forecast; the emission factor is a fixed point value (D28).",
+      "known_limitations": "D25;SOLAR_SHORT_RECORD",
+      "support_status": "mostly_out_of_support",
+      "n_rows": 13,
+      "scenario_years": [
+        [
+          "TG",
+          2050
+        ]
+      ]
+    }
+  ]
+}

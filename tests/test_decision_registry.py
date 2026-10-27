@@ -35,7 +35,10 @@ def test_yaml_ids_and_statuses_are_reflected_in_the_register_without_mismatch():
 
 
 def test_generated_register_in_the_document_is_current():
-    assert dr.current_block() == dr.render(dr.collect()), "docs/reproducibility.md is out of date: python -m curtailmit.decision_registry --write"
+    from curtailmit import doc_generation as gen
+
+    assert dr.current_block() == gen.render_block(gen.BLOCKS[dr.BLOCK_ID], gen.Sources()), "docs/reproducibility.md is out of date: python -m curtailmit.doc_generation --write"
+    assert dr.render(dr.collect()) in dr.current_block()
 
 
 def test_adopted_decisions_from_d27_on_state_where_they_are_implemented():
@@ -124,7 +127,7 @@ def test_the_real_yaml_has_no_duplicate_keys():
 
 def test_update_document_rewrites_only_the_marked_block(tmp_path):
     doc = tmp_path / "r.md"
-    doc.write_text(f"before\n{dr.START}\nstale\n{dr.END}\nafter\n", encoding="utf-8")
+    doc.write_text("before\n<!-- GENERATED:BEGIN id=decision-register -->\nstale\n<!-- GENERATED:END id=decision-register -->\nafter\n", encoding="utf-8")
     y = _yaml(tmp_path, '  D4:\n    status: pending\n    topic: "Fourth"\n')
     assert dr.update_document(doc, yaml_path=y, roadmap_path=_roadmap(tmp_path)) is True
     text = doc.read_text(encoding="utf-8")

@@ -14,3 +14,7 @@ Task 15 (documentation-sync audit finding 11). The acceptance criteria of `docs/
 
 - "5 anchor points per scenario" (roadmap section 7, methodology 3.7) -> the production table has 4 projection years per scenario (D2 grid without the 2020 anchor); see criterion 5.
 - "Calibrated C(P) parameters produced by Stage 2" (roadmap section 8) -> the fitted parameters are the four hourly curves `processed/hourly_curve_{wind,solar}[_L1].json` (see `docs/methodology.md` section 2.3j for the values).
+
+## Task 16 (documentation generation, stamp pre-filter)
+
+Task 16 does not correspond to any of the five acceptance criteria of `docs/roadmap.md` section 7: it adds generated documentation blocks (`curtailmit.doc_generation`) and a hashing pre-filter (`curtailmit.hash_cache`), neither of which changes a result. The table above is unchanged.
