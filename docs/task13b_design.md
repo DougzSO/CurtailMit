@@ -284,3 +284,28 @@ Appended; sections 1-9 and the addendum above are unchanged. **Implemented but N
 - `docs/limitations_summary.md` is produced by the Task 16 mechanism (`python -m curtailmit.doc_generation --check|--write`; blocks `limitations-themes`, `limitations-appendix`, `limitations-row-caveats`), with the fixture-based CI check and the integration test against the live production table that Task 16 delivered. No second mechanism was built.
 
 **Not testable automatically (manual checklist, in the Task 13B report):** whether V1 reads as "not an interval" to a person; legibility at 90 / 190 mm; label overlap; greyscale and colour-blind rendering; opening the PDF / SVG / PNG; the DeCarbon author guide.
+
+---
+
+## Task 13B-finalize - DeCarbon raster specification confirmed (2026-10-27)
+
+Appended; everything above is unchanged (the "PROVISIONAL" wording of the previous status section is superseded for the entries below, not rewritten).
+
+**Provenance, stated honestly:** the specification below was retrieved by the user from the DeCarbon author guide and supplied to the project as a text excerpt (source: user-provided excerpt, not a URL). It was not fetched or verified by the project tooling, and the guide itself was not re-read; the earlier automated fetch had returned HTTP 403 (section 1.4).
+
+| item | confirmed specification |
+|---|---|
+| halftone art (bitmap) | 300 DPI |
+| combination art (line plus continuous tone / shading) | 500 DPI |
+| line art (pure line / text, no shading) | 1000 DPI |
+| single column | 90 mm |
+| 1.5 column | 140 mm |
+| double column | 190 mm |
+
+**Deliberate conservative choice.** The figures combine hatched and tinted regions with line work, which is ambiguous between "combination" and "line art". The ambiguity is removed rather than classified figure by figure: the strictest category (line art, **1000 DPI**) is applied uniformly to every PNG (`figures.PNG_DPI`). The submission master is expected to be the vector PDF / SVG, which is resolution-independent; the PNG is a conformance / convenience copy.
+
+**Column assignment (a layout judgment, re-renderable without touching any data):** `figures.FIGURE_WIDTH_MM` = F1 190, F2 190 (three panels), F4 190 (three panels), S1 190 (three panels with a long legend), S2 140 (two panels). Changing an entry only re-renders.
+
+**Still the project's own choices, not mandated by the excerpt:** font size (DejaVu Sans 7.5 pt, floor 6 pt) and the Okabe-Ito palette. They are final unless the user says otherwise and are recorded as `PROVISIONAL_STANDARDS = {font_size, color_palette}` in `figures.py`; the confirmed entries are `CONFIRMED_STANDARDS = {dpi, column_width_mm}`. `figures_manifest.json` records both.
+
+**Automated checks added** (`src/curtailmit/figure_checks.py`, `python -m curtailmit.figure_checks`; tests in `tests/test_figure_checks.py`): text bounding-box overlap and text leaving the figure, legend over data, every plotted number against the source tables (rtol 1e-12), no placeholder text, units on y labels, no OM + CM wording, no hydrogen content (D30 stays a table), forbidden vocabulary with the single approved literal. These do not replace looking at the figures.

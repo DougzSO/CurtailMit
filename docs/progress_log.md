@@ -253,3 +253,9 @@ into `config/scenarios.yaml`.
 - The figure-text check allows the single literal `not a confidence interval` (D24: an explicit denial) and nothing else; `results_writer.FORBIDDEN_LANGUAGE` and the table checks are unchanged.
 - `limitations_summary.md` needed no new code: Task 16's generator and its fixture / integration checks already cover it.
 - DeCarbon figure standards are PROVISIONAL (addendum Q7). Task 13B stays open until the user reviews the figures visually and confirms or waives those standards (`docs/task13b_design.md`, "Task 13B - implementation status").
+
+## Task 13B-finalize (2026-10-27) - DeCarbon raster standards confirmed, automated figure checks
+
+- Raster specification recorded in `docs/task13b_design.md` (user-provided excerpt of the author guide, not a URL: 300 / 500 / 1000 dpi for halftone / combination / line art; 90 / 140 / 190 mm columns). The strictest class (1000 dpi) is applied to every PNG as a deliberate conservative choice; the vector PDF / SVG is the expected submission master. `figures.CONFIRMED_STANDARDS` (dpi, column width) vs `PROVISIONAL_STANDARDS` (font size, palette: the project's own choices); `figures.FIGURE_WIDTH_MM` assigns F1, F2, F4, S1 190 mm and S2 140 mm.
+- `src/curtailmit/figure_checks.py`: text bounding-box overlap, plotted numbers against the source tables, placeholders, units, OM + CM wording, forbidden vocabulary. S2 periods are now in chronological order; F4 panels carry their own unit label. Draft captions (no placeholders) were already in place since 13B-prep.
+- Task 13B stays open: a final human look at the regenerated files.

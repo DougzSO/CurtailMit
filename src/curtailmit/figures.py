@@ -12,8 +12,8 @@ Data discipline: every number plotted is read from `final_results` (validated wi
 with the central value as a diamond; the 2025-2040 empirical annual-backtest band is a solid, tinted bar with a dot. The central value is NOT at the midpoint of the 2050 range and must not be moved
 there: the table says where it is (D25). Nothing in a figure may suggest confidence-interval semantics. The one phrase the text check lets through is the literal negation `not a confidence interval`.
 
-PROVISIONAL (addendum Q7): the DeCarbon figure standards (resolution, column width, font size, palette) were NOT confirmed against the journal's guide for authors. The constants in the block below are
-the defaults proposed in section 1.4 of the design (Elsevier general artwork rules) and are to be confirmed or waived by the user; they live in this one place so that a correction is a one-line change.
+DeCarbon standards (Task 13B-finalize): the bitmap resolution and the column widths are CONFIRMED from the author-guide excerpt the user supplied (halftone 300 dpi, combination 500 dpi, line art 1000 dpi; columns 90 / 140 / 190 mm).
+Font size (7.5 pt, floor 6 pt) and the Okabe-Ito palette were not in that excerpt: they are the project's own accessibility choices, listed in PROVISIONAL_STANDARDS and changeable in the block below.
 
     python -m curtailmit.figures [--only F1,F2,F4,S1,S2] [--out-dir DIR] [--dpi N]      (also: python scripts/generate_figures.py)
 
@@ -47,11 +47,20 @@ from curtailmit import results_writer as rw
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BACKTEST_FIXTURE = PROJECT_ROOT / "tests" / "fixtures" / "figures" / "backtest_annual.csv"
 
-# ---------------------------------------------------------------------------------------------------------------------- PROVISIONAL DeCarbon standards (addendum Q7: UNCONFIRMED)
-PROVISIONAL_STANDARDS = True  # to be set to False only after the user confirms or waives the journal check; recorded in figures_manifest.json
+# ------------------------------------------------------------------------------------------------------------------------------------ DeCarbon figure standards (Task 13B-finalize)
+# Source of the CONFIRMED entries: an excerpt of the DeCarbon author guide supplied by the user (not a URL). See docs/task13b_design.md, "Task 13B-finalize".
+CONFIRMED_STANDARDS = {"dpi": True, "column_width_mm": True}
+# Not in the excerpt: the project's own accessibility choices, final unless the user says otherwise.
+PROVISIONAL_STANDARDS = {"font_size": True, "color_palette": True}
 SINGLE_COLUMN_MM = 90.0
+ONE_AND_HALF_COLUMN_MM = 140.0
 DOUBLE_COLUMN_MM = 190.0
-PNG_DPI = 600  # vector PDF / SVG are the masters; the raster is a fallback
+RASTER_DPI_BY_ART = {"halftone": 300, "combination": 500, "line": 1000}  # the guide's minima per art type
+# The figures mix hatched / tinted regions with line work, which sits between "combination" and "line art". The ambiguity is removed, not resolved figure by figure: the STRICTEST category (line art, 1000 dpi)
+# is applied to every PNG (the conservative choice: more pixels rather than the risk of a rejected raster). The submission master is expected to be the vector PDF / SVG, which has no resolution; the PNG is a conformance / convenience copy.
+PNG_DPI = RASTER_DPI_BY_ART["line"]
+# Target width per figure: a layout judgment by content density (multi-panel or long-legend figures take the double column). Changing an entry only re-renders; no data is re-derived.
+FIGURE_WIDTH_MM = {"F1": DOUBLE_COLUMN_MM, "F2": DOUBLE_COLUMN_MM, "F4": DOUBLE_COLUMN_MM, "S1": DOUBLE_COLUMN_MM, "S2": ONE_AND_HALF_COLUMN_MM}
 FONT_FAMILY = "DejaVu Sans"  # ships with matplotlib: no system font needed
 FONT_PT = 7.5
 MIN_FONT_PT = 6.0
@@ -230,6 +239,11 @@ def scheme_group(scheme: str) -> str:
     return SCHEME_GROUPS[0] if s.startswith("in-sample") else SCHEME_GROUPS[1] if s.startswith("leave-one-year-out") else SCHEME_GROUPS[2]
 
 
+def period_order(d: pd.DataFrame) -> list[str]:
+    """Chronological x order of the evaluation periods: by year, a partial-year window after the full year of the same calendar year."""
+    return sorted(dict.fromkeys(d["period"].astype(str)), key=lambda p: (int(p[:4]), "(" in p))
+
+
 def backtest_frame(path: Path | None = None) -> pd.DataFrame:
     """S2 data: observed vs hourly-model annual curtailment (TWh) from the committed analysis fixture. ANALYSIS-DERIVED (Task 11E2), not production pipeline output."""
     path = Path(path) if path is not None else BACKTEST_FIXTURE
@@ -362,7 +376,7 @@ def _v1_handles() -> list:
 # ============================================================================================================================================================================ figure builders
 def figure_f1(fr: pd.DataFrame):
     h = headline_frame(fr)
-    fig, ax = _fig(DOUBLE_COLUMN_MM, 3.5)
+    fig, ax = _fig(FIGURE_WIDTH_MM["F1"], 3.5)
     draw_series(ax, h, "Curtailed energy (TWh)")
     ax.legend(handles=_v1_handles(), loc="upper left", frameon=False, ncol=1, handlelength=1.8)
     fig.tight_layout()
@@ -371,10 +385,10 @@ def figure_f1(fr: pd.DataFrame):
 
 def figure_f4(fr: pd.DataFrame):
     m = mitigation_frame(fr)
-    fig, axes = _fig(DOUBLE_COLUMN_MM, 3.5, ncols=3)
+    fig, axes = _fig(FIGURE_WIDTH_MM["F4"], 3.5, ncols=3)
     titles = {"om": "(a) Operating margin (OM) factor", "cm": "(b) Combined margin (CM) factor", "avg": "(c) Average factor (reference)"}
     for ax, kind in zip(axes, ("om", "cm", "avg"), strict=True):
-        draw_series(ax, m[m["kind"] == kind], "Avoided-emission deficit (MtCO$_2$)" if kind == "om" else "", note="conditional")
+        draw_series(ax, m[m["kind"] == kind], "Avoided-emission deficit (MtCO$_2$)", note="conditional")
         ax.set_title(titles[kind], fontsize=FONT_PT, loc="left")
     fig.legend(handles=_v1_handles(), loc="lower center", frameon=False, ncol=2, handlelength=1.8, bbox_to_anchor=(0.5, 0.0))
     fig.tight_layout(rect=(0, 0.14, 1, 1))
@@ -384,7 +398,7 @@ def figure_f4(fr: pd.DataFrame):
 def figure_f2(oe: pd.DataFrame):
     cov = coverage_frame(oe)
     dec = decomposition_frame(cov)
-    fig, (a, b, c) = _fig(DOUBLE_COLUMN_MM, 3.4, ncols=3, gridspec_kw={"width_ratios": [1.25, 1, 0.9]})
+    fig, (a, b, c) = _fig(FIGURE_WIDTH_MM["F2"], 3.4, ncols=3, gridspec_kw={"width_ratios": [1.25, 1, 0.9]})
     xs = np.arange(len(YEARS))
     ticks = [str(y) if y != 2050 else "2050\n(cond.)" for y in YEARS]
     w = 0.26
@@ -392,10 +406,11 @@ def figure_f2(oe: pd.DataFrame):
         d = cov[cov["scenario"] == sc].set_index("year").reindex(YEARS)
         pos = xs + (i - 1) * w
         bars = a.bar(pos, d["pct_hours_inside_support_wind"], w * 0.92, color=OKABE_ITO[sc], label=sc, zorder=2)
-        for rect, v in zip(bars, d["pct_hours_inside_support_wind"], strict=True):
+        for rect, v, yr in zip(bars, d["pct_hours_inside_support_wind"], YEARS, strict=True):
+            rect.set_gid(f"hours-{sc}-{yr}")
             a.text(rect.get_x() + rect.get_width() / 2, v + 1.5, f"{v:.0f}", ha="center", va="bottom", fontsize=MIN_FONT_PT, rotation=90)
-        b.plot(xs, d["pct_curtailment_inside_support_wind"], "-o", color=OKABE_ITO[sc], lw=1.4, ms=3.5, label=f"{sc} wind")
-        b.plot(xs, d["pct_curtailment_inside_support_solar"], "--s", color=OKABE_ITO[sc], lw=1.0, ms=3, mfc="white", label=f"{sc} solar")
+        b.plot(xs, d["pct_curtailment_inside_support_wind"], "-o", color=OKABE_ITO[sc], lw=1.4, ms=3.5, label=f"{sc} wind", gid=f"energy-wind-{sc}")
+        b.plot(xs, d["pct_curtailment_inside_support_solar"], "--s", color=OKABE_ITO[sc], lw=1.0, ms=3, mfc="white", label=f"{sc} solar", gid=f"energy-solar-{sc}")
     a.set_xticks(xs, ticks)
     a.set(ylim=(0, 128), ylabel="Projected hours inside the observed range (%)")
     a.legend(frameon=False, ncol=3, loc="upper center", handlelength=1.2)
@@ -409,8 +424,10 @@ def figure_f2(oe: pd.DataFrame):
     for i, sc in enumerate(SCENARIOS):
         d = dec[dec["scenario"] == sc].set_index("year").reindex(yrs)
         pos = cx + (i - 1) * w
-        c.bar(pos, d["curt_in_support_total_twh"], w * 0.92, color=OKABE_ITO[sc], zorder=2)
-        c.bar(pos, d["curt_out_support_total_twh"], w * 0.92, bottom=d["curt_in_support_total_twh"], facecolor="white", edgecolor=OKABE_ITO[sc], linewidth=0.9, zorder=2)
+        for rect, yr in zip(c.bar(pos, d["curt_in_support_total_twh"], w * 0.92, color=OKABE_ITO[sc], zorder=2), yrs, strict=True):
+            rect.set_gid(f"in-{sc}-{yr}")
+        for rect, yr in zip(c.bar(pos, d["curt_out_support_total_twh"], w * 0.92, bottom=d["curt_in_support_total_twh"], facecolor="white", edgecolor=OKABE_ITO[sc], linewidth=0.9, zorder=2), yrs, strict=True):
+            rect.set_gid(f"out-{sc}-{yr}")
         for p, tot, pct in zip(pos, d["curt_in_support_total_twh"] + d["curt_out_support_total_twh"], d["pct_beyond_support"], strict=True):
             c.text(p, tot + 6, f"{pct:.0f}%", ha="center", va="bottom", fontsize=MIN_FONT_PT)
     c.set_xticks(cx, [str(y) if y != 2050 else "2050\n(cond.)" for y in yrs])
@@ -423,7 +440,7 @@ def figure_f2(oe: pd.DataFrame):
 
 def figure_s1(fr: pd.DataFrame):
     s = supplement_frame(fr)
-    fig, axes = _fig(DOUBLE_COLUMN_MM, 3.0, ncols=3, sharey=True)
+    fig, axes = _fig(FIGURE_WIDTH_MM["S1"], 3.0, ncols=3, sharey=True)
     xs = {2025: 0, 2030: 1, 2040: 2}
     for ax, sc in zip(axes, SCENARIOS, strict=True):
         d = s[s["scenario"] == sc]
@@ -449,10 +466,10 @@ GROUP_STYLE = {SCHEME_GROUPS[0]: ("o", OKABE_ITO_EXTRA["orange"], "none"), SCHEM
 
 def figure_s2(path: Path | None = None):
     bt = backtest_frame(path)
-    fig, axes = _fig(DOUBLE_COLUMN_MM, 3.2, ncols=2)
+    fig, axes = _fig(FIGURE_WIDTH_MM["S2"], 3.4, ncols=2)
     for ax, tech in zip(axes, ("wind", "solar"), strict=True):
         d = bt[bt["tech"] == tech]
-        periods = list(dict.fromkeys(d["period"].astype(str)))
+        periods = period_order(d)
         xs = {p: i for i, p in enumerate(periods)}
         obs = d.drop_duplicates("period").set_index(d.drop_duplicates("period")["period"].astype(str))["obs_twh"]
         ax.bar([xs[p] for p in periods], [obs[p] for p in periods], 0.55, color="0.82", edgecolor="0.4", linewidth=0.5, zorder=1, label="observed", gid=f"observed-{tech}")
@@ -531,7 +548,7 @@ def build(only: Iterable[str] | None = None, final_results: Path | None = None, 
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         manifest = {}
-    manifest.update({"matplotlib": matplotlib.__version__, "png_dpi": dpi, "provisional_decarbon_standards": PROVISIONAL_STANDARDS})
+    manifest.update({"matplotlib": matplotlib.__version__, "png_dpi": dpi, "confirmed_decarbon_standards": CONFIRMED_STANDARDS, "provisional_decarbon_standards": PROVISIONAL_STANDARDS, "figure_width_mm": FIGURE_WIDTH_MM})
     manifest.setdefault("inputs", {}).update({k: {"path": p.as_posix(), "sha256": sha256_of(p)} for k, p in inputs.items()})
     manifest.setdefault("figures", {}).update({fid: {k: {"file": p.name, "sha256": sha256_of(p)} for k, p in files.items()} for fid, files in made.items()})
     manifest_path.write_text(json.dumps(manifest, indent=1, sort_keys=True), encoding="utf-8")
@@ -539,7 +556,7 @@ def build(only: Iterable[str] | None = None, final_results: Path | None = None, 
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Generate the article figures (Task 13B). DeCarbon figure standards are PROVISIONAL (see module docstring).")
+    ap = argparse.ArgumentParser(description="Generate the article figures (Task 13B). Raster resolution 1000 dpi and column widths follow the DeCarbon author guide (see module docstring).")
     ap.add_argument("--only", default="", help=f"comma-separated figure ids from {','.join(FIGURE_IDS)} (default: all)")
     ap.add_argument("--out-dir", type=Path, default=None, help="default: DATABASE_ROOT/outputs/figures")
     ap.add_argument("--final-results", type=Path, default=None)
@@ -553,7 +570,7 @@ def main(argv: list[str] | None = None) -> int:
     except (FigureInputError, FigureTextError) as exc:
         print(f"figures: refused: {exc}", file=sys.stderr)
         return 2
-    print(f"figures written: {', '.join(sorted(manifest['figures']))} (matplotlib {manifest['matplotlib']}; provisional DeCarbon standards: {manifest['provisional_decarbon_standards']})")
+    print(f"figures written: {', '.join(sorted(manifest['figures']))} (matplotlib {manifest['matplotlib']}; provisional: {sorted(manifest['provisional_decarbon_standards'])})")
     return 0
 
 

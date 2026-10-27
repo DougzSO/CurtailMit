@@ -56,7 +56,7 @@ python -m curtailmit.doc_generation --check   # generated documentation blocks v
 | `docs/orchestration.md` | the `curtailmit-run` command, skip logic, gates, CI |
 | `docs/roadmap.md`, `docs/progress_log.md`, `docs/claude_commands.md` | plan, history by task, task prompts (append-only history, with update notes) |
 | `docs/pre_submission_checklist.md` | open items to close by hand before submitting the article (ONS/MCTI licensing) |
-| `docs/task13b_design.md`, `src/curtailmit/figures.py` | article figures F1, F2, F4, S1, S2 (`python scripts/generate_figures.py`; implemented, NOT yet accepted: visual review and the DeCarbon figure standards are pending) |
+| `docs/task13b_design.md`, `src/curtailmit/figures.py` | article figures F1, F2, F4, S1, S2 (`python scripts/generate_figures.py`; implemented; raster 1000 dpi and column widths follow the DeCarbon author guide; NOT yet accepted: final human look pending; automated checks: `python -m curtailmit.figure_checks`) |
 | `docs/limitations_summary.md` | the limitations of the production model by theme, generated from the decisions and the output table caveats |
 | `docs/acceptance_criteria_status.md` | roadmap acceptance criteria against the production table |
 | `docs/data_dictionary.md` | output columns and run records |

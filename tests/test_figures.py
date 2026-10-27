@@ -23,7 +23,7 @@ matplotlib.use("Agg")
 
 PROJECT = Path(__file__).resolve().parents[1]
 FIXTURES = PROJECT / "tests" / "fixtures" / "figures"
-LOW_DPI = 40  # file-writing tests do not need 600 dpi; the dpi test does
+LOW_DPI = 40  # file-writing tests do not need the final 1000 dpi; the dpi test does
 
 
 @pytest.fixture(scope="module")
@@ -53,13 +53,17 @@ def test_the_figure_set_is_f1_f2_f4_s1_s2_and_tables_are_not_figures():
     assert matplotlib.get_backend().lower() == "agg"
 
 
-def test_decarbon_standards_are_marked_provisional_in_code_and_in_the_design_doc():
-    assert fg.PROVISIONAL_STANDARDS is True
+def test_decarbon_standards_split_confirmed_from_provisional_and_use_the_strictest_raster_class():
+    assert fg.CONFIRMED_STANDARDS == {"dpi": True, "column_width_mm": True}
+    assert fg.PROVISIONAL_STANDARDS == {"font_size": True, "color_palette": True}  # only what the author-guide excerpt did not cover
+    assert fg.RASTER_DPI_BY_ART == {"halftone": 300, "combination": 500, "line": 1000}
+    assert fg.PNG_DPI == 1000 == max(fg.RASTER_DPI_BY_ART.values())  # line art applied uniformly (conservative)
+    assert (fg.SINGLE_COLUMN_MM, fg.ONE_AND_HALF_COLUMN_MM, fg.DOUBLE_COLUMN_MM) == (90.0, 140.0, 190.0)
+    assert set(fg.FIGURE_WIDTH_MM) == set(fg.FIGURE_IDS) and set(fg.FIGURE_WIDTH_MM.values()) <= {90.0, 140.0, 190.0}
     src = (PROJECT / "src" / "curtailmit" / "figures.py").read_text(encoding="utf-8")
-    assert "PROVISIONAL" in src and "UNCONFIRMED" in src
-    assert (fg.SINGLE_COLUMN_MM, fg.DOUBLE_COLUMN_MM, fg.PNG_DPI) == (90.0, 190.0, 600)
+    assert "STRICTEST" in src and "vector" in src
     design = (PROJECT / "docs" / "task13b_design.md").read_text(encoding="utf-8")
-    assert "PROVISIONAL" in design and "Task 13B - implementation status" in design
+    assert "Task 13B-finalize" in design and "1000" in design and "user-provided excerpt" in design
 
 
 def test_matplotlib_is_a_declared_and_locked_dependency_and_no_new_dependency_was_added():
@@ -350,14 +354,14 @@ def test_every_figure_writes_pdf_svg_png_data_and_caption_with_embedded_fonts(fi
         assert files["caption"].read_text(encoding="utf-8").strip() == cap
 
 
-def test_png_is_written_at_600_dpi_and_the_figure_is_double_column_width(option_e, tmp_path):
+def test_png_is_written_at_1000_dpi_at_the_assigned_width(option_e, tmp_path):
     from PIL import Image
 
     fig, frame, cap = fg.figure_f2(option_e)
-    assert abs(fig.get_size_inches()[0] * 25.4 - fg.DOUBLE_COLUMN_MM) < 1e-6
+    assert abs(fig.get_size_inches()[0] * 25.4 - fg.FIGURE_WIDTH_MM["F2"]) < 1e-6
     files = fg.write_figure(fig, "F2_dpi", frame, cap, tmp_path)
     with Image.open(files["png"]) as im:
-        assert round(im.info["dpi"][0]) == 600 and im.size[0] == round(fg.DOUBLE_COLUMN_MM / 25.4 * 600)
+        assert round(im.info["dpi"][0]) == 1000 and im.size[0] == round(fg.FIGURE_WIDTH_MM["F2"] / 25.4 * 1000)
 
 
 def test_smallest_font_in_any_figure_is_at_least_the_minimum(final_results, option_e):
@@ -384,7 +388,7 @@ def test_build_records_hashes_and_the_provisional_flag_in_the_manifest(final_res
     option_e.to_parquet(oe_path)
     out = tmp_path / "figs"
     m = fg.build(["F1", "F2"], final_results=fr_path, option_e=oe_path, out_dir=out, dpi=LOW_DPI)
-    assert m["provisional_decarbon_standards"] is True and m["matplotlib"] == matplotlib.__version__
+    assert m["provisional_decarbon_standards"] == fg.PROVISIONAL_STANDARDS and m["confirmed_decarbon_standards"] == fg.CONFIRMED_STANDARDS and m["figure_width_mm"] == fg.FIGURE_WIDTH_MM and m["matplotlib"] == matplotlib.__version__
     assert m["inputs"]["final_results"]["sha256"] == fg.sha256_of(fr_path) and m["inputs"]["option_e"]["sha256"] == fg.sha256_of(oe_path)
     assert set(m["figures"]) == {"F1", "F2"}
     for f in m["figures"]["F1"].values():
