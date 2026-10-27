@@ -276,3 +276,9 @@ Task 13 (Parts A and B) done: `results_writer.py` superseded in place (D27 A), l
 ## Update (Task 13-2) - closeout of Task 13
 
 D30 registered (hydrogen SEC treatment, extension of D28). The `central_inside_range = False` pattern for wind 2025-2040 is documented as an expected D25 effect. Task 13_pre was already complete. Task 13B (figures) and Task 14 await the user's sign-off.
+
+---
+
+## Update (Task 14-1) - design proposal for orchestration and CI; Task 14 awaits approval
+
+Design only (`docs/task14_design.md`, no code change). Findings: `scripts/run_pipeline.py` runs Stage 1 only (no retired-model logic); hourly calibration, Option E projection and final results have no entry point; the existing CI never passed (13 of 13 runs failed, remote 37 commits behind) and one default test depends on the local database. Pending decisions D31 (scope of end to end) and D32 (CI test isolation) registered. Task 14 starts only after the user answers section 6 of the design.

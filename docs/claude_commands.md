@@ -455,6 +455,12 @@ Acceptance:
 
 ---
 
+### Task 14 - DESIGN NOTE (2026-10-27, Task 14-1; not yet approved)
+
+> The Task 14 text above predates Tasks 11F and 13. `docs/task14_design.md` proposes the update: stage sequence Stage 1 -> hourly calibration -> Option E projection -> final results (not Stages 2-6 as numbered above), console script `curtailmit-run` with `scripts/run_pipeline.py` as shim, no `--integration` flag, and a CI that runs lint and unit tests only (integration tests need the local `curtailmit_database`). The original text is kept unchanged. Pending decisions: D31, D32.
+
+---
+
 ### TASK 15 — Reproducibility pass + documentation sync
 
 ```

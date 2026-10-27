@@ -211,3 +211,7 @@ into `config/scenarios.yaml`.
 ## Task 13-2 (2026-10) - closeout
 
 - Documentation, visibility and decision registration only; no computed value changed. `central_inside_range` confirmed as a first-class column of `final_results`; methodology 2.3k addenda (wind 2025-2040 effect, D30); D30 adopted (hydrogen SEC, scoped extension of D28); data dictionary notes. Task 13_pre confirmed already done (commit `6362db0`), test passing.
+
+## Task 14-1 (2026-10) - design of the orchestration command and CI
+
+- Design only: `docs/task14_design.md`. Investigated `scripts/run_pipeline.py` (Stage 1 only), stage inventory, existing `ci.yml` (all runs failed; integration tests correctly excluded; one leaking default test found with an empty DATABASE_ROOT). Pending D31, D32 in `config/discovered_sources.yaml`. No `src/`, test or workflow change.

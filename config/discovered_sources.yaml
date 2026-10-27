@@ -807,6 +807,33 @@ decisions:
       the SEC is fixed (consistent with D28). Hydrogen rows carry the same per-row caveats as every other row.
     implemented_in: "commits 57d9488 and cb58ba4 (Task 13): results_writer.build_final_results (h2_potential quantity, sec_sensitivity_* columns, range_basis); documented in docs/methodology.md 2.3k and docs/data_dictionary.md (Task 13-2)"
 
+  D31:
+    status: pending
+    date: "2026-10-27"
+    topic: "Scope of 'end to end' for the orchestration command (Task 14)"
+    source_task: "Task 14-1 (docs/task14_design.md sections 0.3, 0.4, 1)"
+    found: >
+      scripts/run_pipeline.py only calls run_stage1 (TODO comment for the rest; no retired-model logic). Hourly calibration, the Option E projection and the final results layer have no
+      runnable entry point; they exist only as tested functions. The analysis scripts (analysis/task11*.py) are throwaway diagnostics and the national/regional calibration is a labelled reference (D24).
+    options:
+      production_path_only: "Recommended: Stage 1 -> hourly calibration -> Option E projection -> final results + read-back validation. Wrappers live inside the orchestrator, no extra scripts."
+      with_references: "Optional --with-references mode that also runs the reference models. Not recommended: puts role=reference tables beside production outputs."
+      include_analysis_scripts: "Not recommended: diagnostics are not part of the reproducible production path."
+    working_reading: "production_path_only; PLD stays disabled (D10) and raises if enabled; figures and limitations report are Task 13B, run manifest is Task 15."
+  D32:
+    status: pending
+    date: "2026-10-27"
+    topic: "CI test isolation: a default test depends on the local database"
+    source_task: "Task 14-1 (docs/task14_design.md section 0.2)"
+    found: >
+      With an empty DATABASE_ROOT the default suite gives 1 failed, 355 passed, 14 deselected: tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote reads
+      processed/pte_curtailment_two_curves.parquet through analysis/task11e2_common.load_pte and is not marked integration. All 13 GitHub Actions runs to date failed (ruff at the last run) and
+      the remote is 37 commits behind local main, so the current code has never run in CI.
+    options:
+      make_test_synthetic: "Recommended: test-only change, monkeypatch load_pte with a small synthetic table; CI runs with an empty DATABASE_ROOT so other leaks fail loudly."
+      mark_integration: "Mark the test integration: simplest, but the helper loses CI coverage."
+    working_reading: "make_test_synthetic. Pushing the local commits (first green CI run) is the user's action and is not assumed by the design."
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false
