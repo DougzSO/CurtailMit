@@ -251,6 +251,9 @@ def _rng(values: Iterable[float], nd: int = 0, suffix: str = "") -> str:
     return fmt.format(lo) + suffix if lo == hi else f"{fmt.format(lo)}-{fmt.format(hi)}{suffix}"
 
 
+DRAFT = "[DRAFT caption, subject to revision.]"
+
+
 def caption_f1(h: pd.DataFrame) -> str:
     y50 = h[h["year"] == 2050]
     beyond = 100 * (1 - y50["in_support_fraction"])
@@ -258,8 +261,8 @@ def caption_f1(h: pd.DataFrame) -> str:
     partial = ""
     if len(ta40) and ta40["support_status"].iloc[0] != "within_support":
         partial = f" TA in 2040 is only partly inside the observed support ({100 * (1 - ta40['in_support_fraction'].iloc[0]):.0f} % of its curtailed energy lies beyond it; open marker)."
-    return (f"Figure X. Annual curtailed energy (TWh) projected by the hourly model for the scenarios TB, TA and TG. For 2025-2040 each bar is the empirical annual-backtest band (descriptive; not a coverage guarantee) "
-            f"around the central value (dot). {CONDITIONAL_NOTE}; the central value (diamond) is not at the midpoint of that range. "
+    return (f"{DRAFT} Figure F1. Projected annual curtailed energy (TWh) of wind and solar combined in Brazil for the three PTE scenarios (TB, TA, TG) in 2025, 2030, 2040 and 2050. For 2025-2040 each bar is the empirical annual-backtest band (descriptive; not a coverage guarantee) "
+            f"around the central value (dot). For 2050 the hatched box with a dashed outline is a conditional range (not a confidence interval) between two stated flexibility assumptions, and the diamond is the central value. {CONDITIONAL_NOTE}; the central value (diamond) is not at the midpoint of that range. "
             f"{_rng(beyond)} % of the projected 2050 curtailed energy comes from hours with no historical analogue.{partial}")
 
 
@@ -268,28 +271,28 @@ def caption_f2(cov: pd.DataFrame) -> str:
         return _rng(cov[cov["year"] == y]["pct_hours_inside_support_wind"])
 
     dec = decomposition_frame(cov)
-    return (f"Figure X. Where the hourly model is anchored in observation. (a) Share of the projected hours whose system-wide variable-renewable share of load lies inside the observed range, "
+    return (f"{DRAFT} Figure F2. Where the hourly model is anchored in observation. (a) Share of the projected hours whose system-wide variable-renewable share of load lies inside the observed range, "
             f"defined as the classes of 2 percentage points with at least {hourly_model.MIN_HOURS} observed hours (up to {cov['r_cap_wind'].iloc[0]:.0f} % of load); (b) share of the projected curtailed energy produced by hours inside that range, wind (solid) and solar (dashed); "
             f"(c) curtailed energy of 2040 and 2050 split into the part from hours inside and beyond the observed range. Observation covers {hours(2025)} % of the 2025 hours and {hours(2030)} % of the 2030 hours, "
             f"{hours(2040)} % of the 2040 hours and {hours(2050)} % of the 2050 hours; {_rng(cov[cov['year'] == 2050]['pct_curtailment_beyond_support_wind'])} % of the 2050 wind curtailment comes from hours with no historical analogue "
-            f"({_rng(dec[dec['year'] == 2050]['pct_beyond_support'])} % of the 2050 total). The boundary is reported explicitly: 2050 (cond. = conditional) is a conditional range, not a calibrated estimate.")
+            f"({_rng(dec[dec['year'] == 2050]['pct_beyond_support'])} % of the 2050 total). The boundary is reported explicitly: 2050 (cond. = conditional) is a conditional range (not a confidence interval), not a calibrated estimate.")
 
 
 def caption_f4(m: pd.DataFrame) -> str:
     y50 = m[(m["year"] == 2050) & (m["kind"] != "avg")]
-    return (f"Figure X. Avoided-emission deficit (MtCO2) from curtailed energy, with the operating-margin (a) and combined-margin (b) factors in separate panels: the two are alternative proxies for the marginal "
+    return (f"{DRAFT} Figure F4. Avoided-emission deficit (MtCO2) caused by curtailed wind and solar energy for the three PTE scenarios, with the operating-margin (a) and combined-margin (b) factors in separate panels: the two are alternative proxies for the marginal "
             f"emission factor and are never added (D28). Panel (c) gives the average-factor deficit for reference. Bars are the empirical annual-backtest band (descriptive; not a coverage guarantee) around the central "
-            f"value (dot); the emission factor is not included in the range. {CONDITIONAL_NOTE}; the central value (diamond) is not at its midpoint. "
+            f"value (dot); the emission factor is not included in the range. In 2050 the hatched box with a dashed outline is a conditional range (not a confidence interval). {CONDITIONAL_NOTE}; the central value (diamond) is not at its midpoint. "
             f"Central 2050 values (MtCO2): operating margin {_rng(y50[y50['kind'] == 'om']['central'])}, combined margin {_rng(y50[y50['kind'] == 'cm']['central'])}.")
 
 
 def caption_s1(s: pd.DataFrame) -> str:
-    return (f"Figure S1. Empirical annual-backtest band (narrow bars) and the nominal 80 % split-conformal supplement (wide bars) of the annual curtailed energy, 2025-2040; the supplement is empty in 2050. "
+    return (f"{DRAFT} Figure S1 (supplement). Empirical annual-backtest band (narrow bars) and the nominal 80 % split-conformal supplement (wide bars) of the annual curtailed energy, 2025-2040; the supplement is empty in 2050. "
             f"The supplement is {_rng(s['width_ratio'])} times wider than the band, so it cannot share an axis with the headline range without dominating it. Dot: central value.")
 
 
 def caption_s2() -> str:
-    return ("Figure S2. Observed and modelled annual curtailment (TWh) for wind and solar, Task 11E2 backtest: model fitted on all months (in-sample), with one year left out, or fitted on earlier years and tested on later ones. "
+    return (f"{DRAFT} Figure S2 (supplement). Observed and modelled annual curtailment (TWh) for wind and solar, Task 11E2 backtest: model fitted on all months (in-sample), with one year left out, or fitted on earlier years and tested on later ones. "
             "ANALYSIS-DERIVED: these numbers come from the analysis scripts (committed fixture tests/fixtures/figures/backtest_annual.csv), not from the production pipeline output. "
             "Partial years are marked with their months. Out-of-sample errors are large and of both signs in the early, low-curtailment years.")
 

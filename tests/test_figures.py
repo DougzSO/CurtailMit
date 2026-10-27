@@ -421,3 +421,11 @@ def test_real_tables_build_every_figure_and_match_the_prototype_numbers(tmp_path
     fixture = pd.read_csv(FIXTURES / "option_e_support.csv")
     live = oe[list(fixture.columns)].sort_values(["scenario", "year"]).reset_index(drop=True)
     assert np.allclose(live.drop(columns=["scenario"]).astype(float), fixture.sort_values(["scenario", "year"]).reset_index(drop=True).drop(columns=["scenario"]).astype(float), rtol=1e-9)
+
+
+def test_captions_are_descriptive_drafts_and_every_2050_caption_says_not_a_confidence_interval(final_results, option_e):
+    caps = {"F1": fg.figure_f1(final_results)[2], "F2": fg.figure_f2(option_e)[2], "F4": fg.figure_f4(final_results)[2], "S1": fg.figure_s1(final_results)[2], "S2": fg.figure_s2()[2]}
+    for fid, cap in caps.items():
+        assert "Figure X" not in cap and cap.startswith(fg.DRAFT) and f"Figure {fid}" in cap and not fg.check_text(cap)
+    for fid in ("F1", "F2", "F4"):  # the figures that show the 2050 conditional range
+        assert "(not a confidence interval)" in caps[fid], fid
