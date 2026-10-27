@@ -42,8 +42,9 @@ def fetch_and_cache(
 ) -> Path:
     """Download `url` to `dest_path`, writing a sidecar retrieval manifest.
 
-    If use_cache=True and both dest_path and its manifest already exist, the
-    network call is skipped entirely and the cached file is reused as-is.
+    If use_cache=True, both dest_path and its manifest exist AND the file still matches the manifest (SHA-256 and byte size), the network call is skipped and the cached
+    file is reused. A file that is missing its manifest or does not match it (truncated, edited, or replaced) is never trusted: it is fetched again (Task 14, validity
+    is verified, not inferred from file existence).
     """
     dest_path = Path(dest_path)
     dest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -51,11 +52,14 @@ def fetch_and_cache(
 
     if use_cache and dest_path.exists() and manifest_path.exists():
         cached = load_manifest(dest_path)
-        logger.info(
-            "Using cached file %s (originally retrieved %s from %s)",
-            dest_path, cached.retrieved_at_utc, cached.source_url,
-        )
-        return dest_path
+        content_on_disk = dest_path.read_bytes()
+        if compute_sha256(content_on_disk) == cached.sha256 and len(content_on_disk) == cached.byte_size:
+            logger.info(
+                "Using cached file %s (originally retrieved %s from %s; SHA-256 verified)",
+                dest_path, cached.retrieved_at_utc, cached.source_url,
+            )
+            return dest_path
+        logger.warning("Cached file %s does not match its manifest (SHA-256/size): fetching it again", dest_path)
 
     logger.info("Fetching %s -> %s", url, dest_path)
     resp = requests.request(method, url, params=params, timeout=timeout, headers=headers)

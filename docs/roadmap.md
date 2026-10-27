@@ -282,3 +282,9 @@ D30 registered (hydrogen SEC treatment, extension of D28). The `central_inside_r
 ## Update (Task 14-1) - design proposal for orchestration and CI; Task 14 awaits approval
 
 Design only (`docs/task14_design.md`, no code change). Findings: `scripts/run_pipeline.py` runs Stage 1 only (no retired-model logic); hourly calibration, Option E projection and final results have no entry point; the existing CI never passed (13 of 13 runs failed, remote 37 commits behind) and one default test depends on the local database. Pending decisions D31 (scope of end to end) and D32 (CI test isolation) registered. Task 14 starts only after the user answers section 6 of the design.
+
+---
+
+## Update (Task 14) - orchestration command and CI implemented; D31, D32 adopted
+
+Task 14 done: `curtailmit-run` / `python -m curtailmit.pipeline` runs pre-check, Stage 1, hourly calibration, Option E projection and final results with stamp-verified skip logic (re-run whenever validity cannot be established), per-stage `SKIPPED/RAN` reporting, hard gates with exit code 2, and an always-on reference-value check (`tests/fixtures/final_results/reference_totals.json`). CI rewritten (lint, unit tests with integration excluded, dry-run smoke test). See `docs/orchestration.md`. Figures and the limitations report remain Task 13B; the run manifest remains Task 15.

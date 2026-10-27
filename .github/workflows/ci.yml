@@ -6,20 +6,67 @@ on:
   pull_request:
     branches: [main]
 
+# IMPORTANT - what this workflow does NOT run:
+# tests marked @pytest.mark.integration. They need the local data repository (curtailmit_database: ONS/MCTI raw files and processed tables),
+# which is local-only and never pushed to GitHub, so it is never present in CI (some of them also need live network access).
+# CI therefore runs the linter, the unit suite (mocked data, synthetic panels, committed fixtures) and an entry-point smoke test.
+# It does NOT validate the scientific output: the real end-to-end verification is the local command `curtailmit-run` (docs/orchestration.md).
+#
+# Python 3.11 = the interpreter of the local development environment and of the previous workflow (pyproject.toml only sets the floor, requires-python >= 3.10).
+env:
+  # Empty on purpose: a unit test that needs real data must fail here instead of passing by reading a default path.
+  DATABASE_ROOT: ${{ github.workspace }}/../empty_curtailmit_database
+
 jobs:
-  test:
+  lint:
+    name: lint (ruff)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install dependencies
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install package with dev extras
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
-      - name: Run tests (excluding live integration tests)
-        run: pytest -v -m "not integration"
-      - name: Lint
+          pip install -e ".[dev]"
+      - name: ruff check src tests
         run: ruff check src tests
+
+  unit-tests:
+    name: unit tests (integration tests excluded - they need the local curtailmit_database)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install package with dev extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Unit tests (integration deselected explicitly; DATABASE_ROOT is an empty directory)
+        run: pytest -v -m "not integration"
+
+  smoke-test:
+    name: smoke test (curtailmit-run --dry-run, no data)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install package with dev extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Console script (validates configuration, imports and gate wiring; executes no stage)
+        run: curtailmit-run --dry-run
+      - name: Module invocation
+        run: python -m curtailmit.pipeline --dry-run

@@ -14,11 +14,24 @@ _PATHS_CONFIG = _PROJECT_ROOT / "config" / "paths.yaml"
 load_dotenv(_PROJECT_ROOT / ".env")
 
 
-def get_database_root() -> Path:
+def resolve_database_root(create: bool = True) -> Path:
+    """DATABASE_ROOT (environment variable, then .env, then ../curtailmit_database) resolved against the project root; create=False never touches the file system."""
     raw = os.getenv("DATABASE_ROOT", "../curtailmit_database")
     root = (_PROJECT_ROOT / raw).resolve()
-    root.mkdir(parents=True, exist_ok=True)
+    if create:
+        root.mkdir(parents=True, exist_ok=True)
     return root
+
+
+def get_database_root() -> Path:
+    return resolve_database_root(create=True)
+
+
+def planned_layout(root: Path | None = None) -> dict[str, Path]:
+    """Standard directories under the database root without creating any (used by the orchestrator's dry run)."""
+    base = root if root is not None else resolve_database_root(create=False)
+    cfg = _load_paths_config()
+    return {"root": base, "interim": base / cfg["interim"], "processed": base / cfg["processed"], "logs": base / cfg["logs"], "tables": base / cfg["outputs"]["tables"], "raw_ons": base / cfg["raw"]["ons"]}
 
 
 def _load_paths_config() -> dict:

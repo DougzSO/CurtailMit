@@ -461,6 +461,12 @@ Acceptance:
 
 ---
 
+### Task 14 - IMPLEMENTATION NOTE (2026-10-27, closes the Task 14 text above)
+
+> Task 14 was implemented as described in `docs/task14_design.md` (Task 14-1, commit `e1287eb`) with the user's modifications, documented in `docs/orchestration.md`: stage sequence Stage 1 -> hourly calibration -> Option E projection -> final results (D31); idempotent skip logic verified by stamps instead of "always recalibrate", with override flags `--force-*`; no `--integration` flag (integration tests stay a pytest concern); console script `curtailmit-run` plus `python -m curtailmit.pipeline`, with `scripts/run_pipeline.py` as a shim; a reference-value check on every run; CI with lint, unit tests (integration excluded) and a dry-run smoke test; the leaking test made synthetic (D32). The instruction text above is kept unchanged for the record; where it differs (Stages 2-6 numbering, `--integration`, `limitations_summary.md`, which belongs to Task 13B), this note and the design document prevail.
+
+---
+
 ### TASK 15 — Reproducibility pass + documentation sync
 
 ```

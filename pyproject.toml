@@ -34,6 +34,9 @@ dev = [
     "statsmodels>=0.14",
 ]
 
+[project.scripts]
+curtailmit-run = "curtailmit.pipeline:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
@@ -41,7 +44,7 @@ where = ["src"]
 testpaths = ["tests"]
 addopts = "-m \"not integration\""
 markers = [
-    "integration: marks tests that require live network access (deselect with: pytest -m \"not integration\")",
+    "integration: marks tests that require the local curtailmit_database (never present in CI) and/or live network access (deselect with: pytest -m \"not integration\")",
 ]
 
 [tool.black]

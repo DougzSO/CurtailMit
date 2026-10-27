@@ -808,8 +808,9 @@ decisions:
     implemented_in: "commits 57d9488 and cb58ba4 (Task 13): results_writer.build_final_results (h2_potential quantity, sec_sensitivity_* columns, range_basis); documented in docs/methodology.md 2.3k and docs/data_dictionary.md (Task 13-2)"
 
   D31:
-    status: pending
+    status: adopted
     date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "Scope of 'end to end' for the orchestration command (Task 14)"
     source_task: "Task 14-1 (docs/task14_design.md sections 0.3, 0.4, 1)"
     found: >
@@ -819,10 +820,14 @@ decisions:
       production_path_only: "Recommended: Stage 1 -> hourly calibration -> Option E projection -> final results + read-back validation. Wrappers live inside the orchestrator, no extra scripts."
       with_references: "Optional --with-references mode that also runs the reference models. Not recommended: puts role=reference tables beside production outputs."
       include_analysis_scripts: "Not recommended: diagnostics are not part of the reproducible production path."
-    working_reading: "production_path_only; PLD stays disabled (D10) and raises if enabled; figures and limitations report are Task 13B, run manifest is Task 15."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 14) by explicit user decision. The orchestrated end-to-end run is Stage 1 -> hourly calibration -> Option E projection -> final results layer (results_writer.py), plus pre-check and reference-value check. Out of scope: analysis/reference scripts (retired national/regional calibration is never imported by the orchestrator), PLD modeling (D10, disabled), figures (Task 13B), reproducibility manifest (Task 15).
+    implemented_in: "curtailmit.pipeline (orchestrator: Stage 1 -> hourly calibration -> Option E projection -> final results; console script curtailmit-run); docs/orchestration.md; Task 14 commit(s) (pending)"
+
   D32:
-    status: pending
+    status: adopted
     date: "2026-10-27"
+    date_adopted: "2026-10-27"
     topic: "CI test isolation: a default test depends on the local database"
     source_task: "Task 14-1 (docs/task14_design.md section 0.2)"
     found: >
@@ -832,7 +837,9 @@ decisions:
     options:
       make_test_synthetic: "Recommended: test-only change, monkeypatch load_pte with a small synthetic table; CI runs with an empty DATABASE_ROOT so other leaks fail loudly."
       mark_integration: "Mark the test integration: simplest, but the helper loses CI coverage."
-    working_reading: "make_test_synthetic. Pushing the local commits (first green CI run) is the user's action and is not assumed by the design."
+    decided: >
+      ADOPTED on 2026-10-27 (Task 14) by explicit user decision: the leaking test test_compounding_never_exceeds_the_asymptote is rewritten with a synthetic PTE table (not reclassified as integration), so the invariant stays in the fast standard suite and passes with an empty DATABASE_ROOT, which is what CI uses. CI runs with DATABASE_ROOT explicitly empty so any other accidental dependency on curtailmit_database fails loudly.
+    implemented_in: "tests/test_analysis_task11e5.py::test_compounding_never_exceeds_the_asymptote (synthetic PTE table, no database dependency); CI workflow .github/workflows/ci.yml; Task 14 commit(s) (pending)"
 
 ben_cross_check:
   status: reference_only

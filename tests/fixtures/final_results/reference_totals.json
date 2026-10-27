@@ -1,0 +1,487 @@
+{
+ "description": "Central values of every `total` row of final_results (Task 13, commit 57d9488; curtailed energy reconciled to Task 11F to 1e-12). Used by the orchestrator's reference-value check (Task 14).",
+ "rtol": 1e-09,
+ "n_rows": 156,
+ "totals": [
+  {
+   "scenario": "TA",
+   "year": 2025,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 43.67828200435241
+  },
+  {
+   "scenario": "TA",
+   "year": 2030,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 63.090973874768004
+  },
+  {
+   "scenario": "TA",
+   "year": 2040,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 242.36988072488705
+  },
+  {
+   "scenario": "TA",
+   "year": 2050,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 536.0848573694586
+  },
+  {
+   "scenario": "TB",
+   "year": 2025,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 43.78302608589762
+  },
+  {
+   "scenario": "TB",
+   "year": 2030,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 64.26830269570222
+  },
+  {
+   "scenario": "TB",
+   "year": 2040,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 127.58733637419179
+  },
+  {
+   "scenario": "TB",
+   "year": 2050,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 354.76996580568306
+  },
+  {
+   "scenario": "TG",
+   "year": 2025,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 43.78302608589762
+  },
+  {
+   "scenario": "TG",
+   "year": 2030,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 58.19031958058016
+  },
+  {
+   "scenario": "TG",
+   "year": 2040,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 181.4139532761685
+  },
+  {
+   "scenario": "TG",
+   "year": 2050,
+   "quantity": "curtailed_energy",
+   "component": "total",
+   "unit": "TWh",
+   "central_value": 333.93758449597294
+  },
+  {
+   "scenario": "TA",
+   "year": 2025,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 831967276.2733792
+  },
+  {
+   "scenario": "TA",
+   "year": 2030,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 1201732835.7098668
+  },
+  {
+   "scenario": "TA",
+   "year": 2040,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 4616569156.6645155
+  },
+  {
+   "scenario": "TA",
+   "year": 2050,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 10211140140.37064
+  },
+  {
+   "scenario": "TB",
+   "year": 2025,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 833962401.6361451
+  },
+  {
+   "scenario": "TB",
+   "year": 2030,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 1224158146.584804
+  },
+  {
+   "scenario": "TB",
+   "year": 2040,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 2430234978.556034
+  },
+  {
+   "scenario": "TB",
+   "year": 2050,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 6757523158.203486
+  },
+  {
+   "scenario": "TG",
+   "year": 2025,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 833962401.6361451
+  },
+  {
+   "scenario": "TG",
+   "year": 2030,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 1108387039.6300983
+  },
+  {
+   "scenario": "TG",
+   "year": 2040,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 3455503871.9270196
+  },
+  {
+   "scenario": "TG",
+   "year": 2050,
+   "quantity": "h2_potential",
+   "component": "total",
+   "unit": "kg_H2",
+   "central_value": 6360715895.161389
+  },
+  {
+   "scenario": "TA",
+   "year": 2025,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 2013568.8004006464
+  },
+  {
+   "scenario": "TA",
+   "year": 2030,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 2908493.8956268053
+  },
+  {
+   "scenario": "TA",
+   "year": 2040,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 11173251.501417292
+  },
+  {
+   "scenario": "TA",
+   "year": 2050,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 24713511.924732044
+  },
+  {
+   "scenario": "TB",
+   "year": 2025,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 2018397.5025598803
+  },
+  {
+   "scenario": "TB",
+   "year": 2030,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 2962768.7542718723
+  },
+  {
+   "scenario": "TB",
+   "year": 2040,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 5881776.206850242
+  },
+  {
+   "scenario": "TB",
+   "year": 2050,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 16354895.42364199
+  },
+  {
+   "scenario": "TG",
+   "year": 2025,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 2018397.5025598803
+  },
+  {
+   "scenario": "TG",
+   "year": 2030,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 2682573.7326647453
+  },
+  {
+   "scenario": "TG",
+   "year": 2040,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 8363183.246031369
+  },
+  {
+   "scenario": "TG",
+   "year": 2050,
+   "quantity": "mitigation_deficit_avg",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 15394522.645264354
+  },
+  {
+   "scenario": "TA",
+   "year": 2025,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 10559807.051645588
+  },
+  {
+   "scenario": "TA",
+   "year": 2030,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 15253084.147210164
+  },
+  {
+   "scenario": "TA",
+   "year": 2040,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 58596150.26365111
+  },
+  {
+   "scenario": "TA",
+   "year": 2050,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 129605662.0671649
+  },
+  {
+   "scenario": "TB",
+   "year": 2025,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 10585130.329946896
+  },
+  {
+   "scenario": "TB",
+   "year": 2030,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 15537719.087388622
+  },
+  {
+   "scenario": "TB",
+   "year": 2040,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 30845939.73294586
+  },
+  {
+   "scenario": "TB",
+   "year": 2050,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 85770369.49973464
+  },
+  {
+   "scenario": "TG",
+   "year": 2025,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 10585130.329946896
+  },
+  {
+   "scenario": "TG",
+   "year": 2030,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 14068285.629532997
+  },
+  {
+   "scenario": "TG",
+   "year": 2040,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 43859242.057224095
+  },
+  {
+   "scenario": "TG",
+   "year": 2050,
+   "quantity": "mitigation_deficit_marginal_cm",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 80733863.55302808
+  },
+  {
+   "scenario": "TA",
+   "year": 2025,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 18015835.384061895
+  },
+  {
+   "scenario": "TA",
+   "year": 2030,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 26022923.69087931
+  },
+  {
+   "scenario": "TA",
+   "year": 2040,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 99969496.80299175
+  },
+  {
+   "scenario": "TA",
+   "year": 2050,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 221117134.16965604
+  },
+  {
+   "scenario": "TB",
+   "year": 2025,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 18059038.826229904
+  },
+  {
+   "scenario": "TB",
+   "year": 2030,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 26508532.585220642
+  },
+  {
+   "scenario": "TB",
+   "year": 2040,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 52625523.343141645
+  },
+  {
+   "scenario": "TB",
+   "year": 2050,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 146330785.22931743
+  },
+  {
+   "scenario": "TG",
+   "year": 2025,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 18059038.826229904
+  },
+  {
+   "scenario": "TG",
+   "year": 2030,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 24001567.149669964
+  },
+  {
+   "scenario": "TG",
+   "year": 2040,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 74827208.59464365
+  },
+  {
+   "scenario": "TG",
+   "year": 2050,
+   "quantity": "mitigation_deficit_marginal_om",
+   "component": "total",
+   "unit": "tCO2",
+   "central_value": 137738122.3517723
+  }
+ ]
+}

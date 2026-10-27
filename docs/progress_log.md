@@ -215,3 +215,7 @@ into `config/scenarios.yaml`.
 ## Task 14-1 (2026-10) - design of the orchestration command and CI
 
 - Design only: `docs/task14_design.md`. Investigated `scripts/run_pipeline.py` (Stage 1 only), stage inventory, existing `ci.yml` (all runs failed; integration tests correctly excluded; one leaking default test found with an empty DATABASE_ROOT). Pending D31, D32 in `config/discovered_sources.yaml`. No `src/`, test or workflow change.
+
+## Task 14 (2026-10) - orchestration and CI
+
+- `src/curtailmit/pipeline.py`, `src/curtailmit/provenance.py`, `tests/test_pipeline.py`, `docs/orchestration.md`; console script `curtailmit-run`; `scripts/run_pipeline.py` is a shim. D31 and D32 adopted. `acquisition.fetch_and_cache(use_cache=True)` now verifies SHA-256/size against the manifest. `paths.resolve_database_root(create=False)` and `planned_layout` added. Leaking test `test_compounding_never_exceeds_the_asymptote` made synthetic. `.github/workflows/ci.yml` rewritten (three jobs).
