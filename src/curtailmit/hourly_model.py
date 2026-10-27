@@ -30,7 +30,11 @@ WIDTH = 2.0
 MIN_HOURS = 15
 XMAX = 102.0
 SUBSYSTEMS = ("N", "NE", "S", "SE")
-END_EXCLUSIVE = "2026-10-01"  # October 2026 is incomplete in the raw files
+# MAINTENANCE WATCHPOINT (Task 14-3): the panel is cut here because October 2026 is incomplete in the raw files. The value is intentionally fixed until the user decides
+# to advance it. Advancing it (once a month's data is complete) changes the calibration and ALL downstream totals. The orchestrator's reference-value check
+# (tests/fixtures/final_results/reference_totals.json) is designed to fail with exit code 2 when that happens: that failure is expected and correct, it requires an explicit
+# user decision to regenerate the reference fixture, and it must not be patched around silently. See docs/orchestration.md, "Maintenance watchpoints".
+END_EXCLUSIVE = "2026-10-01"
 TECH_COLUMNS = {"wind": ("wind", "curt_wind"), "solar": ("solar_disp", "curt_solar")}  # (realized, curtailed) hourly MWh
 TECH_START = {"wind": "2022-01-01", "solar": "2024-04-01"}  # the first complete solar month of the dispatched-generation series
 CURVE_FILENAME = "hourly_curve_{name}.json"  # name: wind | solar | unified
