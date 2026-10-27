@@ -265,3 +265,22 @@ Documentation-only addendum. Sections 1-9 above are unchanged (append-only); thi
 6. **Q6 - no methodological-journey comparison figure.** The national / regional / Option E comparison stays text-only in `docs/methodology.md` (already present in section 2.3k); the exploratory PNGs of `analysis/` are not promoted.
 7. **Q7 - DeCarbon figure standards remain UNCONFIRMED** (DPI, column width, font size, colour palette; section 1.4 defaults are not final). The user will verify the author guide manually. **Task 13B must not be marked complete until the user confirms these standards or explicitly waives the check.**
 8. **Q8 - the "largest observed value" (r_max) reference is removed from the coverage-figure design.** No `r_max` column is added to the Option E production table.
+
+---
+
+## Task 13B - implementation status (2026-10-27)
+
+Appended; sections 1-9 and the addendum above are unchanged. **Implemented but NOT closed.** Closing needs (a) the user's visual review of the V1 style and of the output figures and (b) the user's confirmation or explicit waiver of the DeCarbon figure standards (addendum Q7).
+
+**PROVISIONAL standards in force.** The figure standards of section 1.4 are implemented as named constants at the top of `src/curtailmit/figures.py` (`PROVISIONAL_STANDARDS = True`, 90 / 190 mm, 600-dpi PNG beside the PDF / SVG vector masters, DejaVu Sans 7.5 pt with 6 pt as the floor, Okabe-Ito palette). They are UNCONFIRMED. `figures_manifest.json` records `provisional_decarbon_standards: true`; the constant is to be set to `False` only when the user confirms or waives the check.
+
+**What was built.**
+
+- `src/curtailmit/figures.py` and the shim `scripts/generate_figures.py` (`python -m curtailmit.figures [--only F1,F2,F4,S1,S2]`). Figures are not a stage of `curtailmit-run`.
+- F1 (central value and range, style V1 for 2050), F2 (panels a-c; F3 folded in as panel c; reads the Option E production table, not the 11E4 intermediate CSV; no r_max line, tick, column or caption number), F4 (OM, CM and the average factor in three separate panels, never added), S1 (band beside the split-conformal supplement), S2 (backtest, from the fixture `tests/fixtures/figures/backtest_annual.csv`, columns of the hourly model only, labelled analysis-derived in the figure and in the caption).
+- T1, T2 and T3 stay tables. No methodology-comparison figure and no 2022-2025 overlay in F1 (addendum Q6, Q2).
+- 2050: hatched, unfilled box with a dashed outline on a grey zone, diamond for the central value, legend text `conditional range (not a confidence interval)`, in-figure note and caption sentence. The central value is plotted at the table value, which is not the midpoint of the range (D25); this is expected and a test asserts both facts.
+- The figure-text check (`check_text`) removes the exact literal `not a confidence interval` and applies `results_writer.FORBIDDEN_LANGUAGE` to the rest. The exception exists only because the phrase denies confidence-interval semantics (D24); it is a literal, it is case-sensitive, and it lives in `figures.py`, so the table / column filter in `results_writer` is untouched (a test proves it still rejects the phrase in a table).
+- `docs/limitations_summary.md` is produced by the Task 16 mechanism (`python -m curtailmit.doc_generation --check|--write`; blocks `limitations-themes`, `limitations-appendix`, `limitations-row-caveats`), with the fixture-based CI check and the integration test against the live production table that Task 16 delivered. No second mechanism was built.
+
+**Not testable automatically (manual checklist, in the Task 13B report):** whether V1 reads as "not an interval" to a person; legibility at 90 / 190 mm; label overlap; greyscale and colour-blind rendering; opening the PDF / SVG / PNG; the DeCarbon author guide.

@@ -6,6 +6,9 @@ Panel (a): share of the projected hours inside the support (bars) and inside the
 Convention for manuscript use: vector PDF (and SVG) plus a 600-dpi PNG in DATABASE_ROOT/outputs/figures/, named fig_insample_coverage.*; the numbers behind every bar are in fig_insample_coverage_data.csv in DATABASE_ROOT/outputs/tables/;
 the caption text is saved as fig_insample_coverage_caption.txt next to the figure. Colour-blind-safe palette (Okabe-Ito); no colour is needed to read the panels (bar labels carry the values).
 Run:  python analysis/task11e4_coverage_figure.py
+
+SUPERSEDED (Task 13B, append-only note): the production figure is `curtailmit.figures` (F2, reading processed/pte_curtailment_option_E.parquet, without the r_max tick). This prototype is kept as the record of the analysis-time version.
+
 """
 
 from __future__ import annotations

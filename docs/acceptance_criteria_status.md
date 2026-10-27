@@ -18,3 +18,7 @@ Task 15 (documentation-sync audit finding 11). The acceptance criteria of `docs/
 ## Task 16 (documentation generation, stamp pre-filter)
 
 Task 16 does not correspond to any of the five acceptance criteria of `docs/roadmap.md` section 7: it adds generated documentation blocks (`curtailmit.doc_generation`) and a hashing pre-filter (`curtailmit.hash_cache`), neither of which changes a result. The table above is unchanged.
+
+## Task 13B (figures)
+
+Criterion 4 is tied to figures. `curtailmit.figures` refuses a `final_results` table that carries an interpolated row (`check_final_results`; test `test_guards_refuse_interpolated_rows_missing_cells_and_invalid_tables`), which supports the criterion, but **no status in the table above is changed**: Task 13B is implemented and not accepted (user visual review of the V1 style and of the output figures, and confirmation or waiver of the DeCarbon figure standards, are pending). Revisit this table when 13B is closed.
