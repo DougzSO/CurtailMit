@@ -24,7 +24,7 @@ pip install -r requirements.lock.txt   # exact versions of the verified environm
 pip install -e . --no-deps
 copy .env.example .env                 # Linux/macOS: cp .env.example .env
 ```
-For development with the newest compatible releases instead: `pip install -e ".[dev]"` (floors in `requirements.txt` / `pyproject.toml`; CI tests both).
+`make setup-locked` does the same (Windows paths); `make setup` is the flexible development install. For development with the newest compatible releases instead: `pip install -e ".[dev]"` (floors in `requirements.txt` / `pyproject.toml`; CI tests both).
 
 ## Run
 
@@ -55,6 +55,7 @@ python -m curtailmit.decision_registry --check
 | `docs/methodology.md` | the model (section 2.3j, current) and results layer (2.3k); earlier sections are the historical record |
 | `docs/orchestration.md` | the `curtailmit-run` command, skip logic, gates, CI |
 | `docs/roadmap.md`, `docs/progress_log.md`, `docs/claude_commands.md` | plan, history by task, task prompts (append-only history, with update notes) |
+| `docs/pre_submission_checklist.md` | open items to close by hand before submitting the article (ONS/MCTI licensing) |
 | `docs/acceptance_criteria_status.md` | roadmap acceptance criteria against the production table |
 | `docs/data_dictionary.md` | output columns and run records |
 | `config/discovered_sources.yaml` | the adopted decisions D13 onward with their texts |

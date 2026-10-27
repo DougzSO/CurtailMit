@@ -86,3 +86,24 @@ def test_reproducibility_document_does_not_overclaim_data_availability():
     text = _text(DOCS / "reproducibility.md")
     assert "D33" in text and "not** a promise that the data are bundled" in text and "data_snapshot_manifest.json" in text
     assert "bitwise identity is **not** promised" in text and "1e-9" in text
+
+
+def test_licensing_checklist_exists_is_discoverable_and_states_that_nothing_was_verified():
+    check = _text(DOCS / "pre_submission_checklist.md")
+    assert "NOT VERIFIED" in check and "not formally verified" in check and "D33" in check and "absence of evidence" in check
+    assert "pre_submission_checklist.md" in _text(DOCS / "reproducibility.md") and "pre_submission_checklist.md" in _text(PROJECT / "README.md")
+
+
+def test_makefile_has_working_tab_recipes_and_both_install_targets():
+    lines = (PROJECT / "Makefile").read_text(encoding="utf-8-sig").splitlines()
+    recipes, target = {}, None
+    for ln in lines:
+        if re.match(r"[A-Za-z0-9_-]+:", ln):
+            target = ln.split(":")[0]
+            recipes[target] = []
+        elif ln.strip() and not ln.startswith("#") and target:
+            assert ln.startswith("\t"), f"recipe line of '{target}' must start with a tab: {ln!r}"
+            recipes[target].append(ln.strip())
+    assert any("requirements.txt" in c for c in recipes["setup"])
+    assert any("requirements.lock.txt" in c for c in recipes["setup-locked"]) and any("-e . --no-deps" in c for c in recipes["setup-locked"])
+    assert "setup-locked" in lines[0] and "flexible" in "\n".join(lines) and "exact-pin" in "\n".join(lines)
