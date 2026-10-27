@@ -341,17 +341,17 @@ def test_backtest_fixture_equals_the_analysis_output_it_was_taken_from():
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------- file output
-def test_every_figure_writes_pdf_svg_png_data_and_caption_with_embedded_fonts(final_results, option_e, tmp_path):
+def test_every_figure_writes_only_a_png_plus_data_and_caption(final_results, option_e, tmp_path):
+    assert fg.OUTPUT_FORMATS == ("png",)
     builders = {"F1": lambda: fg.figure_f1(final_results), "F2": lambda: fg.figure_f2(option_e), "F4": lambda: fg.figure_f4(final_results), "S1": lambda: fg.figure_s1(final_results), "S2": lambda: fg.figure_s2()}
     for fid, build in builders.items():
         fig, frame, cap = build()
         files = fg.write_figure(fig, fg.FILE_NAMES[fid], frame, cap, tmp_path, dpi=LOW_DPI)
-        assert set(files) == {"pdf", "svg", "png", "csv", "caption"} and all(p.stat().st_size > 0 for p in files.values())
-        pdf = files["pdf"].read_bytes()
-        assert pdf.startswith(b"%PDF") and b"/Subtype /Type3" not in pdf and b"/Subtype /CIDFontType2" in pdf and b"/FontFile2" in pdf  # fonttype 42: embedded TrueType outlines, no Type 3 fonts
-        assert b"<svg" in files["svg"].read_bytes()
+        assert set(files) == {"png", "csv", "caption"} and all(p.stat().st_size > 0 for p in files.values())
+        assert files["png"].read_bytes().startswith(bytes([137]) + b"PNG")
         assert pd.read_csv(files["csv"]).shape[0] == len(frame)
         assert files["caption"].read_text(encoding="utf-8").strip() == cap
+    assert not list(tmp_path.glob("*.pdf")) and not list(tmp_path.glob("*.svg"))
 
 
 def test_png_is_written_at_1000_dpi_at_the_assigned_width(option_e, tmp_path):
@@ -372,13 +372,12 @@ def test_smallest_font_in_any_figure_is_at_least_the_minimum(final_results, opti
         plt.close(fig)
 
 
-def test_same_inputs_give_byte_identical_pdf_and_svg(final_results, tmp_path):
+def test_same_inputs_give_byte_identical_png(final_results, tmp_path):
     outs = []
     for k in range(2):
         fig, frame, cap = fg.figure_f1(final_results)
         outs.append(fg.write_figure(fig, "F1", frame, cap, tmp_path / str(k), dpi=LOW_DPI))
-    for ext in ("pdf", "svg", "png"):
-        assert outs[0][ext].read_bytes() == outs[1][ext].read_bytes(), ext
+    assert outs[0]["png"].read_bytes() == outs[1]["png"].read_bytes()
 
 
 def test_build_records_hashes_and_the_provisional_flag_in_the_manifest(final_results, option_e, tmp_path):

@@ -259,3 +259,7 @@ into `config/scenarios.yaml`.
 - Raster specification recorded in `docs/task13b_design.md` (user-provided excerpt of the author guide, not a URL: 300 / 500 / 1000 dpi for halftone / combination / line art; 90 / 140 / 190 mm columns). The strictest class (1000 dpi) is applied to every PNG as a deliberate conservative choice; the vector PDF / SVG is the expected submission master. `figures.CONFIRMED_STANDARDS` (dpi, column width) vs `PROVISIONAL_STANDARDS` (font size, palette: the project's own choices); `figures.FIGURE_WIDTH_MM` assigns F1, F2, F4, S1 190 mm and S2 140 mm.
 - `src/curtailmit/figure_checks.py`: text bounding-box overlap, plotted numbers against the source tables, placeholders, units, OM + CM wording, forbidden vocabulary. S2 periods are now in chronological order; F4 panels carry their own unit label. Draft captions (no placeholders) were already in place since 13B-prep.
 - Task 13B stays open: a final human look at the regenerated files.
+
+## Task 13B review decisions (2026-10-27)
+
+- F4 and F1 both stay main figures; 2025 explanation goes in the manuscript text; font and palette kept. Figures are now PNG only (`figures.OUTPUT_FORMATS`); the earlier PDF / SVG of the five figures were deleted from the local figures folder. See `docs/task13b_design.md`, "Task 13B - review decisions".

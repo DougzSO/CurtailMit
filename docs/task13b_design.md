@@ -309,3 +309,11 @@ Appended; everything above is unchanged (the "PROVISIONAL" wording of the previo
 **Still the project's own choices, not mandated by the excerpt:** font size (DejaVu Sans 7.5 pt, floor 6 pt) and the Okabe-Ito palette. They are final unless the user says otherwise and are recorded as `PROVISIONAL_STANDARDS = {font_size, color_palette}` in `figures.py`; the confirmed entries are `CONFIRMED_STANDARDS = {dpi, column_width_mm}`. `figures_manifest.json` records both.
 
 **Automated checks added** (`src/curtailmit/figure_checks.py`, `python -m curtailmit.figure_checks`; tests in `tests/test_figure_checks.py`): text bounding-box overlap and text leaving the figure, legend over data, every plotted number against the source tables (rtol 1e-12), no placeholder text, units on y labels, no OM + CM wording, no hydrogen content (D30 stays a table), forbidden vocabulary with the single approved literal. These do not replace looking at the figures.
+
+## Task 13B - review decisions (2026-10-27)
+
+Appended. The user reviewed the figures and decided:
+
+- **Figure set unchanged**: F4 stays as it is (all three panels, the user likes it); F1 stays a main figure. The proposal to drop F4 panel (c) or to move F4 to a supplement was not taken. The question whether F1 could go to the supplement instead was answered with a recommendation against (F1 is the headline quantity of which F4 is a derived deficit), left as the user's editorial call.
+- The sentence in the manuscript text explaining why the 2025 central value (a PTE scenario) is not the 2025 observation is accepted as the way to handle that point; F1 keeps no history overlay (addendum Q2 stands). The "wind hours" remark for F2 panel (a) is left as is; font size 7.5 pt and the Okabe-Ito palette are kept.
+- **PNG only.** `figures.OUTPUT_FORMATS = ("png",)`: no PDF or SVG is generated, and the existing PDF and SVG of F1, F2, F4, S1 and S2 in `DATABASE_ROOT/outputs/figures/` were deleted. This supersedes the earlier expectation that the vector files would be the submission master: the 1000 dpi PNG (the line-art minimum, applied to every figure) is now the only figure file, and the `_data.csv` / `_caption.txt` companions remain. Re-enabling vector output is a one-line change to `OUTPUT_FORMATS`. The older analysis-prototype files (`fig_insample_coverage.*`, `task11*`) were not touched.

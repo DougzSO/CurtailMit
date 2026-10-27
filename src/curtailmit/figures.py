@@ -57,7 +57,7 @@ ONE_AND_HALF_COLUMN_MM = 140.0
 DOUBLE_COLUMN_MM = 190.0
 RASTER_DPI_BY_ART = {"halftone": 300, "combination": 500, "line": 1000}  # the guide's minima per art type
 # The figures mix hatched / tinted regions with line work, which sits between "combination" and "line art". The ambiguity is removed, not resolved figure by figure: the STRICTEST category (line art, 1000 dpi)
-# is applied to every PNG (the conservative choice: more pixels rather than the risk of a rejected raster). The submission master is expected to be the vector PDF / SVG, which has no resolution; the PNG is a conformance / convenience copy.
+# is applied to every PNG (the conservative choice: more pixels rather than the risk of a rejected raster). (Vector PDF / SVG output was dropped by the user's later decision: see OUTPUT_FORMATS; the PNG is therefore the only figure file.)
 PNG_DPI = RASTER_DPI_BY_ART["line"]
 # Target width per figure: a layout judgment by content density (multi-panel or long-legend figures take the double column). Changing an entry only re-renders; no data is re-derived.
 FIGURE_WIDTH_MM = {"F1": DOUBLE_COLUMN_MM, "F2": DOUBLE_COLUMN_MM, "F4": DOUBLE_COLUMN_MM, "S1": DOUBLE_COLUMN_MM, "S2": ONE_AND_HALF_COLUMN_MM}
@@ -500,17 +500,24 @@ def sha256_of(path: Path) -> str:
     return h.hexdigest()
 
 
+OUTPUT_FORMATS = ("png",)  # user decision (Task 13B, after the review): PNG only, no vector copies. Adding "pdf" / "svg" back is this one line (the vector writers below are kept).
+_VECTOR_METADATA = {"pdf": {"Creator": "curtailmit.figures", "Producer": "matplotlib", "CreationDate": None}, "svg": {"Date": None, "Creator": "curtailmit.figures"}}
+
+
 def write_figure(fig, name: str, frame: pd.DataFrame, caption: str, out_dir: Path, dpi: int = PNG_DPI) -> dict[str, Path]:
-    """PDF + SVG + PNG + data CSV + caption. Runs the forbidden-wording check on the figure text and the caption first. Creation dates are omitted so that equal inputs give equal files."""
+    """The figure in OUTPUT_FORMATS (PNG at `dpi`) + data CSV + caption. Runs the forbidden-wording check on the figure text and the caption first. No creation dates are embedded, so equal inputs give equal files."""
     assert_clean(figure_texts(fig), f"figure {name}")
     assert_clean([caption], f"caption of {name}")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = out_dir / name
-    files = {"pdf": stem.with_suffix(".pdf"), "svg": stem.with_suffix(".svg"), "png": stem.with_suffix(".png"), "csv": out_dir / f"{name}_data.csv", "caption": out_dir / f"{name}_caption.txt"}
-    fig.savefig(files["pdf"], metadata={"Creator": "curtailmit.figures", "Producer": "matplotlib", "CreationDate": None})
-    fig.savefig(files["svg"], metadata={"Date": None, "Creator": "curtailmit.figures"})
-    fig.savefig(files["png"], dpi=dpi)
+    files = {fmt: stem.with_suffix(f".{fmt}") for fmt in OUTPUT_FORMATS}
+    files.update({"csv": out_dir / f"{name}_data.csv", "caption": out_dir / f"{name}_caption.txt"})
+    for fmt in OUTPUT_FORMATS:
+        if fmt == "png":
+            fig.savefig(files[fmt], dpi=dpi)
+        else:
+            fig.savefig(files[fmt], metadata=_VECTOR_METADATA[fmt])
     frame.to_csv(files["csv"], index=False, lineterminator="\n")
     files["caption"].write_text(caption + "\n", encoding="utf-8")
     plt.close(fig)
