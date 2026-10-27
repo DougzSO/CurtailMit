@@ -885,6 +885,24 @@ decisions:
       bookkeeping errors fixed directly, stale status markers corrected with a visible strike-through plus update note, README rewritten.
     implemented_in: "tests/test_determinism.py; requirements.lock.txt; .github/workflows/ci.yml (unit-tests-locked); curtailmit.run_manifest; curtailmit.decision_registry; docs/reproducibility.md; docs/acceptance_criteria_status.md; README.md; Task 15 commit 135cfea"
 
+  D35:
+    status: adopted
+    date: "2026-10-27"
+    date_adopted: "2026-10-27"
+    topic: "Acceptance criterion 5 (2020 historical anchor, source historical_ons) is superseded by the Task 11E2 backtest/holdout validation"
+    source_task: "Task 15-3 (closeout of Task 15; docs/acceptance_criteria_status.md criterion 5)"
+    found: >
+      Roadmap v3.1 section 7, criterion 5, requires 2020 to be tagged source: historical_ons as a single historical anchor point (decisions D1/D2). The production final_results table (Option E, D24/D27) has
+      12 scenario-years (2025, 2030, 2040, 2050) and no 2020 row; the Option E model projects from the 2025 hourly profile. Task 15 left the criterion as "not applicable, open editorial question".
+    decided: >
+      ADOPTED on 2026-10-27 (Task 15-3) by explicit user decision: acceptance criterion 5 is superseded, not unmet. The single 2020 historical anchor (historical_ons) is replaced as historical validation by the
+      Task 11E2 backtest / holdout methodology (docs/task11e2_findings.md section 2: annual backtest of the hourly model against observed ONS curtailment for 2023-2026 with in-sample, train-on-earlier-years,
+      leave-one-year-out and leave-first-year-out schemes, benchmarked against the national-P and time-trend alternatives), which tests the model against many observed years rather than against one anchor.
+      No 2020 row is added to the production final_results table. The evidence is cited as it stands, including its limits: the backtest shows a downward bias in the latest years (wind 2025: -8 percent in sample,
+      -11 percent leave-one-year-out, -19 percent trained on 2022-24), recorded as the D25 limitation. This is a pipeline / production-data decision only; whether the article's figures include historical context
+      (for example an observed 2020 reference) is a separate editorial choice deferred to the figure design of Task 13B and is not a production requirement.
+    implemented_in: "docs/acceptance_criteria_status.md (criterion 5 restated as superseded by D35); no change to src/ or to final_results; Task 15-3 commit COMMIT_PLACEHOLDER"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

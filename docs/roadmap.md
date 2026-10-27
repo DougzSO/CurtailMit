@@ -318,3 +318,9 @@ Design only (`docs/task15_design.md`, no code change). Findings: no non-determin
 ## Update (Task 15) - reproducibility manifest and documentation sync implemented; D33, D34 adopted
 
 Task 15 done (design `docs/task15_design.md`): standing determinism tests (synthetic unit test in CI, real-pipeline integration test), exact pin lock `requirements.lock.txt` with CI job `unit-tests-locked`, run manifest `logs/run_manifest_<UTC>.json` (success runs only), committed `data_snapshot_manifest.json` (250 raw files; no data redistributed, D33), `docs/reproducibility.md` with the generated D1-D34 register and a consistency test (it also catches decision-number collisions), `docs/acceptance_criteria_status.md`, README rewritten, and the 15-item documentation audit applied (narrative history annotated, status markers struck through with update notes, the unregistered Task 11E4 "D27" relabelled `D27-candidate`). The article needs a data-availability statement citing the snapshot manifest (open item for the article step). Next: Task 13B (figures, `limitations_summary.md`).
+
+---
+
+## Update (Task 15-3) - acceptance criterion 5 superseded (D35)
+
+Criterion 5 of section 7 (2020 tagged `historical_ons`) is superseded by decision D35: the Task 11E2 backtest / holdout validation replaces a single 2020 anchor as historical validation; no 2020 row is added to `final_results`. It is superseded, not unmet and not an open question (this refines the "not applicable" wording of the Task 15 sync note above). See `docs/acceptance_criteria_status.md`.

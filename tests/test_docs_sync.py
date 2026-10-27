@@ -107,3 +107,16 @@ def test_makefile_has_working_tab_recipes_and_both_install_targets():
     assert any("requirements.txt" in c for c in recipes["setup"])
     assert any("requirements.lock.txt" in c for c in recipes["setup-locked"]) and any("-e . --no-deps" in c for c in recipes["setup-locked"])
     assert "setup-locked" in lines[0] and "flexible" in "\n".join(lines) and "exact-pin" in "\n".join(lines)
+
+
+def test_criterion_5_is_presented_as_superseded_by_d35_and_the_decision_is_adopted():
+    from curtailmit import decision_registry as dr
+
+    row = next(ln for ln in _text(DOCS / "acceptance_criteria_status.md").splitlines() if ln.startswith("| 5 |"))
+    assert "Superseded (D35)" in row and "11E2" in row and "open" not in row.lower().replace("open item", "") and "Not applicable" not in row
+    assert {r["id"]: r["status"] for r in dr.collect()}["D35"] == "adopted"
+
+
+def test_orchestration_documents_the_makefile_defect_honestly():
+    text = _text(DOCS / "orchestration.md")
+    assert "Makefile targets were non-functional (missing TAB indentation) until Task 15-2" in text and "intended, not verified" in text

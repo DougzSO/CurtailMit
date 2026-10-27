@@ -227,3 +227,7 @@ into `config/scenarios.yaml`.
 ## Task 15 (2026-10) - reproducibility manifest and documentation sync
 
 - `src/curtailmit/run_manifest.py` (run manifest, data snapshot manifest, `verify`), `src/curtailmit/decision_registry.py` (generated D1-D34 register), `pipeline.py` writes the run manifest on SUCCESS/SUCCESS_PARTIAL (`RunManifestError` is a gate, exit 2). Tests: `test_determinism.py`, `test_run_manifest.py`, `test_environment_lock.py`, `test_decision_registry.py`, `test_docs_sync.py`, run-manifest cases in `test_pipeline.py`. `requirements.lock.txt` from the project `.venv` (Python 3.11.9); CI job `unit-tests-locked`. D33, D34 adopted. Documents: `docs/reproducibility.md`, `docs/acceptance_criteria_status.md`, README, annotations in roadmap, methodology, claude_commands, design docs, limitations, data_dictionary, orchestration. D24 YAML text changed only by the `D27-candidate` relabel: stage stamps went stale once, outputs recomputed byte-identical (final_results.csv MD5 918fdb74... unchanged).
+
+## Task 15-3 (2026-10) - closeout: D35 and Makefile history
+
+- D35 adopted (acceptance criterion 5 superseded by the Task 11E2 validation; no production change). `docs/acceptance_criteria_status.md` criterion 5 restated. `docs/orchestration.md` carries the corrected-defect note on the Makefile (non-functional until Task 15-2).
