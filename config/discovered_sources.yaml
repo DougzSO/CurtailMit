@@ -861,7 +861,7 @@ decisions:
       placeholders). External readers (for example DeCarbon reviewers) re-download from the sources with Stage 1 and verify hash-by-hash. No archival mirror with a DOI and no copy of the raw data is hosted:
       the redistribution terms of the ONS and MCTI datasets were not verified (a web search in Task 15 found no explicit terms and no prohibition; the manifest lists identities, not content). Code-only was
       rejected. The article must carry an explicit data-availability statement that cites the manifest and the re-download/verification procedure (flagged for the article-writing step; no article text was drafted).
-    implemented_in: "data_snapshot_manifest.json; curtailmit.run_manifest (build_snapshot, verify_snapshot, `python -m curtailmit.run_manifest snapshot|verify`); run manifest raw_inputs cross-check; docs/reproducibility.md section 1 and 3; Task 15 commit COMMIT_PLACEHOLDER"
+    implemented_in: "data_snapshot_manifest.json; curtailmit.run_manifest (build_snapshot, verify_snapshot, `python -m curtailmit.run_manifest snapshot|verify`); run manifest raw_inputs cross-check; docs/reproducibility.md section 1 and 3; Task 15 commit 135cfea"
   D34:
     status: adopted
     date: "2026-10-27"
@@ -883,7 +883,7 @@ decisions:
       logs/run_manifest_<UTC>.json written only for SUCCESS and SUCCESS_PARTIAL runs, and a generated D1-D34 decision register with a consistency test. D1-D12 are NOT rewritten into this YAML (the register is built
       on the existing adopted texts, which remain the audit trail). limitations_summary.md is deferred to Task 13B. Documentation sync applied by kind: narrative history append-only with superseding notes, pure
       bookkeeping errors fixed directly, stale status markers corrected with a visible strike-through plus update note, README rewritten.
-    implemented_in: "tests/test_determinism.py; requirements.lock.txt; .github/workflows/ci.yml (unit-tests-locked); curtailmit.run_manifest; curtailmit.decision_registry; docs/reproducibility.md; docs/acceptance_criteria_status.md; README.md; Task 15 commit COMMIT_PLACEHOLDER"
+    implemented_in: "tests/test_determinism.py; requirements.lock.txt; .github/workflows/ci.yml (unit-tests-locked); curtailmit.run_manifest; curtailmit.decision_registry; docs/reproducibility.md; docs/acceptance_criteria_status.md; README.md; Task 15 commit 135cfea"
 
 ben_cross_check:
   status: reference_only
