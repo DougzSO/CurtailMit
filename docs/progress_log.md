@@ -231,3 +231,7 @@ into `config/scenarios.yaml`.
 ## Task 15-3 (2026-10) - closeout: D35 and Makefile history
 
 - D35 adopted (acceptance criterion 5 superseded by the Task 11E2 validation; no production change). `docs/acceptance_criteria_status.md` criterion 5 restated. `docs/orchestration.md` carries the corrected-defect note on the Makefile (non-functional until Task 15-2).
+
+## Task 13B-1 (2026-10) - design for figures and limitations_summary.md
+
+- `docs/task13b_design.md` (PROPOSAL, nothing implemented): prototype findings (the 11E4 coverage figure can be rebuilt from the production Option E parquet; the "largest observed value" tick cannot), figure list F1-F4/S1 plus tables T1-T3, three options for the visual distinction of the 2050 conditional range, by-theme generated `limitations_summary.md`, module layout, test plan, dependency note (matplotlib already declared and locked; no change). DeCarbon author guidelines could not be read (HTTP 403); defaults flagged for confirmation. Eight questions for approval at the end of the document.
