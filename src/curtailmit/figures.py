@@ -57,7 +57,7 @@ ONE_AND_HALF_COLUMN_MM = 140.0
 DOUBLE_COLUMN_MM = 190.0
 RASTER_DPI_BY_ART = {"halftone": 300, "combination": 500, "line": 1000}  # the guide's minima per art type
 # The figures mix hatched / tinted regions with line work, which sits between "combination" and "line art". The ambiguity is removed, not resolved figure by figure: the STRICTEST category (line art, 1000 dpi)
-# is applied to every PNG (the conservative choice: more pixels rather than the risk of a rejected raster). (Vector PDF / SVG output was dropped by the user's later decision: see OUTPUT_FORMATS; the PNG is therefore the only figure file.)
+# is applied to every PNG (the conservative choice: more pixels rather than the risk of a rejected raster). The DeCarbon dpi table applies to bitmap submissions only: PDF and SVG are resolution-independent and remain the preferred / master formats for line- and text-heavy figures like these; the 1000 dpi PNG is the raster conformance copy.
 PNG_DPI = RASTER_DPI_BY_ART["line"]
 # Target width per figure: a layout judgment by content density (multi-panel or long-legend figures take the double column). Changing an entry only re-renders; no data is re-derived.
 FIGURE_WIDTH_MM = {"F1": DOUBLE_COLUMN_MM, "F2": DOUBLE_COLUMN_MM, "F4": DOUBLE_COLUMN_MM, "S1": DOUBLE_COLUMN_MM, "S2": ONE_AND_HALF_COLUMN_MM}
@@ -500,12 +500,12 @@ def sha256_of(path: Path) -> str:
     return h.hexdigest()
 
 
-OUTPUT_FORMATS = ("png",)  # user decision (Task 13B, after the review): PNG only, no vector copies. Adding "pdf" / "svg" back is this one line (the vector writers below are kept).
+OUTPUT_FORMATS = ("pdf", "svg", "png")  # Task 17 Part 0: vector (PDF / SVG) is the master, the 1000 dpi PNG the raster conformance copy. The dpi table of the author guide applies to bitmaps only; vectors have no resolution.
 _VECTOR_METADATA = {"pdf": {"Creator": "curtailmit.figures", "Producer": "matplotlib", "CreationDate": None}, "svg": {"Date": None, "Creator": "curtailmit.figures"}}
 
 
 def write_figure(fig, name: str, frame: pd.DataFrame, caption: str, out_dir: Path, dpi: int = PNG_DPI) -> dict[str, Path]:
-    """The figure in OUTPUT_FORMATS (PNG at `dpi`) + data CSV + caption. Runs the forbidden-wording check on the figure text and the caption first. No creation dates are embedded, so equal inputs give equal files."""
+    """The figure in OUTPUT_FORMATS (PDF, SVG, PNG at `dpi`) + data CSV + caption. Runs the forbidden-wording check on the figure text and the caption first. No creation dates are embedded, so equal inputs give equal files."""
     assert_clean(figure_texts(fig), f"figure {name}")
     assert_clean([caption], f"caption of {name}")
     out_dir = Path(out_dir)

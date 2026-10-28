@@ -263,3 +263,7 @@ into `config/scenarios.yaml`.
 ## Task 13B review decisions (2026-10-27)
 
 - F4 and F1 both stay main figures; 2025 explanation goes in the manuscript text; font and palette kept. Figures are now PNG only (`figures.OUTPUT_FORMATS`); the earlier PDF / SVG of the five figures were deleted from the local figures folder. See `docs/task13b_design.md`, "Task 13B - review decisions".
+
+## Task 17 Part 0 (2026-10-28) - vector figure output restored
+
+- `figures.OUTPUT_FORMATS` back to `("pdf", "svg", "png")`; PNG remains 1000 dpi; F1, F2, F4, S1, S2 regenerated in all three formats. Analysis prototypes untouched.
