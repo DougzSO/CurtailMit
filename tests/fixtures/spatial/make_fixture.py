@@ -17,7 +17,7 @@ STEM = "synthetic_states"
 _theta = np.linspace(0.0, 2.0 * np.pi, 361)[:-1]
 # clockwise: decreasing angle
 _WAVY = np.column_stack([60.0 + (12.0 + 0.004 * np.sin(20 * _theta)) * np.cos(-_theta), 20.0 + (12.0 + 0.004 * np.sin(20 * _theta)) * np.sin(-_theta)])
-_WAVY = np.vstack([_WAVY, _WAVY[:1]])
+_WAVY = np.round(np.vstack([_WAVY, _WAVY[:1]]), 9)  # rounded: sin / cos differ in the last bits between platforms, and the fixture bytes must not
 
 # name, HASC code, rings (each closed)
 FEATURES = [
