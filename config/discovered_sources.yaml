@@ -1015,6 +1015,10 @@ decisions:
       (10 months) moves 3.4 to 5.0 pp. A swing of that size, in a series of two complete-or-near-complete years, cannot support an allocation to 2030-2050. The partial 2024 year is a possible confound (9 months)
       and is stated as such; it does not make the rule validatable. Panel C3 is therefore not built. No projected regional number exists in the project.
     implemented_in: "src/curtailmit/regional_allocation.py (validation only); tests/test_regional_allocation.py; docs/task17_design.md (Task 17-3)"
+    closed_note: >
+      Rejection confirmed by the user (Task 17-4), not reopened with capacity_share. The solar failure comes from insufficient history (one complete year), not from a flaw of the historical-share rule
+      itself; capacity_share over the same data would meet the same limit. Reopening requires new data (more complete solar years, or an independently validatable state-level capacity series with enough
+      history to test against), not a new formulation over the same data. The fallback is descriptive text only (docs/methodology.md section 2.3l); no C3 figure and no projected regional number exist.
 
 ben_cross_check:
   status: reference_only

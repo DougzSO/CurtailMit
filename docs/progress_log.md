@@ -286,3 +286,8 @@ into `config/scenarios.yaml`.
 ## Task 17-3 (2026-10-28) - D37 regional allocation validated and rejected; C3 not built
 
 - The user approved the visual review of Tasks 13B and 17. For D37 the user's working direction (Option B, central year 2025, macro-regions, bars) was tested before adoption (`src/curtailmit/regional_allocation.py`, `tests/test_regional_allocation.py`). Wind passes trivially (Northeast 98.6-99.0 percent in every complete year; nothing to decompose). Solar fails: one complete year only, so leave-one-year-out cannot be run, and the NE share moves 71.5 to 51.6 percent between 2024 (9 months) and 2025 (19.8 pp swing). D37 is `rejected`, pending the user's confirmation; figure C3 not built. See `docs/task17_design.md`, "Update (Task 17-3)".
+
+## Task 17-4 (2026-10-28) - D37 closed; figure set finalized
+
+- D37 stays `rejected` (confirmed by the user; reopening needs new data, see the entry). Descriptive fallback recorded in `docs/methodology.md` section 2.3l. Tasks 13B and 17 are implemented, awaiting final visual sign-off (see `docs/acceptance_criteria_status.md`). No C3, no projected regional numbers.
+- **Backlog (out of scope, unrelated files):** `ruff check .` at the repository root reports 35 errors outside `src` and `tests` (checked clean: `ruff check src tests`). Separate cleanup task.

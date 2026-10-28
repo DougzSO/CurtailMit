@@ -27,3 +27,11 @@ Criterion 4 is tied to figures. `curtailmit.figures` refuses a `final_results` t
 ## Task 17 (context figures)
 
 Task 17 does not correspond to any of the five acceptance criteria of `docs/roadmap.md` section 7: it adds context figures built from observed data and calibration outputs (C1, C1S, C2) and the local-only boundary data they need. No production table value changes and no status in the table above is changed. (Task 13B remains implemented but not closed.)
+
+## Status of the figure tasks (Task 17-4)
+
+Tasks 13B and 17 are **implemented but not formally closed or accepted**: both await the user's final visual sign-off on the figure files themselves. No status in the table above is changed.
+
+- **Task 13B, pending sign-off:** F1 (mitigation deficit), F2 (support), S1 (band vs supplement), S2 (backtest).
+- **Task 17, pending sign-off:** C1 (observed curtailment map, 2025), C1S (observed curtailment by year), C2 (dose-response).
+- Figure C3 does not exist: decision D37 (regional allocation of the projection) was rejected in Task 17-3.
