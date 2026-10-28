@@ -321,3 +321,8 @@ Appended. The user reviewed the figures and decided:
 ## Task 17 Part 0 - vector output restored (2026-10-28)
 
 Appended. The "PNG only" decision of the review section above is reverted at the user's request: `figures.OUTPUT_FORMATS = ("pdf", "svg", "png")`. PDF and SVG are the preferred / master formats (resolution-independent, better for line- and text-heavy figures); the 1000 dpi PNG stays as the raster conformance copy. The DeCarbon dpi table applies to bitmap submissions only. Note on the record: the PNG-only change (commit `6fd6394`) followed the user's instruction of that review message; it is reverted by a later instruction, not because it was a misreading. The five figures were regenerated in all three formats. The analysis-prototype files (`fig_insample_coverage.*`, `task11*`) were not touched.
+
+
+## Task 17 housekeeping - PNG only again (2026-10-28)
+
+Appended. At the user's request `figures.OUTPUT_FORMATS = ("png",)` again (the "vector restored" section above is superseded for the formats), the PDF / SVG files were deleted from the local figures folder, exploratory analysis PNGs were moved to `outputs/figures_exploratory/`, and the analysis scripts no longer write PDF / SVG. The 1000 dpi PNG is the only figure file; the `_data.csv`, `_caption.txt` and `figures_manifest.json` companions remain.

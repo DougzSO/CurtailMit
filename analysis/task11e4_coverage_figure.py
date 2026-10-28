@@ -3,7 +3,7 @@
 Data: DATABASE_ROOT/outputs/tables/task11e2_coverage_table.csv (Task 11E2-a, phi = 1: today's flexibility), i.e. the PTE-scaled 2025 hourly shape of the SIN-wide potential VRE share of load r compared with the hourly r observed in
 2022-01..2026-09 (41,616 hours). "Inside the observed support" = r <= 63 %: the last 2-pp bin of r that holds at least 15 observed hours; the largest r ever observed is 75.8 %.
 Panel (a): share of the projected hours inside the support (bars) and inside the observed maximum (tick). Panel (b): share of the projected CURTAILED ENERGY produced by hours inside the support, wind (solid) and solar (dashed).
-Convention for manuscript use: vector PDF (and SVG) plus a 600-dpi PNG in DATABASE_ROOT/outputs/figures/, named fig_insample_coverage.*; the numbers behind every bar are in fig_insample_coverage_data.csv in DATABASE_ROOT/outputs/tables/;
+Convention for manuscript use (updated Task 17: PNG only, no PDF / SVG, in DATABASE_ROOT/outputs/figures_exploratory/), named fig_insample_coverage.*; the numbers behind every bar are in fig_insample_coverage_data.csv in DATABASE_ROOT/outputs/tables/;
 the caption text is saved as fig_insample_coverage_caption.txt next to the figure. Colour-blind-safe palette (Okabe-Ito); no colour is needed to read the panels (bar labels carry the values).
 Run:  python analysis/task11e4_coverage_figure.py
 
@@ -73,8 +73,6 @@ def figure(tab: pd.DataFrame, stem: Path) -> None:
     b.set(ylim=(0, 105), ylabel="Projected curtailment from supported hours (%)", title="(b) Energy with historical support")
     b.legend(frameon=False, fontsize=6, ncol=2, loc="lower left")
     fig.tight_layout()
-    for ext in ("pdf", "svg"):
-        fig.savefig(stem.with_suffix(f".{ext}"))
     fig.savefig(stem.with_suffix(".png"), dpi=600)
     plt.close(fig)
 

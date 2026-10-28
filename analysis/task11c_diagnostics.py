@@ -32,7 +32,9 @@ def tables_dir() -> Path:
 
 
 def figs_dir() -> Path:
-    return get_outputs_dir("figures")
+    d = get_outputs_dir("figures").parent / "figures_exploratory"  # exploratory analysis figures stay out of outputs/figures (main figures only)
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 
 # ----------------------------------------------------------------------------------------------- loaders
