@@ -967,6 +967,37 @@ decisions:
       - theme: historical-validation
         text: "No 2020 historical anchor is part of the production table; historical validation rests on the 2023-2026 backtest, which shows a downward bias in the latest years (wind 2025: -8 percent in sample, -19 percent trained on 2022-24), recorded as the D25 limitation."
 
+  D36:
+    status: pending
+    date: "2026-10-28"
+    topic: "Boundary geometry source and vintage for the context maps (C1)"
+    source_task: "Task 17-1 (docs/task17_design.md section 1)"
+    found: >
+      The spatial inventory found one complete, documented candidate for Brazilian state boundaries: GADM 4.1 level 1 (gadm41_BRA_1.shp, 27 features, WGS 84, byte-identical in two local
+      copies, one dated 2022-07-18). A derived "mainland" version has an undocumented clipping step, a Northeast-only GeoJSON has no documented source, and no IBGE or Natural Earth admin-1 file
+      was found. GADM's terms (non-commercial use, no redistribution without permission, to be re-checked) matter for whether the geometry may be committed to the public repository.
+    options:
+      gadm_4_1_level_1_local_only: "Recommended: gadm41_BRA_1.shp, kept in curtailmit_database only (D33 pattern), recorded by SHA-256; CI uses a tiny synthetic geometry fixture."
+      ibge_malha_estadual: "Official Brazilian boundaries (IBGE open data); not found locally, would be downloaded; clean licence, a different vintage."
+      natural_earth_admin_1: "Public domain, coarser; admin-1 file not found locally (only admin-0)."
+    working_reading: "gadm_4_1_level_1_local_only. Low stakes: a different vintage changes boundary pixels, not any number."
+    implemented_in: "-"
+
+  D37:
+    status: pending
+    date: "2026-10-28"
+    topic: "Rule for spatially disaggregating the national Option E projection (projected regional risk map, Map 2)"
+    source_task: "Task 17-1 (docs/task17_design.md section 3)"
+    found: >
+      The Option E model is national and hourly with no spatial component (D24). The only subnational information is the observed state of each plant in the ONS curtailment files. A map of projected
+      2030 / 2040 / 2050 curtailment by state or region therefore needs a new, high-impact allocation rule, which is a methodological decision, not a visualization choice.
+    options:
+      capacity_share: "Allocate by each state's or region's share of the PTE-projected installed wind and solar capacity, by scenario and year."
+      historical_curtailment_share: "Allocate by each state's share of observed curtailment (extrapolating today's concentration forward)."
+      hybrid_or_other: "For example capacity share weighted by an observed curtailment propensity per state, or resource-potential based; listed only, no recommendation."
+    working_reading: "No choice made. Map 2 is not implemented until this decision is taken."
+    implemented_in: "-"
+
 ben_cross_check:
   status: reference_only
   wired_into_pipeline: false

@@ -129,8 +129,10 @@ Generated from `docs/roadmap.md` (D1-D12) and `config/discovered_sources.yaml` (
 | D33 | Data-availability promise of the project (curtailmit_database is local-only) | adopted | YAML, Task 15-1 | data_snapshot_manifest.json |
 | D34 | Task 15 scope split, environment lock mechanism, handling of D1-D12 in the YAML | adopted | YAML, Task 15-1 | tests/test_determinism.py |
 | D35 | Acceptance criterion 5 (2020 historical anchor, source historical_ons) is superseded by the Task 11E2 backtes... | adopted | YAML, Task 15-3 | docs/acceptance_criteria_status.md (criterion 5 restated as superseded by D35) |
+| D36 | Boundary geometry source and vintage for the context maps (C1) | pending | YAML, Task 17-1 | - |
+| D37 | Rule for spatially disaggregating the national Option E projection (projected regional risk map, Map 2) | pending | YAML, Task 17-1 | - |
 
-35 decisions: 35 adopted.
+37 decisions: 35 adopted, 2 pending.
 
 **Numbering note.** `D27` in older documents (Task 11E4, `docs/task11e4_findings.md`) denotes the sub-hourly feasibility candidate of Task 11E4 (negative result, never adopted); it is written `D27-candidate` there and is NOT the adopted `D27` of this table.
 

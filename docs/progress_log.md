@@ -267,3 +267,7 @@ into `config/scenarios.yaml`.
 ## Task 17 Part 0 (2026-10-28) - vector figure output restored
 
 - `figures.OUTPUT_FORMATS` back to `("pdf", "svg", "png")`; PNG remains 1000 dpi; F1, F2, F4, S1, S2 regenerated in all three formats. Analysis prototypes untouched.
+
+## Task 17-1 (2026-10-28) - design for context figures (PROPOSAL, nothing implemented)
+
+- Part 0 (commit `627da75`): vector output restored. `docs/task17_design.md`: spatial inventory (GADM 4.1 level 1 shapefile recommended, local-only for licence reasons; no new dependency needed), C1 observed-curtailment map by state (data: `id_estado` of the raw ONS files, reconciled with the classified table), Map 2 (projected regional risk) framed only as pending decision D37, C2 dose-response figure from the existing calibration outputs, testing plan, ten questions. D36 (geometry source, low stakes) and D37 (spatial disaggregation, high stakes) registered as `pending` in `config/discovered_sources.yaml`.
