@@ -1,9 +1,10 @@
 """Article figures (Task 13B, design in docs/task13b_design.md and its addendum).
 
-Figures: F1 (curtailed energy, central value and range by scenario and horizon), F2 (support: (a) hours, (b) energy, (c) in-support / beyond-support decomposition), F4 (mitigation deficit, OM and CM in
-separate panels, never added: D28), S1 (empirical band next to the split-conformal supplement), S2 (analysis-derived backtest, from the committed fixture tests/fixtures/figures/backtest_annual.csv).
-T1 (full results), T2 (hydrogen and SEC range, D30) and T3 (MCTI sensitivity, D29) stay tables. F3 was folded into F2 panel (c) (addendum Q4). There is no national / regional / Option E comparison figure
-(Q6) and no 2022-2025 history overlay in F1 (Q2). The "largest observed value" (r_max) reference of the 11E4 prototype is not drawn and no r_max column exists anywhere (Q8).
+Figures: F1 (mitigation deficit, OM and CM factors in separate panels, never added: D28, plus the average factor for reference), F2 (support: (a) hours, (b) energy, (c) in-support / beyond-support
+decomposition), S1 (empirical band next to the split-conformal supplement), S2 (analysis-derived backtest, from the committed fixture tests/fixtures/figures/backtest_annual.csv). The earlier F1 (curtailed
+energy by scenario and horizon) was dropped at the user's review and the earlier F4 became F1: the curtailed energy itself is carried by the results table (T1). T1 (full results), T2 (hydrogen and SEC
+range, D30) and T3 (MCTI sensitivity, D29) stay tables. F3 was folded into F2 panel (c) (addendum Q4). There is no national / regional / Option E comparison figure (Q6) and no history overlay (Q2). The
+"largest observed value" (r_max) reference of the 11E4 prototype is not drawn and no r_max column exists anywhere (Q8). The context figures C1, C1S, C2 are in `curtailmit.figures_context`.
 
 Data discipline: every number plotted is read from `final_results` (validated with `results_writer.read_final_results`) or, for F2 only, from the Option E production table
 (`processed/pte_curtailment_option_E.parquet`, the table `final_results` is built from). Nothing is recomputed from raw data. Captions take their numbers from the same frames.
@@ -15,7 +16,7 @@ there: the table says where it is (D25). Nothing in a figure may suggest confide
 DeCarbon standards (Task 13B-finalize): the bitmap resolution and the column widths are CONFIRMED from the author-guide excerpt the user supplied (halftone 300 dpi, combination 500 dpi, line art 1000 dpi; columns 90 / 140 / 190 mm).
 Font size (7.5 pt, floor 6 pt) and the Okabe-Ito palette were not in that excerpt: they are the project's own accessibility choices, listed in PROVISIONAL_STANDARDS and changeable in the block below.
 
-    python -m curtailmit.figures [--only F1,F2,F4,S1,S2] [--out-dir DIR] [--dpi N]      (also: python scripts/generate_figures.py)
+    python -m curtailmit.figures [--only F1,F2,S1,S2] [--out-dir DIR] [--dpi N]      (also: python scripts/generate_figures.py)
 
 Figures are not a stage of `curtailmit-run`: they do not affect the numbers, and a plotting failure must not fail a numerical run (design section 5). The CLI refuses to run on a `final_results` table
 that does not validate and writes `figures_manifest.json` (SHA-256 of the inputs and of every output file, matplotlib version) so that a figure can be traced to the exact table.
@@ -60,7 +61,7 @@ RASTER_DPI_BY_ART = {"halftone": 300, "combination": 500, "line": 1000}  # the g
 # is applied to every PNG (the conservative choice: more pixels rather than the risk of a rejected raster). PNG is the only figure format written (see OUTPUT_FORMATS); the 1000 dpi therefore is the deliverable resolution.
 PNG_DPI = RASTER_DPI_BY_ART["line"]
 # Target width per figure: a layout judgment by content density (multi-panel or long-legend figures take the double column). Changing an entry only re-renders; no data is re-derived.
-FIGURE_WIDTH_MM = {"F1": DOUBLE_COLUMN_MM, "F2": DOUBLE_COLUMN_MM, "F4": DOUBLE_COLUMN_MM, "S1": DOUBLE_COLUMN_MM, "S2": ONE_AND_HALF_COLUMN_MM}
+FIGURE_WIDTH_MM = {"F1": DOUBLE_COLUMN_MM, "F2": DOUBLE_COLUMN_MM, "S1": DOUBLE_COLUMN_MM, "S2": ONE_AND_HALF_COLUMN_MM}
 FONT_FAMILY = "DejaVu Sans"  # ships with matplotlib: no system font needed
 FONT_PT = 7.5
 MIN_FONT_PT = 6.0
@@ -70,14 +71,14 @@ OKABE_ITO_EXTRA = {"orange": "#E69F00", "sky": "#56B4E9", "purple": "#CC79A7", "
 
 SCENARIOS = ("TB", "TA", "TG")
 YEARS = (2025, 2030, 2040, 2050)
-FIGURE_IDS = ("F1", "F2", "F4", "S1", "S2")
+FIGURE_IDS = ("F1", "F2", "S1", "S2")
 CONDITIONAL_LABEL = "conditional range (not a confidence interval)"
 BAND_LABEL = "empirical annual-backtest band (descriptive; not a coverage guarantee)"
 CONDITIONAL_NOTE = "2050 values are a range conditional on a flexibility assumption (φ 1.5 to L = 1), not a statistical interval"
 ALLOWED_NEGATION = "not a confidence interval"  # D24: an explicit denial of confidence-interval semantics; the only literal the figure-text check lets through (see check_text)
 GROUP_X = {2025: 0.0, 2030: 1.0, 2040: 2.0, 2050: 3.45}  # a visible gutter before 2050
-SLOT = 0.27
-BAR_W = 0.22
+SLOT = 0.30
+BAR_W = 0.25
 MM = 1 / 25.4
 
 
@@ -268,18 +269,6 @@ def _rng(values: Iterable[float], nd: int = 0, suffix: str = "") -> str:
 DRAFT = "[DRAFT caption, subject to revision.]"
 
 
-def caption_f1(h: pd.DataFrame) -> str:
-    y50 = h[h["year"] == 2050]
-    beyond = 100 * (1 - y50["in_support_fraction"])
-    ta40 = h[(h["scenario"] == "TA") & (h["year"] == 2040)]
-    partial = ""
-    if len(ta40) and ta40["support_status"].iloc[0] != "within_support":
-        partial = f" TA in 2040 is only partly inside the observed support ({100 * (1 - ta40['in_support_fraction'].iloc[0]):.0f} % of its curtailed energy lies beyond it; open marker)."
-    return (f"{DRAFT} Figure F1. Projected annual curtailed energy (TWh) of wind and solar combined in Brazil for the three PTE scenarios (TB, TA, TG) in 2025, 2030, 2040 and 2050. For 2025-2040 each bar is the empirical annual-backtest band (descriptive; not a coverage guarantee) "
-            f"around the central value (dot). For 2050 the hatched box with a dashed outline is a conditional range (not a confidence interval) between two stated flexibility assumptions, and the diamond is the central value. {CONDITIONAL_NOTE}; the central value (diamond) is not at the midpoint of that range. "
-            f"{_rng(beyond)} % of the projected 2050 curtailed energy comes from hours with no historical analogue.{partial}")
-
-
 def caption_f2(cov: pd.DataFrame) -> str:
     def hours(y):
         return _rng(cov[cov["year"] == y]["pct_hours_inside_support_wind"])
@@ -292,9 +281,9 @@ def caption_f2(cov: pd.DataFrame) -> str:
             f"({_rng(dec[dec['year'] == 2050]['pct_beyond_support'])} % of the 2050 total). The boundary is reported explicitly: 2050 (cond. = conditional) is a conditional range (not a confidence interval), not a calibrated estimate.")
 
 
-def caption_f4(m: pd.DataFrame) -> str:
+def caption_f1(m: pd.DataFrame) -> str:
     y50 = m[(m["year"] == 2050) & (m["kind"] != "avg")]
-    return (f"{DRAFT} Figure F4. Avoided-emission deficit (MtCO2) caused by curtailed wind and solar energy for the three PTE scenarios, with the operating-margin (a) and combined-margin (b) factors in separate panels: the two are alternative proxies for the marginal "
+    return (f"{DRAFT} Figure F1. Avoided-emission deficit (MtCO2) caused by curtailed wind and solar energy for the three PTE scenarios, with the operating-margin (a) and combined-margin (b) factors in separate panels: the two are alternative proxies for the marginal "
             f"emission factor and are never added (D28). Panel (c) gives the average-factor deficit for reference. Bars are the empirical annual-backtest band (descriptive; not a coverage guarantee) around the central "
             f"value (dot); the emission factor is not included in the range. In 2050 the hatched box with a dashed outline is a conditional range (not a confidence interval). {CONDITIONAL_NOTE}; the central value (diamond) is not at its midpoint. "
             f"Central 2050 values (MtCO2): operating margin {_rng(y50[y50['kind'] == 'om']['central'])}, combined margin {_rng(y50[y50['kind'] == 'cm']['central'])}.")
@@ -375,24 +364,18 @@ def _v1_handles() -> list:
 
 # ============================================================================================================================================================================ figure builders
 def figure_f1(fr: pd.DataFrame):
-    h = headline_frame(fr)
-    fig, ax = _fig(FIGURE_WIDTH_MM["F1"], 3.5)
-    draw_series(ax, h, "Curtailed energy (TWh)")
-    ax.legend(handles=_v1_handles(), loc="upper left", frameon=False, ncol=1, handlelength=1.8)
-    fig.tight_layout()
-    return fig, h, caption_f1(h)
-
-
-def figure_f4(fr: pd.DataFrame):
+    """Mitigation deficit (MtCO2): the operating-margin (a) and combined-margin (b) factors in separate panels, never added (D28), and the average factor (c) for reference; the legend sits in the fourth cell of a 2 x 2 grid."""
     m = mitigation_frame(fr)
-    fig, axes = _fig(FIGURE_WIDTH_MM["F4"], 3.5, ncols=3)
+    fig, axes = _fig(FIGURE_WIDTH_MM["F1"], 5.6, nrows=2, ncols=2, layout="constrained")
     titles = {"om": "(a) Operating margin (OM) factor", "cm": "(b) Combined margin (CM) factor", "avg": "(c) Average factor (reference)"}
-    for ax, kind in zip(axes, ("om", "cm", "avg"), strict=True):
-        draw_series(ax, m[m["kind"] == kind], "Avoided-emission deficit (MtCO$_2$)", note="conditional")
+    for ax, kind in zip(axes.flat, ("om", "cm", "avg"), strict=False):
+        draw_series(ax, m[m["kind"] == kind], "Avoided-emission deficit (MtCO$_2$)")
         ax.set_title(titles[kind], fontsize=FONT_PT, loc="left")
-    fig.legend(handles=_v1_handles(), loc="lower center", frameon=False, ncol=2, handlelength=1.8, bbox_to_anchor=(0.5, 0.0))
-    fig.tight_layout(rect=(0, 0.14, 1, 1))
-    return fig, m, caption_f4(m)
+    key = axes.flat[3]
+    key.axis("off")
+    key.legend(handles=_v1_handles(), loc="center left", frameon=False, ncol=1, handlelength=2.0, fontsize=MIN_FONT_PT + 0.5, labelspacing=0.9)
+    key.text(0.0, 0.12, "The emission factor is not included in the ranges (D28).", transform=key.transAxes, fontsize=MIN_FONT_PT, color="0.25", va="top", gid="note-factor")
+    return fig, m, caption_f1(m)
 
 
 def figure_f2(oe: pd.DataFrame):
@@ -524,7 +507,7 @@ def write_figure(fig, name: str, frame: pd.DataFrame, caption: str, out_dir: Pat
     return files
 
 
-FILE_NAMES = {"F1": "F1_curtailed_energy", "F2": "F2_support", "F4": "F4_mitigation_deficit", "S1": "S1_band_vs_supplement", "S2": "S2_backtest"}
+FILE_NAMES = {"F1": "F1_mitigation_deficit", "F2": "F2_support", "S1": "S1_band_vs_supplement", "S2": "S2_backtest"}
 
 
 def build(only: Iterable[str] | None = None, final_results: Path | None = None, option_e: Path | None = None, backtest: Path | None = None, out_dir: Path | None = None, dpi: int = PNG_DPI) -> dict:
@@ -536,7 +519,7 @@ def build(only: Iterable[str] | None = None, final_results: Path | None = None, 
     out_dir = Path(out_dir) if out_dir is not None else default_out_dir()
     inputs: dict[str, Path] = {}
     fr = oe = None
-    if any(w in ("F1", "F4", "S1") for w in wanted):
+    if any(w in ("F1", "S1") for w in wanted):
         fr_path = Path(final_results) if final_results is not None else _tables_dir() / f"{rw.FINAL_RESULTS_FILENAME}.parquet"
         fr = load_final_results(fr_path)
         inputs["final_results"] = fr_path
@@ -548,7 +531,7 @@ def build(only: Iterable[str] | None = None, final_results: Path | None = None, 
         inputs["backtest_fixture"] = Path(backtest) if backtest is not None else BACKTEST_FIXTURE
     made = {}
     for fid in wanted:
-        fig, frame, cap = {"F1": lambda: figure_f1(fr), "F2": lambda: figure_f2(oe), "F4": lambda: figure_f4(fr), "S1": lambda: figure_s1(fr), "S2": lambda: figure_s2(inputs["backtest_fixture"])}[fid]()
+        fig, frame, cap = {"F1": lambda: figure_f1(fr), "F2": lambda: figure_f2(oe), "S1": lambda: figure_s1(fr), "S2": lambda: figure_s2(inputs["backtest_fixture"])}[fid]()
         made[fid] = write_figure(fig, FILE_NAMES[fid], frame, cap, out_dir, dpi=dpi)
     manifest_path = out_dir / "figures_manifest.json"
     try:
@@ -557,6 +540,9 @@ def build(only: Iterable[str] | None = None, final_results: Path | None = None, 
         manifest = {}
     manifest.update({"matplotlib": matplotlib.__version__, "png_dpi": dpi, "confirmed_decarbon_standards": CONFIRMED_STANDARDS, "provisional_decarbon_standards": PROVISIONAL_STANDARDS, "figure_width_mm": FIGURE_WIDTH_MM})
     manifest.setdefault("inputs", {}).update({k: {"path": p.as_posix(), "sha256": sha256_of(p)} for k, p in inputs.items()})
+    for stale in [k for k in manifest.get("figures", {}) if k not in FIGURE_IDS and not k.startswith("C")]:  # a figure id that was retired (F4 became F1, the old F1 was dropped)
+        del manifest["figures"][stale]
+        manifest.get("figure_width_mm", {}).pop(stale, None)
     manifest.setdefault("figures", {}).update({fid: {k: {"file": p.name, "sha256": sha256_of(p)} for k, p in files.items()} for fid, files in made.items()})
     manifest_path.write_text(json.dumps(manifest, indent=1, sort_keys=True), encoding="utf-8")
     return manifest

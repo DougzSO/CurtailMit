@@ -56,7 +56,7 @@ python -m curtailmit.doc_generation --check   # generated documentation blocks v
 | `docs/orchestration.md` | the `curtailmit-run` command, skip logic, gates, CI |
 | `docs/roadmap.md`, `docs/progress_log.md`, `docs/claude_commands.md` | plan, history by task, task prompts (append-only history, with update notes) |
 | `docs/pre_submission_checklist.md` | open items to close by hand before submitting the article (ONS/MCTI licensing) |
-| `docs/task13b_design.md`, `src/curtailmit/figures.py` | article figures F1, F2, F4, S1, S2 (`python scripts/generate_figures.py`; implemented; raster 1000 dpi and column widths follow the DeCarbon author guide; NOT yet accepted: final human look pending; automated checks: `python -m curtailmit.figure_checks`) |
+| `docs/task13b_design.md`, `src/curtailmit/figures.py` | article figures F1 (mitigation deficit), F2, S1, S2 (`python scripts/generate_figures.py`; implemented; raster 1000 dpi and column widths follow the DeCarbon author guide; NOT yet accepted: final human look pending; automated checks: `python -m curtailmit.figure_checks`) |
 | `docs/task17_design.md`, `src/curtailmit/{spatial,context_data,figures_context}.py` | context figures C1 / C1S (observed curtailment by state, `python scripts/build_context_data.py` then `python -m curtailmit.figures_context`) and C2 (dose-response curve); boundary geometry GADM 4.1 is local-only (D36); the projected regional map (D37) is pending and NOT implemented |
 | `docs/limitations_summary.md` | the limitations of the production model by theme, generated from the decisions and the output table caveats |
 | `docs/acceptance_criteria_status.md` | roadmap acceptance criteria against the production table |

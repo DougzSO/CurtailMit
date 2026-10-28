@@ -49,7 +49,7 @@ def _artists(ax, prefix: str):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------ scope and constants
 def test_the_figure_set_is_f1_f2_f4_s1_s2_and_tables_are_not_figures():
-    assert fg.FIGURE_IDS == ("F1", "F2", "F4", "S1", "S2")  # F3 is panel (c) of F2; T1-T3 remain tables; no comparison figure, no history overlay
+    assert fg.FIGURE_IDS == ("F1", "F2", "S1", "S2")  # F3 is panel (c) of F2; T1-T3 remain tables; no comparison figure, no history overlay
     assert matplotlib.get_backend().lower() == "agg"
 
 
@@ -87,9 +87,9 @@ def test_mitigation_frame_keeps_om_and_cm_apart_and_never_sums_them(final_result
     om = m[m.kind == "om"].set_index(["scenario", "year"])["central"]
     cm = m[m.kind == "cm"].set_index(["scenario", "year"])["central"]
     assert not np.allclose(om, cm)
-    fig, _, _ = fg.figure_f4(final_results)
+    fig, _, _ = fg.figure_f1(final_results)
     plotted = {}
-    for ax, kind in zip(fig.axes, ("om", "cm", "avg"), strict=True):
+    for ax, kind in zip(fig.axes[:3], ("om", "cm", "avg"), strict=True):
         pts = {a.get_gid(): float(a.get_ydata()[0]) for a in _artists(ax, "central-")}
         plotted[kind] = pts
         assert len(pts) == 12
@@ -193,7 +193,8 @@ def test_f1_draws_2050_in_the_conditional_style_and_the_band_in_the_solid_style(
 
 
 def test_f1_central_value_is_a_diamond_at_the_table_value_and_not_at_the_midpoint(final_results):
-    fig, h, _ = fg.figure_f1(final_results)
+    fig, m, _ = fg.figure_f1(final_results)
+    h = m[m.kind == "om"]  # the operating-margin panel
     ax = fig.axes[0]
     for _, r in h[h.year == 2050].iterrows():
         (m,) = _artists(ax, f"central-{r.scenario}-2050")
@@ -208,22 +209,22 @@ def test_f1_central_value_is_a_diamond_at_the_table_value_and_not_at_the_midpoin
 def test_f1_legend_and_caption_carry_the_mandatory_wording_and_ta_2040_is_marked_partial(final_results):
     fig, _h, cap = fg.figure_f1(final_results)
     ax = fig.axes[0]
-    legend = [t.get_text() for t in ax.get_legend().get_texts()]
+    legend = [t.get_text() for t in fig.axes[3].get_legend().get_texts()]  # the legend sits in the fourth cell of the 2 x 2 grid
     assert "conditional range (not a confidence interval)" in legend and fg.BAND_LABEL in legend
-    assert fg.CONDITIONAL_NOTE in cap and "not at the midpoint" in cap
+    assert fg.CONDITIONAL_NOTE in cap and "not at its midpoint" in cap
     (ta,) = _artists(ax, "central-TA-2040")
     assert ta.get_markerfacecolor() == "white"  # open marker = partial support (D24)
     assert [a.get_text() for a in _artists(ax, "partial-TA-2040")] == ["partial\nsupport"]
     assert not _artists(ax, "partial-TB-2040")
 
 
-def test_f4_uses_the_same_2050_style_in_each_panel(final_results):
-    fig, _, cap = fg.figure_f4(final_results)
-    assert len(fig.axes) == 3
-    for ax in fig.axes:
+def test_f1_uses_the_same_2050_style_in_each_data_panel_and_keeps_the_legend_and_the_factor_note_in_the_fourth_cell(final_results):
+    fig, _, cap = fg.figure_f1(final_results)
+    assert len(fig.axes) == 4 and [ax.axison for ax in fig.axes] == [True, True, True, False]
+    for ax in fig.axes[:3]:
         assert len(_artists(ax, "conditional-")) == 3 and all(a.get_hatch() and a.get_linestyle() == "--" for a in _artists(ax, "conditional-"))
     assert fg.CONDITIONAL_NOTE in cap and "never added" in cap and "not included in the range" in cap
-    assert "conditional range (not a confidence interval)" in [t.get_text() for lg in fig.legends for t in lg.get_texts()]
+    assert [a.get_text() for a in _artists(fig.axes[3], "note-factor")] == ["The emission factor is not included in the ranges (D28)."]
 
 
 # ---------------------------------------------------------------------------------------------------------------------------- the text check and its single literal exception (D24)
@@ -249,7 +250,7 @@ def test_the_table_filter_is_not_relaxed_by_the_figure_exception(final_results):
 
 
 def test_every_figure_text_and_caption_passes_the_filter_with_the_one_exception(final_results, option_e, tmp_path):
-    for builder in (lambda: fg.figure_f1(final_results), lambda: fg.figure_f4(final_results), lambda: fg.figure_f2(option_e), lambda: fg.figure_s1(final_results), lambda: fg.figure_s2()):
+    for builder in (lambda: fg.figure_f1(final_results), lambda: fg.figure_f2(option_e), lambda: fg.figure_s1(final_results), lambda: fg.figure_s2()):
         fig, _, cap = builder()
         texts = fg.figure_texts(fig)
         assert texts and not [t for t in texts if fg.check_text(t)] and not fg.check_text(cap)
@@ -286,16 +287,6 @@ def test_f2_caption_percentages_are_recomputed_from_the_option_e_table(option_e)
     cap = fg.caption_f2(cov)
     assert _numbers(cap)[-6:] == expected
     assert f"{fg.hourly_model.MIN_HOURS} observed hours" in cap
-
-
-def test_f1_caption_percentages_are_recomputed_from_final_results(final_results):
-    h = fg.headline_frame(final_results)
-    beyond = (100 * (1 - h[h.year == 2050].in_support_fraction)).round().astype(int)
-    lo, hi = beyond.min(), beyond.max()
-    cap = fg.caption_f1(h)
-    assert f"{lo if lo == hi else f'{lo}-{hi}'} % of the projected 2050 curtailed energy" in cap
-    ta = h[(h.scenario == "TA") & (h.year == 2040)].iloc[0]
-    assert f"({100 * (1 - ta.in_support_fraction):.0f} % of its curtailed energy lies beyond it" in cap
 
 
 def test_s1_caption_width_ratio_is_the_table_ratio(final_results):
@@ -343,7 +334,7 @@ def test_backtest_fixture_equals_the_analysis_output_it_was_taken_from():
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------- file output
 def test_every_figure_writes_only_a_png_plus_data_and_caption(final_results, option_e, tmp_path):
     assert fg.OUTPUT_FORMATS == ("png",)  # PNG only (user decision): no PDF / SVG is generated
-    builders = {"F1": lambda: fg.figure_f1(final_results), "F2": lambda: fg.figure_f2(option_e), "F4": lambda: fg.figure_f4(final_results), "S1": lambda: fg.figure_s1(final_results), "S2": lambda: fg.figure_s2()}
+    builders = {"F1": lambda: fg.figure_f1(final_results), "F2": lambda: fg.figure_f2(option_e), "S1": lambda: fg.figure_s1(final_results), "S2": lambda: fg.figure_s2()}
     for fid, build in builders.items():
         fig, frame, cap = build()
         files = fg.write_figure(fig, fg.FILE_NAMES[fid], frame, cap, tmp_path, dpi=LOW_DPI)
@@ -365,7 +356,7 @@ def test_png_is_written_at_1000_dpi_at_the_assigned_width(option_e, tmp_path):
 
 
 def test_smallest_font_in_any_figure_is_at_least_the_minimum(final_results, option_e):
-    for fig in (fg.figure_f1(final_results)[0], fg.figure_f2(option_e)[0], fg.figure_f4(final_results)[0], fg.figure_s1(final_results)[0], fg.figure_s2()[0]):
+    for fig in (fg.figure_f1(final_results)[0], fg.figure_f2(option_e)[0], fg.figure_s1(final_results)[0], fg.figure_s2()[0]):
         fig.canvas.draw()
         sizes = [t.get_fontsize() for t in fig.findobj(matplotlib.text.Text) if t.get_text().strip()]
         assert min(sizes) >= fg.MIN_FONT_PT - 0.5 - 1e-9, min(sizes)  # the scenario tags under the bars are MIN_FONT_PT - 0.5 by design
@@ -427,8 +418,8 @@ def test_real_tables_build_every_figure_and_match_the_prototype_numbers(tmp_path
 
 
 def test_captions_are_descriptive_drafts_and_every_2050_caption_says_not_a_confidence_interval(final_results, option_e):
-    caps = {"F1": fg.figure_f1(final_results)[2], "F2": fg.figure_f2(option_e)[2], "F4": fg.figure_f4(final_results)[2], "S1": fg.figure_s1(final_results)[2], "S2": fg.figure_s2()[2]}
+    caps = {"F1": fg.figure_f1(final_results)[2], "F2": fg.figure_f2(option_e)[2], "S1": fg.figure_s1(final_results)[2], "S2": fg.figure_s2()[2]}
     for fid, cap in caps.items():
         assert "Figure X" not in cap and cap.startswith(fg.DRAFT) and f"Figure {fid}" in cap and not fg.check_text(cap)
-    for fid in ("F1", "F2", "F4"):  # the figures that show the 2050 conditional range
+    for fid in ("F1", "F2"):  # the figures that show the 2050 conditional range
         assert "(not a confidence interval)" in caps[fid], fid

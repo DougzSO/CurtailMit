@@ -1002,7 +1002,7 @@ decisions:
       capacity_share: "Allocate by each state's or region's share of the PTE-projected installed wind and solar capacity, by scenario and year."
       historical_curtailment_share: "Allocate by each state's share of observed curtailment (extrapolating today's concentration forward)."
       hybrid_or_other: "For example capacity share weighted by an observed curtailment propensity per state, or resource-potential based; listed only, no recommendation."
-    working_reading: "No choice made. Map 2 is not implemented until this decision is taken."
+    working_reading: "No choice made. Map 2 is not implemented until this decision is taken. Review of 2026-10-28: the user asked for projected state maps (wind and solar, years such as 2025, 2030, 2035, 2040, 2050); that request depends on this decision, and 2035 is not in the PTE year grid (2025, 2030, 2040, 2050), so it would be an interpolated year."
     implemented_in: "-"
 
 ben_cross_check:

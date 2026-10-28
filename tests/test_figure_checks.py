@@ -65,14 +65,13 @@ def test_number_verification_catches_a_value_that_is_not_in_the_table(tables):
     fig, _, _ = fg.figure_f1(central)
     assert fc.verify_f1(fig, central)[0] == []
     tampered = central.copy()
-    hit = (tampered.quantity == "curtailed_energy") & (tampered.component == "total") & (tampered.scenario == "TB") & (tampered.year == 2050)
+    hit = (tampered.quantity == "mitigation_deficit_marginal_om") & (tampered.component == "total") & (tampered.scenario == "TB") & (tampered.year == 2050)
     tampered.loc[hit, "central_value"] *= 1.001
     problems, _ = fc.verify_f1(fig, tampered)
     assert len(problems) == 1 and "TB 2050 central" in problems[0]
-    fig4, _, _ = fg.figure_f4(central)
-    t4 = central.copy()
-    t4.loc[(t4.quantity == "mitigation_deficit_marginal_cm") & (t4.component == "total") & (t4.scenario == "TA") & (t4.year == 2040), "conditional_range_high"] += 1.0
-    assert any("TA 2040 high" in p for p in fc.verify_f4(fig4, t4)[0])
+    t2 = central.copy()
+    t2.loc[(t2.quantity == "mitigation_deficit_marginal_cm") & (t2.component == "total") & (t2.scenario == "TA") & (t2.year == 2040), "conditional_range_high"] += 1.0
+    assert any("TA 2040 high" in p for p in fc.verify_f1(fig, t2)[0])
 
 
 def test_f2_and_s2_verification_catch_a_changed_source():
@@ -95,17 +94,17 @@ def test_text_checks_catch_placeholders_missing_units_and_om_plus_cm():
     ax.set_ylabel("Deficit")
     ax.set_title("OM + CM deficit")
     ax.text(0.5, 0.5, "TODO fix", transform=ax.transAxes)
-    problems = fc.check_texts(fig, "Figure X. caption", "F1")
+    problems = fc.check_texts(fig, "Figure X. caption", "S1")
     joined = " | ".join(problems)
     assert "placeholder" in joined and "without a unit" in joined and "never be combined" in joined
     fig2, ax2 = plt.subplots()
     ax2.set_ylabel("Energy (TWh)")
     ax2.set_title("conditional range (not a confidence interval)")
-    assert fc.check_texts(fig2, "fine caption", "F1") == []
+    assert fc.check_texts(fig2, "fine caption", "S1") == []
     ax2.set_title("a confidence interval")
-    assert any("forbidden wording" in p for p in fc.check_texts(fig2, "ok", "F1"))
+    assert any("forbidden wording" in p for p in fc.check_texts(fig2, "ok", "S1"))
     ax2.set_title("hydrogen potential")
-    assert any("hydrogen" in p for p in fc.check_texts(fig2, "ok", "F1"))
+    assert any("hydrogen" in p for p in fc.check_texts(fig2, "ok", "S1"))
 
 
 @pytest.mark.integration

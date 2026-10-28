@@ -132,13 +132,7 @@ def _check_series(ax, fr: pd.DataFrame, quantity: str, scale: float, out: list, 
 
 def verify_f1(fig, fr) -> tuple[list, int]:
     out, n = [], []
-    _check_series(fig.axes[0], fr, "curtailed_energy", 1.0, out, n)
-    return out, len(n)
-
-
-def verify_f4(fig, fr) -> tuple[list, int]:
-    out, n = [], []
-    for ax, q in zip(fig.axes, ("mitigation_deficit_marginal_om", "mitigation_deficit_marginal_cm", "mitigation_deficit_avg"), strict=True):
+    for ax, q in zip(fig.axes[:3], ("mitigation_deficit_marginal_om", "mitigation_deficit_marginal_cm", "mitigation_deficit_avg"), strict=True):
         _check_series(ax, fr, q, 1e6, out, n)
     return out, len(n)
 
@@ -230,10 +224,10 @@ def check_texts(fig, caption: str, fid: str) -> list[str]:
         shared = [o for o in fig.axes if o is not ax and ax.get_shared_y_axes().joined(ax, o) and UNIT.search(o.get_ylabel())]
         if not (UNIT.search(lab) or shared):
             out.append(f"ax{k}: y label without a unit: {lab!r}")
-    if fid == "F4":
+    if fid == "F1":
         titles = [ax.get_title(loc="left") for ax in fig.axes]
-        if len(fig.axes) != 3 or any(("OM" in t and "CM" in t) for t in titles):
-            out.append("F4: OM and CM must be in separate panels")
+        if sum(1 for ax in fig.axes if ax.axison) != 3 or any(("OM" in t and "CM" in t) for t in titles):
+            out.append("F1: OM and CM must be in separate panels")
     return out
 
 
@@ -378,8 +372,8 @@ def run(final_results=None, option_e=None, backtest=None) -> dict[str, dict]:
     fr = fg.load_final_results(final_results)
     oe = fg.load_option_e(option_e)
     bt = fg.backtest_frame(backtest)
-    builds = {"F1": lambda: fg.figure_f1(fr), "F2": lambda: fg.figure_f2(oe), "F4": lambda: fg.figure_f4(fr), "S1": lambda: fg.figure_s1(fr), "S2": lambda: fg.figure_s2(backtest)}
-    verify = {"F1": lambda f: verify_f1(f, fr), "F2": lambda f: verify_f2(f, oe), "F4": lambda f: verify_f4(f, fr), "S1": lambda f: verify_s1(f, fr), "S2": lambda f: verify_s2(f, bt)}
+    builds = {"F1": lambda: fg.figure_f1(fr), "F2": lambda: fg.figure_f2(oe), "S1": lambda: fg.figure_s1(fr), "S2": lambda: fg.figure_s2(backtest)}
+    verify = {"F1": lambda f: verify_f1(f, fr), "F2": lambda f: verify_f2(f, oe), "S1": lambda f: verify_s1(f, fr), "S2": lambda f: verify_s2(f, bt)}
     report = {}
     for fid, build in builds.items():
         fig, _frame, cap = build()
