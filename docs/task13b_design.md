@@ -326,3 +326,8 @@ Appended. The "PNG only" decision of the review section above is reverted at the
 ## Task 17 housekeeping - PNG only again (2026-10-28)
 
 Appended. At the user's request `figures.OUTPUT_FORMATS = ("png",)` again (the "vector restored" section above is superseded for the formats), the PDF / SVG files were deleted from the local figures folder, exploratory analysis PNGs were moved to `outputs/figures_exploratory/`, and the analysis scripts no longer write PDF / SVG. The 1000 dpi PNG is the only figure file; the `_data.csv`, `_caption.txt` and `figures_manifest.json` companions remain.
+
+
+## Closure (2026-10-28): user visual sign-off given, figure set final.
+
+The user opened and reviewed the final figure files in `curtailmit_database/outputs/figures/` (F1, F2, S1, S2; C1, C1S, C2) and approved them as they are; no further change was requested. Approval record: the user message of Task 17-5 (2026-10-28) in the working session. Documentation-only closure; no code, data or figure change. No C3 and no regional projection exist (D37 rejected).

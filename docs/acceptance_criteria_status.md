@@ -21,7 +21,7 @@ Task 16 does not correspond to any of the five acceptance criteria of `docs/road
 
 ## Task 13B (figures)
 
-Criterion 4 is tied to figures. `curtailmit.figures` refuses a `final_results` table that carries an interpolated row (`check_final_results`; test `test_guards_refuse_interpolated_rows_missing_cells_and_invalid_tables`), which supports the criterion, but **no status in the table above is changed**: Task 13B is implemented and not accepted (user visual review of the V1 style and of the output figures, and confirmation or waiver of the DeCarbon figure standards, are pending). Revisit this table when 13B is closed.
+Criterion 4 is tied to figures. `curtailmit.figures` refuses a `final_results` table that carries an interpolated row (`check_final_results`; test `test_guards_refuse_interpolated_rows_missing_cells_and_invalid_tables`), which supports the criterion, but **no status in the table above is changed**: ~~Task 13B is implemented and not accepted (user visual review of the V1 style and of the output figures, and confirmation or waiver of the DeCarbon figure standards, are pending). Revisit this table when 13B is closed.~~ (Superseded 2026-10-28, Task 17-5: Task 13B is formally accepted, see "Status of the figure tasks" below.)
 
 
 ## Task 17 (context figures)
@@ -30,8 +30,10 @@ Task 17 does not correspond to any of the five acceptance criteria of `docs/road
 
 ## Status of the figure tasks (Task 17-4)
 
-Tasks 13B and 17 are **implemented but not formally closed or accepted**: both await the user's final visual sign-off on the figure files themselves. No status in the table above is changed.
+~~Tasks 13B and 17 are implemented but not formally closed or accepted: both await the user's final visual sign-off on the figure files themselves.~~ **Update (Task 17-5, 2026-10-28):** Tasks 13B and 17 are **implemented and formally accepted** (user visual sign-off given on 2026-10-28, on the figure files in `curtailmit_database/outputs/figures/`; no further change requested). No status in the table above is changed.
 
-- **Task 13B, pending sign-off:** F1 (mitigation deficit), F2 (support), S1 (band vs supplement), S2 (backtest).
-- **Task 17, pending sign-off:** C1 (observed curtailment map, 2025), C1S (observed curtailment by year), C2 (dose-response).
-- Figure C3 does not exist: decision D37 (regional allocation of the projection) was rejected in Task 17-3.
+Final figure set:
+
+- **Task 13B:** F1 (mitigation deficit, OM / CM / average factor), F2 (coverage and support decomposition), S1 (conformal interval supplement, band vs supplement), S2 (backtest supplement).
+- **Task 17:** C1 (observed curtailment map, 2025), C1S (observed curtailment by year, small multiples), C2 (dose-response curve).
+- Figure C3 does not exist and no regional projection figure or number exists anywhere in the project: decision D37 was rejected (Task 17-3, confirmed in Task 17-4).

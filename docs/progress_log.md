@@ -291,3 +291,7 @@ into `config/scenarios.yaml`.
 
 - D37 stays `rejected` (confirmed by the user; reopening needs new data, see the entry). Descriptive fallback recorded in `docs/methodology.md` section 2.3l. Tasks 13B and 17 are implemented, awaiting final visual sign-off (see `docs/acceptance_criteria_status.md`). No C3, no projected regional numbers.
 - **Backlog (out of scope, unrelated files):** `ruff check .` at the repository root reports 35 errors outside `src` and `tests` (checked clean: `ruff check src tests`). Separate cleanup task.
+
+## Task 17-5 (2026-10-28) - Tasks 13B and 17 formally closed
+
+- User visual sign-off given; final figure inventory: F1, F2, S1, S2 (13B) and C1, C1S, C2 (17); no C3. Documentation-only commit.

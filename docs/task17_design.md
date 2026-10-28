@@ -235,3 +235,8 @@ Appended. The user approved Tasks 13B and 17 (visual sign-off) and gave a workin
 **Verdict: poor for solar (not validatable, with a double-digit swing), degenerate for wind.** As in Tasks 11E3 and 11E5, the stop-and-report condition applies: D37 is set to `rejected` in `config/discovered_sources.yaml` with this finding, **pending the user's confirmation of the call**, and **Phase 2 (figure C3) is not built**. No projected regional number exists in the project. Observed regional facts remain available descriptively (C1, C1S): wind curtailment is almost entirely Northeast; solar curtailment is split between the Northeast and the Southeast (Minas Gerais).
 
 **What would reopen it.** A new decision with data (not a new formulation on the same data): at least two further complete solar years, or the state-level capacity series (the `capacity_share` option of D37) as an independent predictor, tested against the same criterion.
+
+
+## Closure (2026-10-28): user visual sign-off given, figure set final.
+
+The user opened and reviewed the final figure files in `curtailmit_database/outputs/figures/` (F1, F2, S1, S2; C1, C1S, C2) and approved them as they are; no further change was requested. Approval record: the user message of Task 17-5 (2026-10-28) in the working session. Documentation-only closure; no code, data or figure change. No C3 and no regional projection exist (D37 rejected).
