@@ -1,4 +1,4 @@
-# Task 17-1 - Design: context figures (observed-curtailment map C1, dose-response curve C2) and the framing of a projected regional map
+﻿# Task 17-1 - Design: context figures (observed-curtailment map C1, dose-response curve C2) and the framing of a projected regional map
 
 **Status: PROPOSAL, awaiting explicit approval.** Nothing in this document is implemented beyond Part 0 (the vector-output fix, section 0). No map code, no new dependency, no new data copied into `curtailmit_database`. Two decisions were registered as `status: pending` in `config/discovered_sources.yaml`: **D36** (geometry source and vintage, low stakes) and **D37** (spatial disaggregation rule for a projected map, high stakes).
 
@@ -208,3 +208,30 @@ Appended. The user reviewed the figures; those not mentioned are approved. Three
 1. **C1S with more diverse years (e.g. 2025, 2030, 2035, 2040, 2050, wind and solar): NOT done, blocked by D37.** Observed state data exist only for 2022-2026 (wind) and 2024-2026 (solar). Years beyond 2026 are projections, and the Option E model has no spatial component, so a state map of 2030-2050 needs the allocation rule of decision D37 (`pending`). In addition 2035 is not in the PTE year grid (2025, 2030, 2040, 2050): it would be an interpolated year, which must be labelled as such (roadmap D3, acceptance criterion 4). C1S therefore stays as built until D37 is decided.
 2. **F1 (curtailed energy) dropped, F4 becomes F1: DONE.** The figure ids are now F1 (mitigation deficit), F2, S1, S2 (`figures.FIGURE_IDS`); the curtailed energy itself remains in the results table T1. F1 was re-laid out as a 2 x 2 grid (OM, CM, average factor, and the legend with the factor note in the fourth cell), which gives each panel the width to separate the scenario labels; the old files `F1_curtailed_energy.*` and `F4_mitigation_deficit.*` were deleted from the local figures folder and the manifest no longer lists them.
 3. **C1 / C2 as three-map series over years (wind; solar): NOT done as asked, same dependency.** Answer to the question raised: observed maps do not depend on the scenario (TB, TA, TG share the same observed history and the same 2025 starting point); projected maps do, because the national projection differs by scenario, and they also depend on the allocation rule of D37. A multi-year projected map therefore has two axes of choice (scenario and rule) and cannot be drawn until D37 is decided. Options for presenting it once decided are listed in the report of this review (a single scenario, scenario columns with a fixed rule, regional bars instead of a choropleth); none was implemented.
+
+## Update (Task 17-3 - Validation of the D37 allocation rule, 2026-10-28)
+
+Appended. The user approved Tasks 13B and 17 (visual sign-off) and gave a working direction for D37: Option B (historical observed regional share), central year 2025, sensitivity multi-year average, macro-region granularity (N, NE, CO, SE, S), shown as regional bars (new figure C3). Following the practice of Tasks 11D-11E5, the rule was validated before any adoption; the figure was conditional on the result.
+
+**Method.** `src/curtailmit/regional_allocation.py` aggregates `interim/curtailment_by_state_year.parquet` by IBGE macro-region, then (1) leave-one-year-out over the complete years (training shares pooled by energy), and (2) forward persistence (year t predicted by the shares of t-1, the form in which the rule would be used, including the partial 2026). **Criterion, fixed before looking at the numbers:** for regions holding at least 10 percent of the year's curtailment, mean leave-one-year-out error <= 5 pp, worst error <= 10 pp, and no year-to-year swing of a region's share above 10 pp ("double digits"). Years under 1 TWh are reported, not judged. The scale of reference is the D25 drift (about +2 pp per year in the wind curtailment rate, 5.5-8.9 pp within-group in 2022-2025); the shares tested here are a different quantity, so the comparison is of order of magnitude only.
+
+**Observed regional shares (percent of the national total; N is zero in every year, CO shown when non-zero).**
+
+| Technology | Year | Months | TWh | NE | SE | S | CO |
+|---|---|---|---|---|---|---|---|
+| wind | 2022 | 12 | 0.40 | 98.6 | 0.0 | 1.4 | 0 |
+| wind | 2023 | 12 | 3.41 | 98.8 | 0.0 | 1.2 | 0 |
+| wind | 2024 | 12 | 9.55 | 99.0 | 0.0 | 1.0 | 0 |
+| wind | 2025 | 12 | 26.22 | 98.8 | 0.1 | 1.2 | 0 |
+| wind | 2026 | 10 | 21.87 | 95.3 | 0.3 | 4.4 | 0 |
+| solar | 2024 | 9 | 3.25 | 71.5 | 28.5 | 0.0 | 0 |
+| solar | 2025 | 12 | 11.00 | 51.6 | 48.4 | 0.0 | 0 |
+| solar | 2026 | 10 | 10.91 | 55.0 | 43.4 | 0.0 | 1.6 |
+
+**Wind: passes the criterion, trivially.** Leave-one-year-out error is at most 0.26 pp (NE, 2024); forward persistence worst error 3.4 pp (2025 to the partial 2026, NE and S). But the Northeast holds 98.6-99.0 percent of wind curtailment in every complete year, so the "regional decomposition" is one bar: it carries no information beyond the statement that wind curtailment is in the Northeast, which C1 already shows.
+
+**Solar: fails the criterion, and cannot even be leave-one-year-out validated.** Only one complete year exists (2025), so the leave-one-year-out scheme has nothing to train on. Forward persistence: 2024 (9 months) to 2025 moves the NE share from 71.5 to 51.6 percent (19.8 pp) and the SE from 28.5 to 48.4 percent; 2025 to the partial 2026 moves them by 3.4 and 5.0 pp. Two of the three solar years are partial, so the 19.8 pp swing may be partly seasonal (a 9-month window) rather than structural; this is a confound that cannot be removed with the data in hand, and it means the rule cannot be validated for solar, not that the true volatility is known to be that large.
+
+**Verdict: poor for solar (not validatable, with a double-digit swing), degenerate for wind.** As in Tasks 11E3 and 11E5, the stop-and-report condition applies: D37 is set to `rejected` in `config/discovered_sources.yaml` with this finding, **pending the user's confirmation of the call**, and **Phase 2 (figure C3) is not built**. No projected regional number exists in the project. Observed regional facts remain available descriptively (C1, C1S): wind curtailment is almost entirely Northeast; solar curtailment is split between the Northeast and the Southeast (Minas Gerais).
+
+**What would reopen it.** A new decision with data (not a new formulation on the same data): at least two further complete solar years, or the state-level capacity series (the `capacity_share` option of D37) as an independent predictor, tested against the same criterion.

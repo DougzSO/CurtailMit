@@ -991,8 +991,9 @@ decisions:
     limitation_reason: "Boundary geometry only draws the context maps (C1, C1S); no result, range or table value depends on it."
 
   D37:
-    status: pending
+    status: rejected
     date: "2026-10-28"
+    date_rejected: "2026-10-28"
     topic: "Rule for spatially disaggregating the national Option E projection (projected regional risk map, Map 2)"
     source_task: "Task 17-1 (docs/task17_design.md section 3)"
     found: >
@@ -1003,7 +1004,17 @@ decisions:
       historical_curtailment_share: "Allocate by each state's share of observed curtailment (extrapolating today's concentration forward)."
       hybrid_or_other: "For example capacity share weighted by an observed curtailment propensity per state, or resource-potential based; listed only, no recommendation."
     working_reading: "No choice made. Map 2 is not implemented until this decision is taken. Review of 2026-10-28: the user asked for projected state maps (wind and solar, years such as 2025, 2030, 2035, 2040, 2050); that request depends on this decision, and 2035 is not in the PTE year grid (2025, 2030, 2040, 2050), so it would be an interpolated year."
-    implemented_in: "-"
+    working_direction_tested: >
+      Task 17-3 tested the user's working direction: Option B (historical observed regional share), central year 2025, sensitivity multi-year average, macro-region granularity (N, NE, CO, SE, S),
+      shown as regional bars (figure C3). Validation (src/curtailmit/regional_allocation.py; numbers in docs/task17_design.md, Task 17-3), criterion fixed before the numbers were looked at: for regions with
+      at least 10 percent of the year's curtailment, mean leave-one-year-out error <= 5 pp, worst error <= 10 pp, and no year-to-year swing of a region's share above 10 pp.
+    decided: >
+      REJECTED on 2026-10-28 (Task 17-3, pending the user's confirmation of this call). Wind: the rule passes (NE holds 98.6-99.0 percent of wind curtailment in every complete year 2022-2025; leave-one-year-out
+      error <= 0.3 pp) but trivially: the regional decomposition is one bar, so it adds no information. Solar: the rule fails. Only one complete year exists (2025), so leave-one-year-out cannot be computed, and the
+      forward persistence test moves the Northeast share from 71.5 percent (2024, 9 months) to 51.6 percent (2025), a 19.8 pp swing, with the Southeast taking the difference (28.5 to 48.4 percent); 2025 to 2026
+      (10 months) moves 3.4 to 5.0 pp. A swing of that size, in a series of two complete-or-near-complete years, cannot support an allocation to 2030-2050. The partial 2024 year is a possible confound (9 months)
+      and is stated as such; it does not make the rule validatable. Panel C3 is therefore not built. No projected regional number exists in the project.
+    implemented_in: "src/curtailmit/regional_allocation.py (validation only); tests/test_regional_allocation.py; docs/task17_design.md (Task 17-3)"
 
 ben_cross_check:
   status: reference_only

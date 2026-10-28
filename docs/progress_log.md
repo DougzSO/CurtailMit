@@ -1,4 +1,4 @@
-# CurtailMit — Progress Log
+﻿# CurtailMit — Progress Log
 
 A chronological, append-only record of what has been completed, decided,
 and discovered. This is a working log, not a source-of-truth spec — for
@@ -282,3 +282,7 @@ into `config/scenarios.yaml`.
 ## Task 17 review (2026-10-28) - F1 / F4 merge; projected state maps blocked by D37
 
 - F1 (curtailed energy) dropped; F4 became F1 and was re-laid out as a 2 x 2 grid; figure ids are F1, F2, S1, S2 (the old files were deleted, the manifest is pruned on the next build). The requests for state maps of 2030 / 2035 / 2040 / 2050 were not implemented: they need the spatial-allocation rule D37 (pending) and 2035 is not in the PTE grid. See `docs/task17_design.md`, "Update (Task 17 - Review of the figures)".
+
+## Task 17-3 (2026-10-28) - D37 regional allocation validated and rejected; C3 not built
+
+- The user approved the visual review of Tasks 13B and 17. For D37 the user's working direction (Option B, central year 2025, macro-regions, bars) was tested before adoption (`src/curtailmit/regional_allocation.py`, `tests/test_regional_allocation.py`). Wind passes trivially (Northeast 98.6-99.0 percent in every complete year; nothing to decompose). Solar fails: one complete year only, so leave-one-year-out cannot be run, and the NE share moves 71.5 to 51.6 percent between 2024 (9 months) and 2025 (19.8 pp swing). D37 is `rejected`, pending the user's confirmation; figure C3 not built. See `docs/task17_design.md`, "Update (Task 17-3)".
