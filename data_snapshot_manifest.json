@@ -1,10 +1,46 @@
 {
  "schema": 1,
  "description": "SHA-256, size, source URL and retrieval time of every raw data file used by the CurtailMit production pipeline (decision D33). The data themselves are NOT redistributed: re-download from the sources with Stage 1 and verify with `python -m curtailmit.run_manifest verify`. Publishers may revise or remove historical files, so a difference is reported, never assumed away.",
- "generated_utc": "2026-10-27T16:15:11.678227+00:00",
- "n_files": 250,
- "total_bytes": 508946664,
+ "generated_utc": "2026-10-28T12:04:43.104612+00:00",
+ "n_files": 254,
+ "total_bytes": 525601319,
  "files": [
+  {
+   "path": "boundaries/gadm/gadm41_BRA_1.cpg",
+   "source_url": "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_BRA_shp.zip",
+   "retrieved_at_utc": "2026-10-28T12:04:25.310378+00:00",
+   "http_status": null,
+   "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824",
+   "byte_size": 5,
+   "note": "GADM 4.1 level 1 (Brazilian states), copied from a local copy (DOUTORADO/GeoFREA_data, byte-identical to DOUTORADO/database/raw/countries_borders/Brazil, file date 2022-07-18); not fetched by the pipeline, so http_status is null and retrieved_at_utc is the time of the copy. Local-only: never committed (decision D36)."
+  },
+  {
+   "path": "boundaries/gadm/gadm41_BRA_1.dbf",
+   "source_url": "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_BRA_shp.zip",
+   "retrieved_at_utc": "2026-10-28T12:04:25.310378+00:00",
+   "http_status": null,
+   "sha256": "fe2b00d669d6589a6b907cb36d5ed205bc5b1475ac861dbeb600729cdca0fae9",
+   "byte_size": 4301,
+   "note": "GADM 4.1 level 1 (Brazilian states), copied from a local copy (DOUTORADO/GeoFREA_data, byte-identical to DOUTORADO/database/raw/countries_borders/Brazil, file date 2022-07-18); not fetched by the pipeline, so http_status is null and retrieved_at_utc is the time of the copy. Local-only: never committed (decision D36)."
+  },
+  {
+   "path": "boundaries/gadm/gadm41_BRA_1.prj",
+   "source_url": "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_BRA_shp.zip",
+   "retrieved_at_utc": "2026-10-28T12:04:25.310378+00:00",
+   "http_status": null,
+   "sha256": "a02a27b1d1982c8516d83398e85a3c8b1aef1713c13ef4d84d7bde17430c07c4",
+   "byte_size": 145,
+   "note": "GADM 4.1 level 1 (Brazilian states), copied from a local copy (DOUTORADO/GeoFREA_data, byte-identical to DOUTORADO/database/raw/countries_borders/Brazil, file date 2022-07-18); not fetched by the pipeline, so http_status is null and retrieved_at_utc is the time of the copy. Local-only: never committed (decision D36)."
+  },
+  {
+   "path": "boundaries/gadm/gadm41_BRA_1.shp",
+   "source_url": "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_BRA_shp.zip",
+   "retrieved_at_utc": "2026-10-28T12:04:25.310378+00:00",
+   "http_status": null,
+   "sha256": "c9921b87b7e5cdbe46ef7cb7808e0965ab60a1ff52ae2d55001162928b6e5b6f",
+   "byte_size": 16650204,
+   "note": "GADM 4.1 level 1 (Brazilian states), copied from a local copy (DOUTORADO/GeoFREA_data, byte-identical to DOUTORADO/database/raw/countries_borders/Brazil, file date 2022-07-18); not fetched by the pipeline, so http_status is null and retrieved_at_utc is the time of the copy. Local-only: never committed (decision D36)."
+  },
   {
    "path": "mcti/average_emission_factor/Inventario_2026_janset.xlsx",
    "source_url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Inventario_2026_janset.xlsx",

@@ -13,3 +13,6 @@ build/
 !.vscode/settings.json
 # Generated at run time by data_ingestion.run_stage1 (timestamped run report; Task 16, Q4): kept locally, not tracked
 docs/stage1_data_quality_report.md
+
+# GADM boundary geometry is local-only (D36, licence): never commit it, whatever its location
+gadm41_*

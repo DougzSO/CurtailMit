@@ -58,6 +58,7 @@ STAGE1_PROCESSED = ("classification_available.json", "mcti_average_factor_annual
                     "data_quality_report.json")
 CALIBRATION_PROCESSED = ("hourly_curve_wind.json", "hourly_curve_solar.json", "hourly_curve_wind_L1.json", "hourly_curve_solar_L1.json", "hourly_base_profile.parquet", "hourly_horizon_bands.json")
 OPTION_E = "pte_curtailment_option_E.parquet"
+NON_PIPELINE_RAW = ("boundaries",)  # raw subtrees that are inputs of the context figures only (GADM boundaries, D36), not of any stage: kept out of the Stage 1 fingerprint so that adding them invalidates no stamp
 RAW_ONS_INPUTS = ("generation_by_source", "capacity_factor", "curtailment_wind", "curtailment_solar")
 FINAL_FILES = ("final_results.csv", "final_results.parquet", "final_results.parquet.limitations.json", "final_results_mcti_sensitivity.csv", "final_results_mcti_sensitivity.parquet")
 CONFIG_FILES = ("scenarios.yaml", "acquisition_targets.yaml", "paths.yaml")
@@ -123,7 +124,7 @@ def _config_hashes() -> dict[str, str]:
 
 
 def _fp_stage1(ctx: Context) -> dict:
-    return {"inputs": {**{f"raw/{k}": v for k, v in prov.tree_hashes(ctx.raw, cache=ctx.hash_cache).items()}, **_config_hashes()}, "decisions": prov.decision_hashes(STAGE1_DECISIONS), "code": prov.code_hashes(STAGE1_MODULES), "params": {}}
+    return {"inputs": {**{f"raw/{k}": v for k, v in prov.tree_hashes(ctx.raw, cache=ctx.hash_cache).items() if k.split("/", 1)[0] not in NON_PIPELINE_RAW}, **_config_hashes()}, "decisions": prov.decision_hashes(STAGE1_DECISIONS), "code": prov.code_hashes(STAGE1_MODULES), "params": {}}
 
 
 def _out_stage1(ctx: Context) -> dict[str, Path]:

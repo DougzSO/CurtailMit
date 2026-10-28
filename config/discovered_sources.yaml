@@ -968,20 +968,27 @@ decisions:
         text: "No 2020 historical anchor is part of the production table; historical validation rests on the 2023-2026 backtest, which shows a downward bias in the latest years (wind 2025: -8 percent in sample, -19 percent trained on 2022-24), recorded as the D25 limitation."
 
   D36:
-    status: pending
+    status: adopted
     date: "2026-10-28"
+    date_adopted: "2026-10-28"
     topic: "Boundary geometry source and vintage for the context maps (C1)"
-    source_task: "Task 17-1 (docs/task17_design.md section 1)"
+    source_task: "Task 17-1 (docs/task17_design.md section 1); adopted in Task 17"
     found: >
       The spatial inventory found one complete, documented candidate for Brazilian state boundaries: GADM 4.1 level 1 (gadm41_BRA_1.shp, 27 features, WGS 84, byte-identical in two local
       copies, one dated 2022-07-18). A derived "mainland" version has an undocumented clipping step, a Northeast-only GeoJSON has no documented source, and no IBGE or Natural Earth admin-1 file
       was found. GADM's terms (non-commercial use, no redistribution without permission, to be re-checked) matter for whether the geometry may be committed to the public repository.
     options:
-      gadm_4_1_level_1_local_only: "Recommended: gadm41_BRA_1.shp, kept in curtailmit_database only (D33 pattern), recorded by SHA-256; CI uses a tiny synthetic geometry fixture."
+      gadm_4_1_level_1_local_only: "gadm41_BRA_1.shp, kept in curtailmit_database only (D33 pattern), recorded by SHA-256; CI uses a tiny synthetic geometry fixture."
       ibge_malha_estadual: "Official Brazilian boundaries (IBGE open data); not found locally, would be downloaded; clean licence, a different vintage."
       natural_earth_admin_1: "Public domain, coarser; admin-1 file not found locally (only admin-0)."
-    working_reading: "gadm_4_1_level_1_local_only. Low stakes: a different vintage changes boundary pixels, not any number."
-    implemented_in: "-"
+    decided: >
+      ADOPTED on 2026-10-28 (Task 17) by explicit user decision: GADM 4.1 level 1 (gadm41_BRA_1.shp with its .dbf / .prj / .cpg siblings; the copy in DOUTORADO/GeoFREA_data is byte-identical to the
+      2022-07-18 original) is the boundary reference of the context figures. It is kept local-only in curtailmit_database/raw/boundaries/gadm/ and is never committed to the public repository; its
+      SHA-256 and size are recorded in data_snapshot_manifest.json under the D33 pattern, with the vintage stated. The GADM licence terms (academic / non-commercial use, redistribution restrictions)
+      are NOT verified: the item is registered in docs/pre_submission_checklist.md. The choice affects only how boundaries are drawn, never a number.
+    implemented_in: "src/curtailmit/spatial.py; src/curtailmit/context_data.py; src/curtailmit/figures_context.py; data_snapshot_manifest.json (boundaries entries); docs/pre_submission_checklist.md section 3"
+    limitation: none
+    limitation_reason: "Boundary geometry only draws the context maps (C1, C1S); no result, range or table value depends on it."
 
   D37:
     status: pending

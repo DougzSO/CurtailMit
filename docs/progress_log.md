@@ -271,3 +271,10 @@ into `config/scenarios.yaml`.
 ## Task 17-1 (2026-10-28) - design for context figures (PROPOSAL, nothing implemented)
 
 - Part 0 (commit `627da75`): vector output restored. `docs/task17_design.md`: spatial inventory (GADM 4.1 level 1 shapefile recommended, local-only for licence reasons; no new dependency needed), C1 observed-curtailment map by state (data: `id_estado` of the raw ONS files, reconciled with the classified table), Map 2 (projected regional risk) framed only as pending decision D37, C2 dose-response figure from the existing calibration outputs, testing plan, ten questions. D36 (geometry source, low stakes) and D37 (spatial disaggregation, high stakes) registered as `pending` in `config/discovered_sources.yaml`.
+
+
+## Task 17 (2026-10-28) - context figures implemented (NOT closed)
+
+- Decisions recorded first in `docs/task17_design.md` ("Update (Task 17 - Decisions)"); D36 adopted (GADM 4.1 level 1, local-only, `docs/pre_submission_checklist.md` section 3 for the licence check); D37 stays pending, Map 2 not implemented. Housekeeping first: figures PNG only; analysis scripts no longer write PDF / SVG and write exploratory figures to `outputs/figures_exploratory/`.
+- `src/curtailmit/spatial.py` (plain-`struct` shapefile / dbf reader, Douglas-Peucker in numpy, `provision`), `context_data.py` + `scripts/build_context_data.py` (plant -> state map, stop on a multi-state plant, state-year aggregation reconciled to the classified table at rtol 1e-9, cached in `interim/`), `figures_context.py` (C1, C1S, C2), `figure_checks` extended (context verification, annotation-safe overlap boxes, legend-over-curve by points). The GADM files entered `raw/boundaries/gadm/` with retrieval manifests and `data_snapshot_manifest.json` (254 files); `pipeline.NON_PIPELINE_RAW` keeps them out of the Stage 1 stamp, so no stamp was invalidated.
+- No new dependency. Finding to read before using C1 in the text: wind curtailment is concentrated in the Northeast (all five largest wind states), but solar curtailment in 2025 is led by Minas Gerais (Southeast, 45 %), so "Northeast-concentrated" holds for wind and only about half for solar.

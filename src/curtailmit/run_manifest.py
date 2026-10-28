@@ -125,7 +125,10 @@ def raw_inventory(raw_root: Path) -> list[dict]:
         if sha != expected_sha or size != expected_size:
             problems.append({"file": rel, "problem": "bytes differ from the retrieval manifest", "manifest_sha256": expected_sha, "file_sha256": sha, "manifest_size": expected_size, "file_size": size})
             continue
-        entries.append({"path": rel, "source_url": meta.get("source_url"), "retrieved_at_utc": meta.get("retrieved_at_utc"), "http_status": meta.get("http_status"), "sha256": sha, "byte_size": size})
+        entry = {"path": rel, "source_url": meta.get("source_url"), "retrieved_at_utc": meta.get("retrieved_at_utc"), "http_status": meta.get("http_status"), "sha256": sha, "byte_size": size}
+        if meta.get("note"):  # only for files the pipeline did not fetch (e.g. the GADM boundaries, D36): their provenance is stated in words
+            entry["note"] = meta["note"]
+        entries.append(entry)
     if problems:
         shown = "; ".join(f"{p['file']}: {p['problem']}" for p in problems[:3]) + (f" (+{len(problems) - 3} more)" if len(problems) > 3 else "")
         raise RunManifestError(f"raw input provenance cannot be stated for {len(problems)} file(s): {shown}", {"problems": problems[:50], "n_problems": len(problems)})

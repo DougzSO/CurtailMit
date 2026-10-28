@@ -177,3 +177,25 @@ No new dependency, no change to the locked environment, no stage in `curtailmit-
 8. **C2**: include the projected-r rug for 2040 / 2050 (needs `projected_r` and the base profile), or only the share-beyond-boundary annotation from the Option E table (recommended)?
 9. **Colour map** for the choropleth: `cividis` (recommended) or `viridis`?
 10. **Where the figures live**: a new `figures_context.py` module (recommended) or inside `figures.py`?
+
+
+---
+
+## Update (Task 17 - Decisions, 2026-10-28)
+
+Appended; sections 0-8 above are unchanged. Resolution of the ten questions of section 8, and the housekeeping asked with it:
+
+1. **Q1 / D36: ADOPTED** (not merely pending). GADM 4.1 level 1 (candidate A) is the boundary reference, kept local-only in `curtailmit_database/raw/boundaries/gadm/`, never committed to the public repository, recorded by SHA-256 in `data_snapshot_manifest.json` under D33's pattern (vintage noted: GADM 4.1, 2022-07-18 per the file-identity finding of section 1). `status: adopted` in `config/discovered_sources.yaml`. A new item (section 3) in `docs/pre_submission_checklist.md` records that the GADM licence terms must be verified manually before submission, cross-referenced to D36.
+2. **Q2:** C1 (single year 2025, main text) plus C1S (2022-2026 small multiples, supplement). No animation.
+3. **Q3:** colour by the share of the national total; two panels (wind, solar) with separate sequential scales; top states annotated with TWh.
+4. **Q4:** the prefix C for context figures: C1, C2, C1S.
+5. **Q5:** the state-year aggregation is cached in `interim/curtailment_by_state_year.parquet`, built by the standalone `scripts/build_context_data.py` (not a `curtailmit-run` stage); regenerated when missing or with `--force`; no pipeline-stamp integration.
+6. **Q6:** a plant name that maps to more than one state raises a clear exception (no split by energy share).
+7. **Q7 / D37:** remains `pending`; Map 2 is not implemented.
+8. **Q8:** C2 carries only the share-beyond-boundary annotation (Option E `H_out_*` / `E_out_*`); no projected-r rug in this iteration.
+9. **Q9:** `cividis` for the choropleth; Okabe-Ito stays for categorical series.
+10. **Q10:** a new module `src/curtailmit/figures_context.py`, separate from `figures.py`.
+
+**Deviation from the section 6 layout, stated:** the state attribution and aggregation live in `src/curtailmit/context_data.py` instead of `spatial.py`, so that `spatial.py` stays a data-free geometry module (reader, simplification, patches) testable without pandas or the database.
+
+**Figure formats (housekeeping, 2026-10-28):** the user asked for PNG only again: `figures.OUTPUT_FORMATS = ("png",)`, and the analysis scripts no longer write PDF / SVG (the 11E4 prototype's vector loop was removed; exploratory analysis figures are written to `outputs/figures_exploratory/`, so that `outputs/figures/` holds main figures only). This supersedes the "vector restored" note of section 0 for the formats. The context figures C1, C1S and C2 are therefore also PNG (1000 dpi) plus data CSV and caption; the Task 17 prompt's mention of PDF / SVG for them is read as superseded by this later instruction, and this is reported.

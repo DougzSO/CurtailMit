@@ -150,5 +150,6 @@ The statements of the table below are the same as above, one row per decision. A
 | [D33](../config/discovered_sources.yaml) | adopted | `data-provenance` | The raw data are not bundled (curtailmit_database is local-only). A snapshot manifest lets readers re-download and verify hash by hash, but the redistribution terms of the ONS and MCTI datasets are not verified, so no statement of permission is made. |
 | [D34](../config/discovered_sources.yaml) | adopted | `reproducibility-scope` | Reproducibility is verified for the locked environment: no non-determinism was found across hash seeds and thread counts, and the reference-value check is the portable promise. Bitwise identity of the outputs across platforms or library versions is not promised. |
 | [D35](../config/discovered_sources.yaml) | adopted | `historical-validation` | No 2020 historical anchor is part of the production table; historical validation rests on the 2023-2026 backtest, which shows a downward bias in the latest years (wind 2025: -8 percent in sample, -19 percent trained on 2022-24), recorded as the D25 limitation. |
+| [D36](../config/discovered_sources.yaml) | adopted | - | No reader-facing limitation: Boundary geometry only draws the context maps (C1, C1S); no result, range or table value depends on it. |
 
 <!-- GENERATED:END id=limitations-decision-appendix -->
